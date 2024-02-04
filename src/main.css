@@ -1,66 +1,44 @@
 body {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  height: 100vh;
-  width: 100vw;
   background-image: url('/assets/background-wood.jpg');
   background-size: cover;
   background-position: center;
+  font-family: "Times New Roman", Times, serif;
+}
+
+main {
+  display: flex;
+  height: calc(100vh - 75px);
 }
 
 .navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
+  background-color: #222;
+  color: #4fc780;
+  text-align: center;
+  padding: 12.5px;
   height: 75px;
-  background-color: #282828;
-  color: #fff;
-  padding-left: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   z-index: 1000;
 }
 
-.navbar-button {
-	background-color: #4caf50;
-	color: #fff;
-	padding: 10px;
-	margin-right: 35px;
-	border: none;
-	cursor: pointer;
-	width: auto;
+.navbar img {
+  width: 50px;
+  height: 50px;
 }
 
-.logo-icon {
-  width: 52.5px;
-  height: 52.5px;
-  margin-right: 10px;
+.navbar button {
+  border-color: #4fc780;
+  color: #bababa;
 }
 
-.logo-container {
-  display: flex;
-  align-items: center;
+.navbar button:active{
+  background-color: #4fc780;
+  color: #222;
 }
 
-.content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-
+.btn {
+  background-color: #222;
+  color: #bababa;
 }
 
-button {
-  background-color: #333;
-  color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  width: 100%;
+.btn:hover {
+  background-color: #bababa;
 }

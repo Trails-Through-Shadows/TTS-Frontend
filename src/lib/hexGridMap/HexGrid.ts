@@ -13,6 +13,7 @@ export class HexGrid {
     private hoveredHex: Hex | null = null;
     private textureImage: any;
     private borderImage : any;
+    private enemyImage?: any;
 
     constructor(
         private canvas: Canvas,
@@ -94,12 +95,15 @@ export class HexGrid {
         const hexSize = this.hexes[0].hexSize;
         const offset: Offset = this.getOffset();
 
+        const enemyImage = new Image();
+        enemyImage.src = 'assets/enemy.png';
+
         this.hexes.forEach(hex => {
             hex.drawWall(this.canvas.getContext(), this.borderImage, offset);
         });
 
         this.hexes.forEach(hex => {
-            hex.draw(this.canvas.getContext(), this.textureImage, this.borderImage, offset);
+            hex.draw(this.canvas.getContext(), this.textureImage, this.borderImage, offset, enemyImage);
         });
 
         this.canvas.setDrawn();

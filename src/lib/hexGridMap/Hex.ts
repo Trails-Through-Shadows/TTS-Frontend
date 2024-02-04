@@ -42,7 +42,7 @@ import { CubeCoordinate } from "./Coordinate";
             return vertices;
         }
 
-        draw(ctx: CanvasRenderingContext2D, textureImage: HTMLImageElement, borderImage: HTMLImageElement, offset: Offset): void {
+        draw(ctx: CanvasRenderingContext2D, textureImage: HTMLImageElement, borderImage: HTMLImageElement, offset: Offset, enemyImage?: HTMLImageElement): void {
             const {x, y} = this.coords.to2D(this.hexSize);
 
             const texturePattern = ctx.createPattern(textureImage, 'repeat');
@@ -68,6 +68,10 @@ import { CubeCoordinate } from "./Coordinate";
 
             ctx.fill();
             ctx.stroke();
+
+            if (enemyImage) {
+                this.drawEnemy(ctx, enemyImage, offset);
+            }
         }
 
         drawWall(ctx: CanvasRenderingContext2D, borderImage: HTMLImageElement, offset: Offset): void {
@@ -96,6 +100,15 @@ import { CubeCoordinate } from "./Coordinate";
             }
 
             ctx.restore();
+        }
+
+        drawEnemy(ctx: CanvasRenderingContext2D, enemyImage: HTMLImageElement, offset: Offset): void {
+            const {x, y} = this.coords.to2D(this.hexSize);
+
+            const enemyHeight = this.hexSize * 1.2;
+            const enemyWidth = (enemyImage.height / enemyImage.width) * enemyHeight;
+
+            ctx.drawImage(enemyImage, offset.x + x - enemyWidth / 2, offset.y + y - enemyHeight / 2, enemyWidth, enemyHeight);
         }
 
         getNeighbor(direction: CubeCoordinate): Hex | null {
