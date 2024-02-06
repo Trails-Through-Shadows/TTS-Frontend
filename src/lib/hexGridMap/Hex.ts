@@ -17,6 +17,7 @@ import { CubeCoordinate } from "./Coordinate";
 
     export class Hex {
         public vertices: Vertex[] = [];
+        public entityImage?: HTMLImageElement
 
         constructor(
             public readonly coords: CubeCoordinate,
@@ -42,7 +43,7 @@ import { CubeCoordinate } from "./Coordinate";
             return vertices;
         }
 
-        draw(ctx: CanvasRenderingContext2D, textureImage: HTMLImageElement, borderImage: HTMLImageElement, offset: Offset, enemyImage?: HTMLImageElement): void {
+        draw(ctx: CanvasRenderingContext2D, textureImage: HTMLImageElement, borderImage: HTMLImageElement, offset: Offset): void {
             const {x, y} = this.coords.to2D(this.hexSize);
 
             const texturePattern = ctx.createPattern(textureImage, 'repeat');
@@ -69,8 +70,9 @@ import { CubeCoordinate } from "./Coordinate";
             ctx.fill();
             ctx.stroke();
 
-            if (enemyImage) {
-                this.drawEnemy(ctx, enemyImage, offset);
+            if (this.entityImage) {
+                console.log('Drawing entity');
+                this.drawEnemy(ctx, this.entityImage, offset);
             }
         }
 

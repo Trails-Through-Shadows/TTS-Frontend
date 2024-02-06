@@ -46,13 +46,13 @@
         <div class="col-xl-4">
           <div class="card border-0 m-3">
             <div class="card-header">
-              <input class="form-control" type="text" placeholder="The name of the hero" bind:value={character.name} />
+              <input class="form-control" type="text" placeholder="The name of the hero" bind:value={character.title} />
               <input class="form-control" type="text" placeholder="The name of the puppeteer" bind:value={character.playerName} />
             </div>
             <div class="card-body">
               <div class="d-flex">
-                <div class="position-relative">
-                  <img class="class-image" src="assets/chars/{character.race.name}-{character.clazz.name}.png" alt="{character.clazz.name}" />
+                <div class="col-5 class-image-container">
+                  <img class="class-image" src="assets/chars/{character.race.title}-{character.clazz.title}.png" alt="{character.clazz.title}" />
                   <div class="position-absolute bottom-0 start-0">
                     <div class="position-relative">
                       <img class="stat-image" src="assets/heart.png" alt="Health" />
@@ -76,18 +76,18 @@
                     </div>
                   </div>
                 </div>
-                <div class="container-fluid">
+                <div class="col-7 container-fluid">
                   <div class="d-flex">
                     <select class="form-control" bind:value={character.race}>
                       <option value="" selected disabled hidden>Hero's race</option>
                       {#each creator.getRaces() as race}
-                        <option value={race}>{race.name}</option>
+                        <option value={race}>{race.title}</option>
                       {/each}
                     </select>
                     <select class="form-control" bind:value={character.clazz}>
                       <option value="" selected disabled hidden>Hero's class</option>
                       {#each creator.getClazzes() as clazz}
-                        <option value={clazz}>{clazz.name}</option>
+                        <option value={clazz}>{clazz.title}</option>
                       {/each}
                     </select>
                   </div>
@@ -122,6 +122,11 @@
     bottom: -10%;
     left: 50%;
     transform: translateX(-50%);
+  }
+
+  .class-image-container {
+    position: relative;
+    height: 25vh;
   }
 
   .class-image {

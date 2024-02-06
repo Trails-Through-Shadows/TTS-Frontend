@@ -1,30 +1,4 @@
-export class Clazz {
-    constructor (
-        public id: number,
-        public name: string,
-        public baseHealth: number,
-        public baseDefence: number,
-        public baseInitiative: number,
-    ) {}
-}
-
-export class Race {
-    constructor (
-        public id: number,
-        public name: string,
-        public baseInitiative: number,
-    ) {}
-}
-
-export class Character {
-    constructor(
-        public id: number,
-        public name: string,
-        public playerName: string | null,
-        public clazz: Clazz,
-        public race: Race,
-    ) {}
-}
+import { api, Character, Clazz, Race } from "../../lib/Exports";
 
 export class CharCreate {
     public characters: Character[] = [];
@@ -40,11 +14,14 @@ export class CharCreate {
     readDataClazzes(): void {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
+
+            console.log(`Character | Reading data from ${api}/background/classes`);
+            
             if (request.readyState === 4) {
                 if (request.status === 200)
                 {
                     const data = JSON.parse(request.responseText);
-                    this.clazzes = data.map((clazz: any) => new Clazz(clazz.id, clazz.name, clazz.baseHealth, clazz.baseDefence, clazz.baseInitiative));
+                    this.clazzes = data.map((clazz: any) => new Clazz(clazz.id, clazz.title, clazz.tag, clazz.description, clazz.baseHealth, clazz.baseDefence, clazz.baseInitiative));
                     console.log(this.clazzes);
                 }
                 else {
@@ -53,18 +30,21 @@ export class CharCreate {
             }
         }
 
-        request.open('GET', 'https://api.tts-game.fun/background/classes', true);
+        request.open('GET', `${api}/background/classes`, true);
         request.send();
     }
 
     readDataRaces(): void {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
+
+            console.log(`Character | Reading data from ${api}/background/races`);
+
             if (request.readyState === 4) {
                 if (request.status === 200)
                 {
                     const data = JSON.parse(request.responseText);
-                    this.races = data.map((race: any) => new Race(race.id, race.name, race.baseInitiative));
+                    this.races = data.map((race: any) => new Race(race.id, race.title, race.tag, race.description, race.baseInitiative));
                     console.log(this.races);
                 }
                 else {
@@ -73,7 +53,7 @@ export class CharCreate {
             }
         }
 
-        request.open('GET', 'https://api.tts-game.fun/background/races', true);
+        request.open('GET', `${api}/background/races`, true);
         request.send();
     }
 
@@ -85,7 +65,7 @@ export class CharCreate {
 
     addEmptyCharacter(): void {
         if (this.characters.length < 6) {
-            this.characters.push(new Character(0, '', '', this.clazzes[0], this.races[0]));
+            this.characters.push(new Character(0, new Clazz(0, "", "", "", 0, 0, 0), new Race(0, "", "", "", 0), "", ""));
             console.log(this.characters);
         }
     }

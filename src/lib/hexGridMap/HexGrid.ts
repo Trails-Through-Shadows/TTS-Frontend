@@ -9,11 +9,26 @@ export interface BoundingBox {
     maxY: number;
 }
 
+type HexEnemy = {
+    title: string;
+    tag: string | null;
+    coords: CubeCoordinate;
+    image: HTMLImageElement;
+}
+
+type HexObstacle = {
+    title: string;
+    tag: string | null;
+    coords: CubeCoordinate;
+    image: HTMLImageElement;
+}
+
 export class HexGrid {
     private hoveredHex: Hex | null = null;
     private textureImage: any;
     private borderImage : any;
-    private enemyImage?: any;
+    private enemies: HexEnemy[] = [];
+    private obstacles: HexObstacle[] = [];
 
     constructor(
         private canvas: Canvas,
@@ -66,9 +81,26 @@ export class HexGrid {
             if (request.readyState === 4 && request.status === 200) {
                 const data = JSON.parse(request.responseText);
 
+                // Map enemies and obstacles
+                this.enemies = data['enemies'].map((enemy: any) => {
+                    return {
+                        title: enemy.title,
+                        tag: enemy.tag,
+                        coords: new CubeCoordinate(enemy.hex.q, enemy.hex.r, enemy.hex.s)
+                    }
+                });
+
+                this.obstacles = data['obstacles'].map((obstacle: any) => {
+                    return {
+                        title: obstacle.title,
+                        tag: obstacle.tag,
+                        coords: new CubeCoordinate(obstacle.hex.q, obstacle.hex.r, obstacle.hex.s)
+                    }
+                });
+
                 // Map hexes
                 this.hexes = data['hexes'].map((coords: CubeCoordinate) => {
-                    return new Hex(new CubeCoordinate(coords.q, coords.r, coords.s),this.hexSize, []);
+                    return new Hex(new CubeCoordinate(coords.q, coords.r, coords.s), this.hexSize, []);
                 })
 
                 // Map hex neighbors
@@ -76,6 +108,8 @@ export class HexGrid {
 
                 const took = new Date().getTime() - currentTime;
                 console.log(`HexGrid | Data read in ${took}ms`);
+
+                this.getImages();
 
                 this.canvas.setLoading(false);
                 // this.adjustCanvasHeight();
@@ -88,6 +122,64 @@ export class HexGrid {
         request.open('GET', url, true);
         request.send();
     }
+    
+    getImages(): void {
+        // get all unique enemy names
+        const enemyTitles = [...new Set(this.enemies.map(enemy => enemy.title))];
+        const obstacleTitles = [...new Set(this.obstacles.map(obstacle => obstacle.title))];
+
+        let loaded = 0;
+
+        // for each unique enemy name, get the image
+        enemyTitles.forEach(title => {
+            const image = new Image();
+            //image.src = `./assets/${title}.png`;
+            image.src = `./assets/enemy.png`;
+            image.onload = () => {
+                this.enemies.filter(enemy => enemy.title === title).map(enemy => {
+                    enemy.image = image;
+                    console.log(`Image loaded for enemy: ${enemy.title}`);
+                });
+                if (++loaded === enemyTitles.length + obstacleTitles.length) this.bindImages();
+            }
+        });
+
+        // for each unique obstacle name, get the image
+        obstacleTitles.forEach(title => {
+            const image = new Image();
+            //image.src = `./assets/${title}.png`;
+            image.src = `./assets/obstacle.png`;
+            console.log(image.src);
+            image.onload = () => {
+                this.obstacles.filter(obstacle => obstacle.title === title).map(obstacle => {
+                    obstacle.image = image;
+                    console.log(`Image loaded for obstacle: ${obstacle.title}`);
+                });
+                if (++loaded === enemyTitles.length + obstacleTitles.length) this.bindImages();
+            }
+        });
+
+        console.log('HexGrid | Images loaded');
+    }
+
+    bindImages(): void {
+        this.enemies.forEach(enemy => {
+            const hex = this.hexes.find(hex => hex.coords.equals(enemy.coords));
+            if (hex) {
+                hex.entityImage = enemy.image;
+                console.log('HexGrid | Enemy mapped to hex');
+            }
+        });
+
+        this.obstacles.forEach(obstacle => {
+            const hex = this.hexes.find(hex => hex.coords.equals(obstacle.coords));
+            if (hex) {
+                hex.entityImage = obstacle.image;
+            }
+        });
+
+        console.log('HexGrid | Entities mapped to hexes');
+    }
 
     draw(): void {
         if (this.hexes.length === 0) return;
@@ -95,15 +187,12 @@ export class HexGrid {
         const hexSize = this.hexes[0].hexSize;
         const offset: Offset = this.getOffset();
 
-        const enemyImage = new Image();
-        enemyImage.src = 'assets/enemy.png';
-
         this.hexes.forEach(hex => {
             hex.drawWall(this.canvas.getContext(), this.borderImage, offset);
         });
 
         this.hexes.forEach(hex => {
-            hex.draw(this.canvas.getContext(), this.textureImage, this.borderImage, offset, enemyImage);
+            hex.draw(this.canvas.getContext(), this.textureImage, this.borderImage, offset);
         });
 
         this.canvas.setDrawn();
