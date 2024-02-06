@@ -5,7 +5,7 @@
   let licenseNumber = '';
   let password = '';
 
-  let loggedIn = false;
+  let loggedIn = true;
   let adventureList: Adventure[] = [];
   let campaignList: Campaign[] = [];
 
@@ -81,7 +81,7 @@
       </div>
     </div>
   {:else}
-    <div class="row">
+    <div class="row w-100">
       {#each adventureList as adventure, index}
         <div class="col-xl-3">
           <div class="card adventure-card border-0 m-3">
@@ -183,10 +183,6 @@
 </main>
 
 <style>
-  .row {
-    width: 100%;
-  }
-
   .card {
     border-radius: 5px;
   }
