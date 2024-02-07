@@ -5,7 +5,7 @@
   let licenseNumber = '';
   let password = '';
 
-  let loggedIn = true;
+  let loggedIn = false;
   let adventureList: Adventure[] = [];
   let campaignList: Campaign[] = [];
 
@@ -23,6 +23,10 @@
     } else {
       alert('Login failed!');
     }
+  }
+
+  function handleDeleteAdventure(index: number) {
+    // TODO: Delete adventure
   }
 
   function handleSaveChanges(index: number) {
@@ -100,7 +104,7 @@
               <p>Gold: {adventure.gold}</p>
             </div>
             <div class="card-footer">
-              <a class="btn btn-sm" href="/encounter">Continue</a>
+              <a class="btn btn-sm w-100" href="/encounter">Continue</a>
             </div>
           </div>
         </div>
@@ -121,9 +125,9 @@
                   <textarea class="form-control no-resize" id="editDescription{index}" placeholder="Enter description" value="{adventure.description}" />
                 </div>
               </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click="{() => handleSaveChanges(index)}">Save changes</button>
+              <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" on:click={() => handleDeleteAdventure(index)}>Delete</button>
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click="{() => handleSaveChanges(index)}">Save</button>
               </div>
             </div>
           </div>
@@ -164,7 +168,7 @@
                   {/each}
                 </select>
               </div>
-              <div class="container-fluid textarea-container">
+              <div class="container-fluid">
                 {#if selectedCampaign}
                   <p>{selectedCampaign.description}</p>
                 {/if}
