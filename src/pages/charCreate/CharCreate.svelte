@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CharCreate} from './CharCreate';
+  import { CharCreate } from './CharCreate';
 
   const creator = new CharCreate();
   let charList = creator.getCharacters();

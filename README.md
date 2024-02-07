@@ -1,4 +1,5 @@
 TODO:
+- place ${api} into the functions (not params)
 - update login to use actual user data
 - bind adventures to user
 - bind a campaign to adventure

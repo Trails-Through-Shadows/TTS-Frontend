@@ -1,16 +1,22 @@
 <script lang="ts">
-  import { api, Character } from '../../lib/Exports';
+  import { api, Character, Enemy } from '../../lib/Exports';
   import { Canvas } from '../../lib/hexGridMap/Canvas';
   import { HexGrid } from '../../lib/hexGridMap/HexGrid';
-  import { CharList } from './Encounter';
+  import { HexMap } from '../../lib/hexGridMap/HexMap';
+  import { EntityList } from './Encounter';
   import { onMount } from 'svelte';
 
   let playing = false;
-  let charList: Character[] = [];
-  let initiativeList: Character[] = [];
+  let characterList: Character[] = [];
+  let enemyList: Enemy[] = [];
+  let entityList: (Character | Enemy)[] = [];
 
-  const creator = new CharList();
-  creator.readData(`${api}/playerdata/characters?idAdventure=1`, () => charList = creator.getCharacters());
+  let adventureId = 1;
+  let partId = 0;
+
+  const creator = new EntityList();
+  creator.readDataCharacters(`${api}/playerdata/characters?idAdventure=${adventureId}`, () => characterList = creator.getCharacters());
+  creator.readDataEnemies(`${api}/locations/1/parts/1`, () => enemyList = creator.getEnemies());
 
   let canvasRoot: HTMLCanvasElement | undefined;
 
@@ -27,17 +33,21 @@
     const borderImage = new Image();
     borderImage.src = '/assets/map-texture-smol.jpg';
 
-    const hexGrid = new HexGrid(canvas, 45, []);
-    hexGrid.readData(`${api}/locations/1/parts/1`, textureImage, borderImage);
-
+    const hexMap = new HexMap(canvas, textureImage, borderImage);
+    hexMap.readData(`${api}/locations/1`);
+    /*
+    const hexGrid = new HexGrid(1, canvas, []);
+    hexGrid.setTextures(textureImage, borderImage);
+    hexGrid.readData(`${api}/locations/1/parts/1`);
+    */
     canvas.setBackgroundImage('/assets/map-background.jpg', () => {
         canvas.clear();
-        hexGrid.draw();
+        hexMap.draw(partId);
     });
 
     canvas.addOnSizeListener(() => {
         canvas.clear();
-        hexGrid.draw();
+        hexMap.draw(partId);
     });
   });
 
@@ -48,7 +58,8 @@
   }
 
   function startEncounter() {
-    initiativeList = charList.sort((a, b) => b.clazz.baseInitiative - a.clazz.baseInitiative);
+    entityList = [...characterList, ...enemyList];
+    console.log(entityList);
     playing = true;
   }
 
@@ -86,7 +97,7 @@
   <div class="container-fluid">
     <div class="row">
       {#if !playing}
-        {#each charList as character, index}
+        {#each characterList as character, index}
         <div class="col-xl-2 big-card">
           <div class="card border-0 m-1">
             <div class="card-header">
@@ -113,30 +124,58 @@
           <button class="btn btn-success" on:click={startEncounter}>Start encounter</button>
         </div>
       {:else}
-      {#each initiativeList as character, index}
-        <div class="{index === 0 ? 'col-xl-2 big-card' : 'col-xl-1'}">
-          <div class="card border-0 m-1">
-            <div class="card-header">
-              <h5 id="card-name" class="m-0">{character.title}</h5>
-              <p class="m-0">{character.playerName}</p>
-            </div>
-            <div class="card-body">
-              <div class="position-relative">
-                <img class="class-image" src="assets/chars/{character.race.title}-{character.clazz.title}.png" alt="{character.clazz.title}" />
-                <div class="position-absolute bottom-0 start-50 translate-middle-x">
+        {#each entityList as entity, index}
+          {#if entity instanceof Character}
+            <div class="{index === 0 ? 'col-xl-2 big-card' : 'col-xl-1'}">
+              <div class="card border-0 m-1">
+                <div class="card-header">
+                  <h5 id="card-name" class="m-0">{entity.title}</h5>
+                  <p class="m-0">{entity.playerName}</p>
+                </div>
+                <div class="card-body">
                   <div class="position-relative">
-                    <img class="stat-image" src="assets/heart.png" alt="Health" />
-                    <div class="stat-container"><h5>{character.clazz.baseHealth}</h5></div>
+                    <img class="class-image" src="assets/chars/{entity.race.title}-{entity.clazz.title}.png" alt="{entity.clazz.title}" />
+                    <div class="position-absolute bottom-0 start-50 translate-middle-x">
+                      <div class="position-relative">
+                        <img class="stat-image" src="assets/heart.png" alt="Health" />
+                        <div class="stat-container"><h5>{entity.clazz.baseHealth}</h5></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          {:else if entity instanceof Enemy}
+            <div class="{index === 0 ? 'col-xl-2 big-card' : 'col-xl-1'}">
+              <div class="card border-0 m-1">
+                <div class="card-header">
+                  <h5 id="card-name" class="m-0">{entity.title}</h5>
+                  <p class="m-0">Level: 1</p>
+                </div>
+                <div class="card-body">
+                  <div class="position-relative">
+                    <img class="class-image" src="assets/enemy.png" alt="{entity.title}" />
+                    <div class="position-absolute bottom-0 start-50 translate-middle-x">
+                      <div class="position-relative">
+                        <img class="stat-image" src="assets/heart.png" alt="Health" />
+                        <div class="stat-container"><h5>{entity.baseHealth}</h5></div>
+                      </div>
+                    </div>
+                    <div class="position-absolute bottom-0 end-0">
+                      <div class="position-relative">
+                        <img class="stat-image" src="assets/shield.png" alt="Defence" />
+                        <div class="stat-container"><h5>{entity.baseDefence}</h5></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {/if}
+        {/each}
+        <div class="col-xl-12">
+          <button class="btn btn-primary" on:click={endEncounter}>End encounter</button>
         </div>
-      {/each}
-      <div class="col-xl-12">
-        <button class="btn btn-primary" on:click={endEncounter}>End encounter</button>
-      </div>
       {/if}
     </div>
   </div>

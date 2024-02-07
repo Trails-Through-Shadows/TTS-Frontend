@@ -25,15 +25,16 @@ type HexObstacle = {
 
 export class HexGrid {
     private hoveredHex: Hex | null = null;
-    private textureImage: any;
-    private borderImage : any;
-    private enemies: HexEnemy[] = [];
-    private obstacles: HexObstacle[] = [];
 
     constructor(
+        private id: number,
         private canvas: Canvas,
-        private hexSize: number,
         private hexes: Hex[] = [],
+        private enemies: HexEnemy[] = [],
+        private obstacles: HexObstacle[] = [],
+        private textureImage: any,
+        private borderImage: any,
+        private hexSize: number = 50,
     ) {
         this.canvas.addOnMouseHoverListener((x: number, y: number) => {
             const offset: Offset = this.getOffset();
@@ -67,14 +68,16 @@ export class HexGrid {
         this.borderImage = borderImage;
     }
 
-    readData(url: string, textureImage: HTMLImageElement, borderImage: HTMLImageElement, callback?: () => void): void {
+    setEntities(enemies: HexEnemy[], obstacles: HexObstacle[]): void {
+        this.enemies = enemies;
+        this.obstacles = obstacles;
+    }
+
+    readData(url: string, callback?: () => void): void {
         this.canvas.setLoading(true);
         const currentTime = new Date().getTime();
 
         console.log(`HexGrid | Reading data from ${url}`);
-
-        this.textureImage = textureImage;
-        this.borderImage = borderImage;
 
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
@@ -122,6 +125,8 @@ export class HexGrid {
         request.open('GET', url, true);
         request.send();
     }
+
+    //mapData();
     
     getImages(): void {
         // get all unique enemy names
@@ -183,6 +188,8 @@ export class HexGrid {
 
     draw(): void {
         if (this.hexes.length === 0) return;
+
+        this.getImages();
 
         const hexSize = this.hexes[0].hexSize;
         const offset: Offset = this.getOffset();
