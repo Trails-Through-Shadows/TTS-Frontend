@@ -98,13 +98,24 @@
             <div class="card-body adventure-description">
               <p>{adventure.description}</p>
             </div>
-            <div class="card-body adventure-resources d-flex justify-content-between">
-              <p>Reputation: {adventure.reputation}</p>
-              <p>Experience: {adventure.experience}</p>
-              <p>Gold: {adventure.gold}</p>
+            <div class="card-body adventure-resources">
+              <div class="row text-center align-items-center">
+                <div class="col-4">
+                  <label for="reputation" class="">Reputation</label>
+                  <input type="text" class="resources-input form-control align-self-center" disabled value={adventure.reputation} />
+                </div>
+                <div class="col-4">
+                  <label for="gold" class="">Gold</label>
+                  <input type="text" class="resources-input form-control" disabled value={adventure.gold} />
+                </div>
+                <div class="col-4">
+                  <label for="experience" class="">Experience</label>
+                  <input type="text" class="resources-input form-control" disabled value={adventure.experience} />
+                </div>
+              </div>
             </div>
             <div class="card-footer">
-              <a class="btn btn-sm w-100" href="/encounter">Continue</a>
+              <a class="btn btn-xl w-100 continue-button" href="/encounter">Continue</a>
             </div>
           </div>
         </div>
@@ -188,12 +199,20 @@
 
 <style>
   .card {
+    color: #bababa;
     border-radius: 5px;
+    border: none;
   }
 
   .form-control {
-    border-radius: 3px;
     height: 2rem;
+    background-color: #333;
+    color: #bababa;
+    border: none;
+  }
+
+  .form-control::placeholder {
+    color: #757575;
   }
 
   .login-card {
@@ -201,36 +220,58 @@
   }
 
   .login-card .card-header {
-    background-color: #f0f0f0;
+    background-color: #222;
   }
 
   .login-card .card-body {
-    background-color: #f0f0f0;
+    background-color: #222;
   }
 
   .login-card .btn {
-    border-radius: 3px;
+    color: #bababa;
+    border-color: #4fc780;
+  }
+
+  .login-card .btn:hover {
+    color: #222;
+    background-color: #4fc780;
   }
 
   .adventure-card {
     height: 35vh;
+    background-color: #222;
   }
 
   .adventure-card .card-header {
-    background-color: #222;
     color: #fff;
   }
 
   .adventure-card .adventure-description {
-    background-color: #bababa;
     height: 20vh;
+    background-color: #333;
     overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .adventure-card .adventure-description::-webkit-scrollbar {
+    display: none;
   }
 
   .adventure-card .adventure-resources {
-    background-color: #f0f0f0;
+    border-top: 1px solid #1c1c1c;
     margin: 0;
     padding: 0 10px 0 10px;
+  }
+
+  .continue-button {
+    color: #bababa;
+    border-color: #4fc780;
+  }
+
+  .continue-button:hover {
+    color: #222;
+    background-color: #4fc780;
   }
 
   .small-card-container {
@@ -251,5 +292,32 @@
   .textarea-container textarea {
     height: 90%;
     resize: none;
+  }
+
+  .resources-input {
+    width: 50px;
+    background-color: #333;
+    border-color: #1c1c1c;
+    text-align: center;
+    margin: 0 auto 10px auto;
+  }
+
+  .modal {
+    color: #bababa;
+  }
+
+  .modal .modal-header {
+    background-color: #222;
+    color: #bababa;
+    border-color: #1c1c1c;
+  }
+
+  .modal .modal-body {
+    background-color: #222;
+  }
+
+  .modal .modal-footer {
+    background-color: #222;
+    border-color: #1c1c1c;
   }
 </style>

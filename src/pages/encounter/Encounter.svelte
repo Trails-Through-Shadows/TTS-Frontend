@@ -41,13 +41,13 @@
     hexGrid.readData(`${api}/locations/1/parts/1`);
     */
     canvas.setBackgroundImage('/assets/map-background.jpg', () => {
-        canvas.clear();
-        hexMap.draw(partId);
+      canvas.clear();
+      hexMap.draw(partId);
     });
 
     canvas.addOnSizeListener(() => {
-        canvas.clear();
-        hexMap.draw(partId);
+      canvas.clear();
+      hexMap.draw(partId);
     });
   });
 

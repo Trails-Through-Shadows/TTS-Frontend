@@ -11,3 +11,10 @@ TODO:
 - make a page for character (stats, inventory, etc)
 - MAKE EVERYTHING USE DATA FROM THE API
 - MAKE EVERYTHING LOOK GOOD
+
+
+
+- login (send license, password, get response) => adventure list
+- adventure list (get list of ONLY adventures) => adventure (+ characters) / new adventure
+- adventure => adventure location list
+- adventure location list => location/encounter/market

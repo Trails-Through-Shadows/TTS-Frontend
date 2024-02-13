@@ -46,8 +46,8 @@
         <div class="col-xl-4">
           <div class="card border-0 m-3">
             <div class="card-header">
-              <input class="form-control" type="text" placeholder="The name of the hero" bind:value={character.title} />
-              <input class="form-control" type="text" placeholder="The name of the puppeteer" bind:value={character.playerName} />
+              <input class="form-control character-input" type="text" placeholder="The name of the hero" bind:value={character.title} />
+              <input class="form-control character-input mt-1" type="text" placeholder="The name of the puppeteer" bind:value={character.playerName} />
             </div>
             <div class="card-body">
               <div class="d-flex">
@@ -77,20 +77,32 @@
                   </div>
                 </div>
                 <div class="col-7 container-fluid">
-                  <div class="d-flex">
-                    <select class="form-control" bind:value={character.race}>
-                      <option value="" selected disabled hidden>Hero's race</option>
-                      {#each creator.getRaces() as race}
-                        <option value={race}>{race.title}</option>
-                      {/each}
-                    </select>
-                    <select class="form-control" bind:value={character.clazz}>
-                      <option value="" selected disabled hidden>Hero's class</option>
-                      {#each creator.getClazzes() as clazz}
-                        <option value={clazz}>{clazz.title}</option>
-                      {/each}
-                    </select>
-                  </div>
+                    <div class="row">
+                      <div class="col-6 bordered-right">
+                        <select class="form-control character-input mb-1" bind:value={character.race}>
+                          <option value="" selected disabled hidden>Hero's race</option>
+                          {#each creator.getRaces() as race}
+                            <option value={race}>{race.title}</option>
+                          {/each}
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <select class="form-control character-input mb-1" bind:value={character.clazz}>
+                          <option value="" selected disabled hidden>Hero's class</option>
+                          {#each creator.getClazzes() as clazz}
+                            <option value={clazz}>{clazz.title}</option>
+                          {/each}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class = "col-6 textarea-container bordered-right">
+                        <textarea class="form-control" disabled>{character.race.description}</textarea>
+                      </div>
+                      <div class = "col-6 textarea-container">
+                        <textarea class="form-control" disabled>{character.clazz.description}</textarea>
+                      </div>
+                    </div>
                 </div>
               </div>
               <button class="btn btn-danger position-absolute bottom-0 end-0 m-3" on:click={() => deleteCharacter(index)}>Delete</button>
@@ -162,7 +174,40 @@
     width: 120px;
   }
 
+  .character-input {
+    background-color: #333;
+    color: #bababa;
+    border: none;
+  }
+
+  .character-input::placeholder {
+    color: #757575;
+  }
+
   h1 {
     color: white;
+  }
+
+  .textarea-container {
+    height: 18vh;
+  }
+
+  .textarea-container textarea {
+    background-color: #222;
+    color: #bababa;
+    border: none;
+    height: 100%;
+    resize: none;
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .textarea-container textarea::-webkit-scrollbar {
+    display: none;
+  }
+
+  .bordered-right {
+    border-right: 1px solid #1c1c1c;
   }
 </style>
