@@ -29,85 +29,93 @@
 
 
 <main>
-<div class="container-fluid">
   <div class="row">
-  {#each charList as character, index}
-    <div class="col-xl-4">
-      <div class="card border-0 m-3">
-        <div class="card-header">
-          <h2 id="card-name" class="m-0">{character.title}</h2>
-          <h5 class="m-0">{character.playerName}</h5>
-        </div>
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="col-3 container-fluid">
-              <div class="d-flex">
-                <div class="col-3">
-                  <div class="item-container item-container-small">
-                    <img class="item-image" src="assets/scroll.png" alt="Helmet" />
-                  </div>
-                  <div class="item-container item-container-small">
-                    <img class="item-image" src="assets/scroll.png" alt="Chestplate" />
-                  </div>
-                  <div class="item-container item-container-small">
-                    <img class="item-image" src="assets/scroll.png" alt="Leggings" />
-                  </div>
-                  <div class="item-container item-container-small">
-                    <img class="item-image" src="assets/scroll.png" alt="Boots" />
-                  </div>
+    {#each charList as character, index}
+      <div class="col-4">
+        <div class="row m-3">
+          <div class="col-2 d-flex align-items-center justify-content-center p-0">
+            <div class="card border-0 side-card left-card">
+              <div class="card-body">
+                <div class="item-container">
+                  <img class="item-image" src="assets/sword.png" alt="Weapon" />
+                </div>
+                <div class="item-container">
+                  <img class="item-image" src="assets/pendant.png" alt="Accessory" />
+                </div>
+                <div class="item-container">
+                  <img class="item-image" src="assets/potion.png" alt="Consumable" />
+                </div>
+                <div class="item-container">
+                  <img class="item-image" src="assets/potion.png" alt="Consumable" />
                 </div>
               </div>
             </div>
-            <div class="col-4 class-image-container">
-              <img class="class-image" src="assets/chars/{character.race.title}-{character.clazz.title}.png" alt="{character.clazz.title}" />
-              <div class="position-absolute bottom-0 start-0">
-                <div class="position-relative">
-                  <img class="stat-image" src="assets/heart.png" alt="Health" />
-                  <div class="stat-container">
-                    <h1>{character.clazz.baseHealth}</h1>
+          </div>
+          <div class="col-8 p-0">
+            <div class="card border-0 m-0">
+              <div class="card-header text-center">
+                <h5 id="card-name" class="m-0">{character.race.title}-{character.clazz.title} </h5>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-9">
+                    <div class="class-image-container">
+                      <img class="class-image" src="assets/chars/{character.race.title}-{character.clazz.title}.png" alt="{character.clazz.title}" />
+                    </div>
+                  </div>
+                  <div class="col-3 position-relative">
+                    <div class="position-absolute top-0 start-50 translate-middle-x">
+                      <div class="position-relative">
+                        <img class="stat-image" src="assets/heart.png" alt="Health" />
+                        <div class="stat-container">
+                          <h1>{character.clazz.baseHealth}</h1>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="position-absolute top-50 start-50 translate-middle">
+                      <div class="position-relative">
+                        <img class="stat-image" src="assets/shield.png" alt="Defence" />
+                        <div class="stat-container">
+                          <h1>{character.clazz.baseDefence + character.race.baseInitiative}</h1>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="position-absolute bottom-0 start-50 translate-middle-x">
+                      <img class="stat-image" src="assets/speed.png" alt="Initiative" />
+                      <div class="stat-container">
+                        <h1>{character.clazz.baseInitiative}</h1>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="position-absolute bottom-0 start-50 translate-middle-x">
-                <div class="position-relative">
-                  <img class="stat-image" src="assets/shield.png" alt="Defence" />
-                  <div class="stat-container">
-                    <h1>{character.clazz.baseDefence + character.race.baseInitiative}</h1>
-                  </div>
-                </div>
-              </div>
-              <div class="position-absolute bottom-0 end-0">
-                <img class="stat-image" src="assets/speed.png" alt="Initiative" />
-                <div class="stat-container">
-                  <h1>{character.clazz.baseInitiative}</h1>
-                </div>
+              <div class="card-footer text-center p-0">
+                <h2>{character.title}</h2>
               </div>
             </div>
-            <div class="col-3 container-fluid">
-              <div class="d-flex">
-                <div class="col-3">
-                  <div class="item-container item-container-small">
-                    <img class="item-image" src="assets/scroll.png" alt="Weapon" />
-                  </div>
-                  <div class="item-container item-container-small">
-                    <img class="item-image" src="assets/scroll.png" alt="Accesory" />
-                  </div>
-                  <div class="item-container item-container-small">
-                    <img class="item-image" src="assets/scroll.png" alt="Consumable" />
-                  </div>
-                  <div class="item-container item-container-small">
-                    <img class="item-image" src="assets/scroll.png" alt="Consumable" />
-                  </div>
+          </div>
+          <div class="col-2 d-flex align-items-center justify-content-center p-0">
+            <div class="card border-0 side-card right-card">
+              <div class="card-body">
+                <div class="item-container">
+                  <img class="item-image" src="assets/helmet.png" alt="Helmet" />
+                </div>
+                <div class="item-container">
+                  <img class="item-image" src="assets/chestplate.png" alt="Chestplate" />
+                </div>
+                <div class="item-container">
+                  <img class="item-image" src="assets/leggings.png" alt="Leggings" />
+                </div>
+                <div class="item-container">
+                  <img class="item-image" src="assets/boots.png" alt="Boots" />
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  {/each}
+    {/each}
   </div>
-</div>
 </main>
 
 
@@ -148,7 +156,11 @@
 
   .card-body {
     background-color: #222;
-    border-radius: 0 0 5px 5px;
+  }
+
+  .card-footer {
+    background-color: #222;
+    color: #bababa;
   }
 
   h1 {
@@ -159,9 +171,39 @@
     color: white;
   }
 
+  .side-card {
+    height: 80%;
+    width: 100%;
+  }
+
+  .side-card .card-body {
+    background-color: #1c1c1c;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+  }
+
+  .left-card .card-body {
+    border-radius: 5px 0 0 5px;
+  }
+
+  .right-card .card-body {
+    border-radius: 0 5px 5px 0;
+  }
+
   .item-container {
-    width: 60px;
-    height: 60px;
+    height: 100%;
+    margin: 2px;
+    border-radius: 25%;
+    border: #333 2px solid;
+    background-color: #222;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .item-image {
