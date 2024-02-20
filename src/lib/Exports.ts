@@ -1,4 +1,5 @@
-export const api:string = 'https://api.tts-game.fun';
+//export const api:string = 'https://api.tts-game.fun';
+export const api:string = 'http://localhost:8080';
 
 export class Clazz {
     constructor (
@@ -58,12 +59,13 @@ export class Obstacle {
 
 export class Adventure {
     constructor(
-        public id: number,
+        public id: number | null,
         public title: string,
         public description: string | null,
         public reputation: number,
         public experience: number,
         public gold: number,
+        public idCampaign: number = 0,
     ) {}
 }
 

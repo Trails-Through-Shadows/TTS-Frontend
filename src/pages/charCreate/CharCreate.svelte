@@ -80,18 +80,18 @@
                     <div class="row">
                       <div class="col-6 bordered-right">
                         <select class="form-control character-input mb-1" bind:value={character.race}>
-                          <option value="" selected disabled hidden>Hero's race</option>
                           {#each creator.getRaces() as race}
                             <option value={race}>{race.title}</option>
                           {/each}
+                          <option value={character.race} selected disabled hidden>Hero's race</option>
                         </select>
                       </div>
                       <div class="col-6">
                         <select class="form-control character-input mb-1" bind:value={character.clazz}>
-                          <option value="" selected disabled hidden>Hero's class</option>
                           {#each creator.getClazzes() as clazz}
                             <option value={clazz}>{clazz.title}</option>
                           {/each}
+                          <option value={character.clazz} selected disabled hidden>Hero's class</option>
                         </select>
                       </div>
                     </div>

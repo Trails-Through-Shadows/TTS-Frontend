@@ -1,6 +1,9 @@
 <script lang="ts">
   import { api, Adventure, Campaign } from "../../lib/Exports";
-  import { AdventureList, CampaignList } from "./Login";
+  import { Login } from "./Login";
+  import { Notify, Loading } from "notiflix";
+
+  let token = '';
 
   let licenseNumber = '';
   let password = '';
@@ -9,36 +12,80 @@
   let adventureList: Adventure[] = [];
   let campaignList: Campaign[] = [];
 
-  const creatorAdv = new AdventureList();
-  creatorAdv.readData(`${api}/playerdata/adventures`, () => adventureList = creatorAdv.getAdventures());
-
-  const creatorCamp = new CampaignList();
-  creatorCamp.readData(`${api}/campaigns`, () => campaignList = creatorCamp.getCampaigns());
+  const creator = new Login();
 
   let selectedCampaign: Campaign | null= null;
 
   function handleLogin() {
-    if (licenseNumber === '0000' && password === 'admin') {
+    creator.postDataLogin(`${api}/session/login`, licenseNumber, password, (t: string) => {
+      token = t;
       loggedIn = true;
-    } else {
-      alert('Login failed!');
-    }
+      if (loggedIn) {
+        Loading.dots('Loading...')
+        creator.readDataAdventures(`${api}/adventures?token=${token}`, () => {
+          adventureList = creator.getAdventures();
+          Loading.remove();
+        },
+        (m: string) => Notify.failure(m)
+        );
+        creator.readDataCampaigns(`${api}/campaigns`, () => campaignList = creator.getCampaigns(), (m: string) => Notify.failure(m));
+      }
+    },
+    (m: string) => Notify.failure(m)
+    );
   }
 
-  function handleDeleteAdventure(index: number) {
-    // TODO: Delete adventure
-  }
-
-  function handleSaveChanges(index: number) {
+  function handleEditAdventure(index: number) {
+    Loading.dots('Loading...')
     const title = document.getElementById(`editTitle${index}`) as HTMLInputElement;
     const description = document.getElementById(`editDescription${index}`) as HTMLInputElement;
 
-    adventureList[index].title = title.value;
-    adventureList[index].description = description.value;
+    const adventureCopy = adventureList[index];
+    adventureCopy.title = title.value;
+    adventureCopy.description = description.value;
+
+    creator.putDataEditAdventure(`${api}/adventures/${adventureCopy.id}?token=${token}`, adventureCopy, () => {
+      adventureList[index] = adventureCopy;
+      Loading.remove();
+      Notify.success('Adventure edited successfully');
+    },
+    (m: string) => {
+      Loading.remove();
+      Notify.failure(m)
+    }
+    );
+  }
+
+  function handleDeleteAdventure(index: number) {
+    creator.deleteDataAdventure(`${api}/adventures/${adventureList[index].id}?token=${token}`, () => {
+      adventureList.splice(index, 1);
+      adventureList = [...adventureList];
+      Notify.success('Adventure deleted successfully');
+    },
+    (m: string) => Notify.failure(m)
+    );
   }
 
   function handleCreateAdventure() {
-    // TODO: Create adventure
+    if (!selectedCampaign) {
+      Notify.failure('Please select a campaign');
+      return;
+    }
+
+    Loading.dots('Loading...')
+
+    const title = document.getElementById('createTitle') as HTMLInputElement;
+    const description = document.getElementById('createDescription') as HTMLInputElement;
+
+    const newAdventure = new Adventure(null, title.value, description.value, 0, 0, 0, selectedCampaign.id);
+
+    creator.postDataCreateAdventure(`${api}/adventures?token=${token}`, newAdventure, () => {
+      adventureList = [...adventureList, newAdventure];
+      Loading.remove();
+      Notify.success('Adventure created successfully');
+    },
+    (m: string) => Notify.failure(m)
+    );
   }
 </script>
 
@@ -138,7 +185,7 @@
               </div>
               <div class="modal-footer justify-content-between">
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal" on:click={() => handleDeleteAdventure(index)}>Delete</button>
-                <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click="{() => handleSaveChanges(index)}">Save</button>
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click="{() => handleEditAdventure(index)}">Save</button>
               </div>
             </div>
           </div>
@@ -173,10 +220,10 @@
               <div class="form-group mt-3">
                 <label for="campaignSelect">Campaign</label>
                 <select class="form-select" id="campaignSelect" bind:value="{selectedCampaign}">
-                  <option selected disabled hidden>Select campaign</option>
                   {#each campaignList as campaign}
                     <option value="{campaign}">{campaign.title}</option>
                   {/each}
+                  <option value="{selectedCampaign}" selected disabled hidden>Select campaign</option>
                 </select>
               </div>
               <div class="container-fluid">
@@ -319,5 +366,11 @@
   .modal .modal-footer {
     background-color: #222;
     border-color: #1c1c1c;
+  }
+
+  .form-select {
+    background-color: #333;
+    color: #bababa;
+    border: none;
   }
 </style>
