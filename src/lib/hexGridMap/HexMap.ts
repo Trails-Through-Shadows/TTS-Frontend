@@ -8,21 +8,30 @@ import { Location } from "../Exports";
 type HexEnemy = {
   title: string;
   tag: string | null;
-  coords: CubeCoordinate;
+  idPart: number;
+  idHex: number;
   image: HTMLImageElement;
 }
 
 type HexObstacle = {
   title: string;
   tag: string | null;
-  coords: CubeCoordinate;
+  idPart: number;
+  idHex: number;
   image: HTMLImageElement;
+}
+
+type StartHexes = {
+  idPart: number;
+  idHex: number;
 }
 
 export class HexMap {
   private location: Location | null = null;
   private hexGridList: HexGrid[] = [];
-  private startHexes: CubeCoordinate[] = [];
+  private startHexes: StartHexes[] = [];
+  private enemies: HexEnemy[] = [];
+  private obstacles: HexObstacle[] = [];
 
   constructor(
       private canvas: Canvas,
@@ -42,35 +51,44 @@ export class HexMap {
               if (request.status === 200)
               {
                   const data = JSON.parse(request.responseText);
-                  console.log(data);
+                  console.log(data.entries);
                   this.location = new Location(data.id, data.title, data.tag, data.type, data.description);
                   this.hexGridList = data.parts.map((hexGrid: any) => new HexGrid(
                     hexGrid.id,
                     this.canvas,
-                    hexGrid.hexes.map((hex: any) => new Hex(new CubeCoordinate(hex.q, hex.r, hex.s))),
-                    hexGrid.enemies.map((enemy: any) => {
-                      return {
-                        title: enemy.title,
-                        tag: enemy.tag,
-                        coords: new CubeCoordinate(enemy.hex.q, enemy.hex.r, enemy.hex.s)
-                    }}),
-                    hexGrid.obstacles.map((obstacle: any) => {
-                      return {
-                        title: obstacle.title,
-                        tag: obstacle.tag,
-                        coords: new CubeCoordinate(obstacle.hex.q, obstacle.hex.r, obstacle.hex.s)
-                    }}),
+                    hexGrid.hexes.map((hex: any) => new Hex(hex.key.idPart, hex.key.id, new CubeCoordinate(hex.q, hex.r, hex.s))),
                     this.textureImage,
                     this.borderImage,
                   ));
-                  this.startHexes = data.startHexes.map((coords: any) => new CubeCoordinate(coords.q, coords.r, coords.s));
+                  this.startHexes = data.startHexes.map((hex: any) => {
+                    return {
+                      idPart: hex.idPart,
+                      idHex: hex.idHex
+                    }
+                  });
+                  this.enemies = data.enemies.map((enemy: any) => {
+                    return {
+                        title: enemy.title,
+                        tag: enemy.tag,
+                        idPart: enemy.key.idPart,
+                        idHex: enemy.key.id,
+                        image: new Image(),
+                    }
+                  });
+                  this.obstacles = data.obstacles.map((obstacle: any) => {
+                    return {
+                        title: obstacle.title,
+                        tag: obstacle.tag,
+                        idPart: obstacle.key.idPart,
+                        idHex: obstacle.key.id,
+                        image: new Image(),
+                    }
+                  });
 
                   const took = new Date().getTime() - currentTime;
                   console.log(`HexMap | Data read in ${took}ms`);
 
                   this.canvas.setLoading(false);
-
-                  this.draw(0);
 
                   if (callback) callback();
               }
@@ -83,6 +101,69 @@ export class HexMap {
       request.open('GET', url, true);
       request.send();
   }
+
+  setTextures(): void {
+    this.hexGridList.forEach(hexGrid => hexGrid.setTextures(this.textureImage, this.borderImage));
+  }
+
+  getImages(): void {
+    // get all unique enemy names
+    const enemyTitles = [...new Set(this.enemies.map(enemy => enemy.title))];
+    const obstacleTitles = [...new Set(this.obstacles.map(obstacle => obstacle.title))];
+
+    let loaded = 0;
+
+    // for each unique enemy name, get the image
+    enemyTitles.forEach(title => {
+        const image = new Image();
+        //image.src = `./assets/${title}.png`;
+        image.src = `./assets/enemy.png`;
+        image.onload = () => {
+            this.enemies.filter(enemy => enemy.title === title).map(enemy => {
+                enemy.image = image;
+                console.log(`Image loaded for enemy: ${enemy.title}`);
+            });
+            if (++loaded === enemyTitles.length + obstacleTitles.length) this.bindImages();
+        }
+    });
+
+    // for each unique obstacle name, get the image
+    obstacleTitles.forEach(title => {
+        const image = new Image();
+        //image.src = `./assets/${title}.png`;
+        image.src = `./assets/obstacle.png`;
+        console.log(image.src);
+        image.onload = () => {
+            this.obstacles.filter(obstacle => obstacle.title === title).map(obstacle => {
+                obstacle.image = image;
+                console.log(`Image loaded for obstacle: ${obstacle.title}`);
+            });
+            if (++loaded === enemyTitles.length + obstacleTitles.length) this.bindImages();
+        }
+    });
+
+    console.log('HexGrid | Images loaded');
+}
+
+bindImages(): void {
+    this.enemies.forEach(enemy => {
+        const hex = this.hexGridList.find(hexGrid => hexGrid.id === enemy.idPart)?.getHex(enemy.idHex);
+        if (hex) {
+            hex.entityImage = enemy.image;
+            console.log(`Image bound for enemy: ${enemy.title}`);
+        }
+    });
+
+    this.obstacles.forEach(obstacle => {
+        const hex = this.hexGridList.find(hexGrid => hexGrid.id === obstacle.idPart)?.getHex(obstacle.idHex);
+        if (hex) {
+            hex.entityImage = obstacle.image;
+            console.log(`Image bound for obstacle: ${obstacle.title}`);
+        }
+    });
+
+    console.log('HexGrid | Images bound');
+}
 
   draw(id: number): void {
     this.hexGridList[id].draw();

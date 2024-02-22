@@ -18,8 +18,11 @@ import { CubeCoordinate } from "./Coordinate";
     export class Hex {
         public vertices: Vertex[] = [];
         public entityImage?: HTMLImageElement
+        public isStart: boolean = false;
 
         constructor(
+            public readonly idPart: number,
+            public readonly id: number,
             public readonly coords: CubeCoordinate,
             public readonly hexSize: number = 50,
             public neighbors: Hex[] = [],
@@ -72,7 +75,7 @@ import { CubeCoordinate } from "./Coordinate";
 
             if (this.entityImage) {
                 console.log('Drawing entity');
-                this.drawEnemy(ctx, this.entityImage, offset);
+                this.drawEntity(ctx, this.entityImage, offset);
             }
         }
 
@@ -104,13 +107,13 @@ import { CubeCoordinate } from "./Coordinate";
             ctx.restore();
         }
 
-        drawEnemy(ctx: CanvasRenderingContext2D, enemyImage: HTMLImageElement, offset: Offset): void {
+        drawEntity(ctx: CanvasRenderingContext2D, entityImage: HTMLImageElement, offset: Offset): void {
             const {x, y} = this.coords.to2D(this.hexSize);
 
             const enemyHeight = this.hexSize * 1.2;
-            const enemyWidth = (enemyImage.height / enemyImage.width) * enemyHeight;
+            const enemyWidth = (entityImage.height / entityImage.width) * enemyHeight;
 
-            ctx.drawImage(enemyImage, offset.x + x - enemyWidth / 2, offset.y + y - enemyHeight / 2, enemyWidth, enemyHeight);
+            ctx.drawImage(entityImage, offset.x + x - enemyWidth / 2, offset.y + y - enemyHeight / 2, enemyWidth, enemyHeight);
         }
 
         getNeighbor(direction: CubeCoordinate): Hex | null {

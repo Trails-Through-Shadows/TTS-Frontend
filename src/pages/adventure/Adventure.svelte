@@ -1,11 +1,38 @@
 <script lang="ts">
   import { api, Character } from "../../lib/Exports";
   import { CharacterList } from "./Adventure";
+  import { Notify, Loading } from "notiflix";
+
+  let licenseId = sessionStorage.getItem('licenseId') ? parseInt(sessionStorage.getItem('licenseId') as string) : 0;
+  let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
+  
+  if (licenseId === 0 || token === '') {
+    sessionStorage.clear();
+    window.location.href = "/";
+  }
+
+  Loading.dots('Loading characters...');
+
+  const urlParams = new URLSearchParams(window.location.search);
+  let adventureId = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
+
+  if (adventureId === 0) {
+    Notify.failure('Something went wrong.');
+  }
 
   let charList: Character[] = [];
 
   const creator = new CharacterList();
-  creator.readData(`${api}/playerdata/characters?idAdventure=1`, () => charList = creator.getCharacters());
+  creator.readData(`${api}/adventures/${adventureId}/characters?token=${token}&lazy=false`,
+    () => {
+      charList = creator.getCharacters();
+      Loading.remove();
+    },
+    () => {
+      Notify.failure('Something went wrong.');
+      Loading.remove();
+    }
+  );
 </script>
 
 
@@ -115,6 +142,9 @@
         </div>
       </div>
     {/each}
+    <div class="col-xl-12">
+      <a class="btn btn-success" href="/encounter?id={adventureId}">Start encounter</a>
+    </div>
   </div>
 </main>
 

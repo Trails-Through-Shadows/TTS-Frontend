@@ -3,7 +3,7 @@ import { api, Character, Clazz, Race } from '../../lib/Exports'
 export class CharacterList {
     public characters: Character[] = [];
 
-    readData(url: string, callback: Function): void {
+    readData(url: string, successCallback: Function, failureCallback: Function): void {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
 
@@ -13,12 +13,14 @@ export class CharacterList {
                 if (request.status === 200)
                 {
                     const data = JSON.parse(request.responseText);
-                    this.characters = data.map((character: any) => new Character(character.id, character.clazz, character.race, character.title, character.playerName));
+                    this.characters = data.entries.map((character: any) => new Character(character.id, character.clazz, character.race, character.title, character.playerName));
                     console.log(this.characters);
-                    callback();
+                    successCallback();
                 }
                 else {
                     console.log('Error: ' + request.status);
+                    const response = JSON.parse(request.responseText);
+                    failureCallback(response.message);
                 }
             }
         }

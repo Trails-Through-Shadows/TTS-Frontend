@@ -17,7 +17,7 @@ export class Login {
                     console.log('Login | Data sent');
                     const response = JSON.parse(request.responseText);
                     console.log(response);
-                    successCallback(response.token);
+                    successCallback(response.licenseId, response.token);
                 }
                 else {
                     console.log('Error: ' + request.status);
@@ -43,7 +43,7 @@ export class Login {
                 if (request.status === 200)
                 {
                     const data = JSON.parse(request.responseText);
-                    this.adventures = data.entries.map((adventure: any) => new Adventure(adventure.id, adventure.title, adventure.description, adventure.reputation, adventure.experience, adventure.gold));
+                    this.adventures = data.entries.map((adventure: any) => new Adventure(adventure.id, adventure.title, adventure.description, adventure.reputation, adventure.experience, adventure.gold, adventure.idCampaign));
                     console.log(this.adventures);
                     successCallback();
                 }
@@ -147,7 +147,7 @@ export class Login {
                 else {
                     console.log('Error: ' + request.status);
                     const response = JSON.parse(request.responseText);
-                    failureCallback(response.message);
+                    failureCallback(response);
                 }
             }
         }

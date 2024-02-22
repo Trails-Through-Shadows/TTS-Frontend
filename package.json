@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "notiflix": "^3.2.7",
+    "simplebar": "^6.2.5",
     "svelte-routing": "^2.11.0"
   }
 }

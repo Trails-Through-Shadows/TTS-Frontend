@@ -3,7 +3,8 @@
   import { Login } from "./Login";
   import { Notify, Loading } from "notiflix";
 
-  let token = '';
+  let licenseId = sessionStorage.getItem('licenseId') ? parseInt(sessionStorage.getItem('licenseId') as string) : 0;
+  let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
 
   let licenseNumber = '';
   let password = '';
@@ -14,22 +15,41 @@
 
   const creator = new Login();
 
-  let selectedCampaign: Campaign | null= null;
+  let selectedCampaign: Campaign | null = null;
+
+  if (licenseId === 0 || token === '') {
+    sessionStorage.clear();
+  } else {
+    logIn();
+  }
+
+  function logIn() {
+    loggedIn = true;
+
+    Loading.dots('Loading...')
+    creator.readDataAdventures(`${api}/adventures/?token=${token}`,
+      () => {
+        adventureList = creator.getAdventures();
+        Loading.remove();
+      },
+      (m: string) => {
+        sessionStorage.clear();
+        Loading.remove();
+        Notify.failure(m)
+      }
+    );
+    creator.readDataCampaigns(`${api}/campaigns`, () => campaignList = creator.getCampaigns(), (m: string) => Notify.failure(m));
+  }
 
   function handleLogin() {
-    creator.postDataLogin(`${api}/session/login`, licenseNumber, password, (t: string) => {
+    creator.postDataLogin(`${api}/session/login`, licenseNumber, password, (id: number, t: string) => {
+      licenseId = id;
       token = t;
-      loggedIn = true;
-      if (loggedIn) {
-        Loading.dots('Loading...')
-        creator.readDataAdventures(`${api}/adventures?token=${token}`, () => {
-          adventureList = creator.getAdventures();
-          Loading.remove();
-        },
-        (m: string) => Notify.failure(m)
-        );
-        creator.readDataCampaigns(`${api}/campaigns`, () => campaignList = creator.getCampaigns(), (m: string) => Notify.failure(m));
-      }
+
+      sessionStorage.setItem('licenseId', licenseId.toString());
+      sessionStorage.setItem('token', token);
+
+      logIn();
     },
     (m: string) => Notify.failure(m)
     );
@@ -79,12 +99,34 @@
 
     const newAdventure = new Adventure(null, title.value, description.value, 0, 0, 0, selectedCampaign.id);
 
-    creator.postDataCreateAdventure(`${api}/adventures?token=${token}`, newAdventure, () => {
+    creator.postDataCreateAdventure(`${api}/adventures/${licenseId}?token=${token}`, newAdventure, () => {
       adventureList = [...adventureList, newAdventure];
       Loading.remove();
       Notify.success('Adventure created successfully');
+      window.location.href = "/char";
+      
     },
-    (m: string) => Notify.failure(m)
+    (response: any) => {
+      Loading.remove();
+      const titleErrors = response.errors.filter(error => error.object === "Title");
+      const descriptionErrors = response.errors.filter(error => error.object === "Description");
+
+      if (titleErrors.length > 0) {
+        titleErrors.forEach(titleError => {
+          titleError.errors.forEach(innerError => {
+            Notify.failure(innerError.message);
+          });
+        });
+      }
+
+      if (descriptionErrors.length > 0) {
+        descriptionErrors.forEach(descriptionError => {
+          descriptionError.errors.forEach(innerError => {
+            Notify.failure(innerError.message);
+          });
+        });
+      }
+    }
     );
   }
 </script>
@@ -142,7 +184,7 @@
                 <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{index}">Edit</button>
               </div>
             </div>
-            <div class="card-body adventure-description">
+            <div class="card-body adventure-description" data-simplebar>
               <p>{adventure.description}</p>
             </div>
             <div class="card-body adventure-resources">
@@ -162,7 +204,7 @@
               </div>
             </div>
             <div class="card-footer">
-              <a class="btn btn-xl w-100 continue-button" href="/encounter">Continue</a>
+              <a class="btn btn-xl w-100 continue-button" href="/adventure?id={adventure.id}">Continue</a>
             </div>
           </div>
         </div>
@@ -234,7 +276,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click="{() => handleCreateAdventure()}">Create adventure</button>
+              <button type="button" class="btn btn-success" on:click="{() => handleCreateAdventure()}">Create adventure</button>
             </div>
           </div>
         </div>
@@ -243,6 +285,7 @@
     </div>
   {/if}
 </main>
+
 
 <style>
   .card {
@@ -296,13 +339,6 @@
   .adventure-card .adventure-description {
     height: 20vh;
     background-color: #333;
-    overflow: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .adventure-card .adventure-description::-webkit-scrollbar {
-    display: none;
   }
 
   .adventure-card .adventure-resources {
@@ -314,6 +350,7 @@
   .continue-button {
     color: #bababa;
     border-color: #4fc780;
+    box-shadow: 0 0 0 0.5rem #222;
   }
 
   .continue-button:hover {
@@ -342,7 +379,7 @@
   }
 
   .resources-input {
-    width: 50px;
+    width: 75px;
     background-color: #333;
     border-color: #1c1c1c;
     text-align: center;

@@ -9,13 +9,13 @@ export class EntityList {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
 
-            console.log(`Encounter | Reading data from ${url}`);
+            console.log(`Characters | Reading data from ${url}`);
 
             if (request.readyState === 4) {
                 if (request.status === 200)
                 {
                     const data = JSON.parse(request.responseText);
-                    this.characters = data.map((character: any) => new Character(character.id, character.clazz, character.race, character.title, character.playerName));
+                    this.characters = data.entries.map((character: any) => new Character(character.id, character.clazz, character.race, character.title, character.playerName));
                     console.log(this.characters);
                     callback();
                 }
@@ -33,7 +33,7 @@ export class EntityList {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
 
-            console.log(`Encounter | Reading data from ${url}`);
+            console.log(`Enemies | Reading data from ${url}`);
 
             if (request.readyState === 4) {
                 if (request.status === 200)
@@ -57,7 +57,7 @@ export class EntityList {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
 
-            console.log(`Encounter | Reading data from ${url}`);
+            console.log(`Obstacles | Reading data from ${url}`);
 
             if (request.readyState === 4) {
                 if (request.status === 200)

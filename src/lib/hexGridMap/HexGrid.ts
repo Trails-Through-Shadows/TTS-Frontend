@@ -1,6 +1,7 @@
 import { Canvas } from "./Canvas";
 import { CubeCoordinate } from "./Coordinate";
 import { Hex, type Offset } from "./Hex";
+import { Color } from "./Color";
 
 export interface BoundingBox {
     minX: number;
@@ -9,14 +10,7 @@ export interface BoundingBox {
     maxY: number;
 }
 
-type HexEnemy = {
-    title: string;
-    tag: string | null;
-    coords: CubeCoordinate;
-    image: HTMLImageElement;
-}
-
-type HexObstacle = {
+type HexEntity = {
     title: string;
     tag: string | null;
     coords: CubeCoordinate;
@@ -24,29 +18,37 @@ type HexObstacle = {
 }
 
 export class HexGrid {
-    private hoveredHex: Hex | null = null;
+    public hoveredHex: Hex | null = null;
+    public entities: HexEntity[] = [];
 
     constructor(
-        private id: number,
+        public id: number,
         private canvas: Canvas,
         private hexes: Hex[] = [],
-        private enemies: HexEnemy[] = [],
-        private obstacles: HexObstacle[] = [],
         private textureImage: any,
         private borderImage: any,
         private hexSize: number = 50,
     ) {
         this.canvas.addOnMouseHoverListener((x: number, y: number) => {
-            const offset: Offset = this.getOffset();
+            if (this.canvas.isLoading()) {
+                return
+            }
 
-            const coord = CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexSize);
-            let hex = this.hexes.find(hex => hex.coords.equals(coord));
+            const offset: Offset = this.getOffset();
+            const coords = CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexSize);
+            const hex = this.getHexAt(coords);
+
+            // It's the same hex, ignore
+            if (this.hoveredHex === hex) {
+                return;
+            }
 
             if (hex) {
                 this.hoveredHex = hex;
             } else {
                 this.hoveredHex = null;
             }
+            this.draw();
         });
     }
 
@@ -68,11 +70,10 @@ export class HexGrid {
         this.borderImage = borderImage;
     }
 
-    setEntities(enemies: HexEnemy[], obstacles: HexObstacle[]): void {
-        this.enemies = enemies;
-        this.obstacles = obstacles;
+    setEntities(entities: HexEntity[]): void {
+        this.entities = entities;
     }
-
+/*
     readData(url: string, callback?: () => void): void {
         this.canvas.setLoading(true);
         const currentTime = new Date().getTime();
@@ -85,7 +86,7 @@ export class HexGrid {
                 const data = JSON.parse(request.responseText);
 
                 // Map enemies and obstacles
-                this.enemies = data['enemies'].map((enemy: any) => {
+                this.entities = data['enemies'].map((enemy: any) => {
                     return {
                         title: enemy.title,
                         tag: enemy.tag,
@@ -93,7 +94,7 @@ export class HexGrid {
                     }
                 });
 
-                this.obstacles = data['obstacles'].map((obstacle: any) => {
+                this.entities = data['obstacles'].map((obstacle: any) => {
                     return {
                         title: obstacle.title,
                         tag: obstacle.tag,
@@ -185,13 +186,9 @@ export class HexGrid {
 
         console.log('HexGrid | Entities mapped to hexes');
     }
-
+*/
     draw(): void {
         if (this.hexes.length === 0) return;
-
-        this.getImages();
-
-        const hexSize = this.hexes[0].hexSize;
         const offset: Offset = this.getOffset();
 
         this.hexes.forEach(hex => {
@@ -199,17 +196,21 @@ export class HexGrid {
         });
 
         this.hexes.forEach(hex => {
+            if (this.hoveredHex && this.hoveredHex.coords.equals(hex.coords)) {
+                this.borderImage = this.borderImage.darken(0.1);
+            }
+
             hex.draw(this.canvas.getContext(), this.textureImage, this.borderImage, offset);
         });
 
+        // this.drawBoundingBox(boundingBox, offset, hexSize);
         this.canvas.setDrawn();
-        console.log(`HexGrid | Drawn ${this.hexes.length} hexes`);
     }
 
     drawBoundingBox(boundingBox: BoundingBox, offset: Offset, hexSize: number): void {
         const ctx = this.canvas.getContext();
         ctx.lineWidth = 2;
-        ctx.strokeStyle = '#F00';
+        ctx.strokeStyle = Color.RED.toRGB();
 
         // Draw bounding box
         ctx.beginPath();
@@ -226,7 +227,7 @@ export class HexGrid {
         const yPosition = offset.y + boundingBox.maxY + hexSize * 1.5;
 
         // Draw bounding box dimensions
-        ctx.fillStyle = '#F00';
+        ctx.fillStyle = Color.RED.toRGB();
         ctx.font = '12px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -236,14 +237,16 @@ export class HexGrid {
     }
 
     private mapNeighbors(hex: Hex) {
-        console.log(hex);
-
         hex.neighbors = CubeCoordinate.directions.map(direction => {
-            console.log(hex.coords);
+            return this.getHexAt(hex.coords.add(direction));
+        }).filter(neighbor => neighbor !== undefined && neighbor !== null) as Hex[];
 
-            const neighbor = direction.add(hex.coords);
-            return this.hexes.find(hex => hex.coords.equals(neighbor));
-        }).filter(neighbor => neighbor !== undefined) as Hex[];
+        // Append hex to neighbors if not already present
+        hex.neighbors.forEach(neighbor => {
+            if (!neighbor.neighbors.find(n => n.coords.equals(hex.coords))) {
+                neighbor.neighbors.push(hex);
+            }
+        });
     }
 
     getBoundingBox(): BoundingBox {
@@ -282,14 +285,8 @@ export class HexGrid {
         return this.hexes;
     }
 
-    addHexAt(CubeCoordinate: CubeCoordinate): void {
-        const hex = new Hex(CubeCoordinate, this.hexSize, []);
-        this.mapNeighbors(hex);
-        this.hexes.push(hex);
-    }
-
-    removeHex(Hex: Hex): void {
-        this.hexes.splice(this.hexes.indexOf(Hex), 1);
+    getHex(id: number): Hex | undefined {
+        return this.hexes.find(hex => hex.id === id);
     }
 
     getHexAt(CubeCoordinate: CubeCoordinate): Hex | undefined {

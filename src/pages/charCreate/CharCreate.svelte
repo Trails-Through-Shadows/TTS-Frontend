@@ -14,8 +14,8 @@
     charList = creator.getCharacters();
   }
 
-  function confirmCharacters() {
-    // TODO: Save characters to the database
+  function handleConfirm() {
+
   }
 </script>
 
@@ -97,10 +97,10 @@
                     </div>
                     <div class="row">
                       <div class = "col-6 textarea-container bordered-right">
-                        <textarea class="form-control" disabled>{character.race.description}</textarea>
+                        <p class="form-control description" data-simplebar>{character.race.description}</p>
                       </div>
                       <div class = "col-6 textarea-container">
-                        <textarea class="form-control" disabled>{character.clazz.description}</textarea>
+                        <p class="form-control description" data-simplebar>{character.clazz.description}</p>
                       </div>
                     </div>
                 </div>
@@ -119,6 +119,9 @@
           </div>
         </div>
       {/if}
+      <div class="col-xl-12">
+        <button class="btn btn-success" on:click={handleConfirm}>Confirm</button>
+      </div>
     </div>
   </div>
 </main>
@@ -192,19 +195,12 @@
     height: 18vh;
   }
 
-  .textarea-container textarea {
+  .textarea-container .description {
     background-color: #222;
     color: #bababa;
     border: none;
     height: 100%;
     resize: none;
-    overflow: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .textarea-container textarea::-webkit-scrollbar {
-    display: none;
   }
 
   .bordered-right {

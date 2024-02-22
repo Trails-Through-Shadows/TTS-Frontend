@@ -6,6 +6,14 @@
   import { EntityList } from './Encounter';
   import { onMount } from 'svelte';
 
+  let licenseId = sessionStorage.getItem('licenseId') ? parseInt(sessionStorage.getItem('licenseId') as string) : 0;
+  let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
+  
+  if (licenseId === 0 || token === '') {
+    sessionStorage.clear();
+    window.location.href = "/";
+  }
+
   let playing = false;
   let characterList: Character[] = [];
   let enemyList: Enemy[] = [];
@@ -15,7 +23,7 @@
   let partId = 0;
 
   const creator = new EntityList();
-  creator.readDataCharacters(`${api}/playerdata/characters?idAdventure=${adventureId}`, () => characterList = creator.getCharacters());
+  creator.readDataCharacters(`${api}/adventures/${adventureId}/characters?token=${token}&lazy=false`, () => characterList = creator.getCharacters());
   creator.readDataEnemies(`${api}/locations/1/parts/1`, () => enemyList = creator.getEnemies());
 
   let canvasRoot: HTMLCanvasElement | undefined;
@@ -35,11 +43,11 @@
 
     const hexMap = new HexMap(canvas, textureImage, borderImage);
     hexMap.readData(`${api}/locations/1`);
-    /*
+/*
     const hexGrid = new HexGrid(1, canvas, []);
     hexGrid.setTextures(textureImage, borderImage);
     hexGrid.readData(`${api}/locations/1/parts/1`);
-    */
+*/
     canvas.setBackgroundImage('/assets/map-background.jpg', () => {
       canvas.clear();
       hexMap.draw(partId);
