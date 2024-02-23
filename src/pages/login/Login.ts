@@ -1,5 +1,4 @@
 import { Adventure, Campaign } from "../../lib/Exports";
-import { Notify } from 'notiflix';
 
 export class Login {
     public adventures: Adventure[] = [];

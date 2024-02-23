@@ -15,7 +15,7 @@ export class CharCreate {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
 
-            console.log(`Classes | Reading data from ${api}/background/classes`);
+            console.log(`Classes | Reading data from ${api}/classes`);
             
             if (request.readyState === 4) {
                 if (request.status === 200)
@@ -30,7 +30,7 @@ export class CharCreate {
             }
         }
 
-        request.open('GET', `${api}/background/classes`, true);
+        request.open('GET', `${api}/classes`, true);
         request.send();
     }
 
@@ -38,7 +38,7 @@ export class CharCreate {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
 
-            console.log(`Races | Reading data from ${api}/background/races`);
+            console.log(`Races | Reading data from ${api}/races`);
 
             if (request.readyState === 4) {
                 if (request.status === 200)
@@ -53,10 +53,10 @@ export class CharCreate {
             }
         }
 
-        request.open('GET', `${api}/background/races`, true);
+        request.open('GET', `${api}/races`, true);
         request.send();
     }
-/*
+
     putDataCreateCharacters(url: string, characters: Character[], successCallback: Function, failureCallback: Function): void {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
@@ -80,7 +80,7 @@ export class CharCreate {
         request.setRequestHeader('Content-Type', 'application/json');
         request.send(JSON.stringify(characters));
     }
-*/
+
     addCharacter(character: Character): void {
         if (this.characters.length < 6) {
             this.characters.push(character);

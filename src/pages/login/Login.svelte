@@ -3,7 +3,7 @@
   import { Login } from "./Login";
   import { Notify, Loading } from "notiflix";
 
-  let licenseId = sessionStorage.getItem('licenseId') ? parseInt(sessionStorage.getItem('licenseId') as string) : 0;
+  let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
 
   let licenseNumber = '';
@@ -17,7 +17,7 @@
 
   let selectedCampaign: Campaign | null = null;
 
-  if (licenseId === 0 || token === '') {
+  if (idLicense === 0 || token === '') {
     sessionStorage.clear();
   } else {
     logIn();
@@ -43,10 +43,10 @@
 
   function handleLogin() {
     creator.postDataLogin(`${api}/session/login`, licenseNumber, password, (id: number, t: string) => {
-      licenseId = id;
+      idLicense = id;
       token = t;
 
-      sessionStorage.setItem('licenseId', licenseId.toString());
+      sessionStorage.setItem('idLicense', idLicense.toString());
       sessionStorage.setItem('token', token);
 
       logIn();
@@ -99,7 +99,7 @@
 
     const newAdventure = new Adventure(null, title.value, description.value, 0, 0, 0, selectedCampaign.id);
 
-    creator.postDataCreateAdventure(`${api}/adventures/${licenseId}?token=${token}`, newAdventure, () => {
+    creator.postDataCreateAdventure(`${api}/adventures/${idLicense}?token=${token}`, newAdventure, () => {
       adventureList = [...adventureList, newAdventure];
       Loading.remove();
       Notify.success('Adventure created successfully');
@@ -108,20 +108,20 @@
     },
     (response: any) => {
       Loading.remove();
-      const titleErrors = response.errors.filter(error => error.object === "Title");
-      const descriptionErrors = response.errors.filter(error => error.object === "Description");
+      const titleErrors = response.errors.filter((error: any) => error.object === "Title");
+      const descriptionErrors = response.errors.filter((error: any) => error.object === "Description");
 
       if (titleErrors.length > 0) {
-        titleErrors.forEach(titleError => {
-          titleError.errors.forEach(innerError => {
+        titleErrors.forEach((titleError: any) => {
+          titleError.errors.forEach((innerError: any) => {
             Notify.failure(innerError.message);
           });
         });
       }
 
       if (descriptionErrors.length > 0) {
-        descriptionErrors.forEach(descriptionError => {
-          descriptionError.errors.forEach(innerError => {
+        descriptionErrors.forEach((descriptionError: any) => {
+          descriptionError.errors.forEach((innerError: any) => {
             Notify.failure(innerError.message);
           });
         });

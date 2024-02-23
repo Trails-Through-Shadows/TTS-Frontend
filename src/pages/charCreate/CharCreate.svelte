@@ -1,6 +1,14 @@
 <script lang="ts">
   import { CharCreate } from './CharCreate';
 
+  let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
+  let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
+  
+  if (idLicense === 0 || token === '') {
+    sessionStorage.clear();
+    window.location.href = "/";
+  }
+
   const creator = new CharCreate();
   let charList = creator.getCharacters();
   
@@ -15,7 +23,7 @@
   }
 
   function handleConfirm() {
-
+    
   }
 </script>
 

@@ -29,6 +29,32 @@ export class CharacterList {
         request.send();
     }
 
+    postDataCreateAdventure(url: string, idLocation: number, successCallback: Function, failureCallback: Function): void {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = () => {
+
+            console.log(`Create Adventure | Posting data to ${url}`);
+
+            if (request.readyState === 4) {
+                if (request.status === 200)
+                {
+                    console.log('Adventure created');
+                    const response = JSON.parse(request.responseText);
+                    successCallback(response.idEncounter);
+                }
+                else {
+                    console.log('Error: ' + request.status);
+                    const response = JSON.parse(request.responseText);
+                    failureCallback(response.message);
+                }
+            }
+        }
+
+        request.open('POST', url, true);
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.send(JSON.stringify( idLocation ));
+    }
+
     getCharacters(): Character[] {
         return this.characters;
     }

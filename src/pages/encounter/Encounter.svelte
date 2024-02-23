@@ -6,28 +6,53 @@
   import { EntityList } from './Encounter';
   import { onMount } from 'svelte';
 
-  let licenseId = sessionStorage.getItem('licenseId') ? parseInt(sessionStorage.getItem('licenseId') as string) : 0;
+  let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
   
-  if (licenseId === 0 || token === '') {
+  if (idLicense === 0 || token === '') {
     sessionStorage.clear();
     window.location.href = "/";
   }
 
+  const urlParams = new URLSearchParams(window.location.search);
+  let idAdventure = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
+
   let playing = false;
   let characterList: Character[] = [];
-  let enemyList: Enemy[] = [];
-  let entityList: (Character | Enemy)[] = [];
+  let enemyList: Enemy[][] = [];
+  let entityList: (Character | Enemy[])[] = [];
 
-  let adventureId = 1;
   let partId = 0;
 
   const creator = new EntityList();
-  creator.readDataCharacters(`${api}/adventures/${adventureId}/characters?token=${token}&lazy=false`, () => characterList = creator.getCharacters());
-  creator.readDataEnemies(`${api}/locations/1/parts/1`, () => enemyList = creator.getEnemies());
+  creator.readDataCharacters(`${api}/adventures/${idAdventure}/characters?token=${token}&lazy=false`, () => characterList = creator.getCharacters());
+  //creator.readDataEnemies(`${api}/locations/1/parts/1`, () => enemyList = creator.getEnemies());
+
+  creator.readDataEnemies(`${api}/locations/1/parts/1`, () => {
+    let enemies: Enemy[] = creator.getEnemies();
+    enemies = [...enemies, ...enemies, ...enemies, ...enemies, ...enemies, ...enemies, ...enemies, ...enemies];
+
+    for (let enemy of enemies) {
+      if (enemyList.length === 0) {
+        enemyList.push([enemy]);
+      } else {
+        let added = false;
+        for (let i = 0; i < enemyList.length; i++) {
+          if (enemyList[i][0].title === enemy.title) {
+            enemyList[i].push(enemy);
+            added = true;
+            break;
+          }
+        }
+        if (!added) {
+          enemyList.push([enemy]);
+        }
+      }
+    }
+  });
 
   let canvasRoot: HTMLCanvasElement | undefined;
-
+/*
   onMount(() => {
     if (!canvasRoot) {
       return;
@@ -43,11 +68,11 @@
 
     const hexMap = new HexMap(canvas, textureImage, borderImage);
     hexMap.readData(`${api}/locations/1`);
-/*
+
     const hexGrid = new HexGrid(1, canvas, []);
     hexGrid.setTextures(textureImage, borderImage);
     hexGrid.readData(`${api}/locations/1/parts/1`);
-*/
+
     canvas.setBackgroundImage('/assets/map-background.jpg', () => {
       canvas.clear();
       hexMap.draw(partId);
@@ -58,7 +83,7 @@
       hexMap.draw(partId);
     });
   });
-
+*/
   let isSliderVisible = false;
 
   function toggleSlider() {
@@ -71,8 +96,23 @@
     playing = true;
   }
 
+  function endTurn() {
+    let entityListCopy = [...entityList];
+    if (entityListCopy.length > 0) {
+      const firstItem = entityListCopy.shift();
+      entityListCopy.push(firstItem as Character | Enemy);
+    }
+    entityList = entityListCopy;
+  }
+
   function endEncounter() {
     playing = false;
+  }
+
+  let selectedOptions = Array(characterList.length).fill("");
+
+  function handleChange(event: any, index: any) {
+    selectedOptions[index] = event.target.value;
   }
 </script>
 
@@ -106,27 +146,32 @@
     <div class="row">
       {#if !playing}
         {#each characterList as character, index}
-        <div class="col-xl-2 big-card">
-          <div class="card border-0 m-1">
-            <div class="card-header">
-              <h5 id="card-name" class="m-0">{character.title}</h5>
-              <p class="m-0">{character.playerName}</p>
-            </div>
-            <div class="card-body">
-              <div class="position-relative">
-                <img class="class-image" src="assets/chars/{character.race.title}-{character.clazz.title}.png" alt="{character.clazz.title}" />
-                <div class="position-absolute bottom-0 start-50 translate-middle-x">
-                  <div class="position-relative">
-                    <div class="d-flex">
-                      <input type="number" class="form-control form-control-sm stat-input" />
-                      <input type="text" class="form-control form-control-sm stat-input-disabled" value={character.clazz.baseInitiative >= 0 ? '+' + character.clazz.baseInitiative : character.clazz.baseInitiative} disabled />
+          <div class="col-xl-2 big-card">
+            <div class="card border-0 m-1">
+              <div class="card-header">
+                <h5 id="card-name" class="m-0">{character.title}</h5>
+                <p class="m-0">{character.playerName}</p>
+              </div>
+              <div class="card-body">
+                <div class="position-relative">
+                  <img class="class-image" src="assets/chars/{character.race.title}-{character.clazz.title}.png" alt="{character.clazz.title}" />
+                  <div class="position-absolute bottom-0 end-0">
+                    <div class="position-relative">
+                      <div class="d-flex align-items-end">
+                        <input type="text" class="form-control form-control-sm stat-input" value={character.clazz.baseInitiative + character.race.baseInitiative} disabled />
+                        <select class="form-control stat-input {selectedOptions[index] === 'CRIT' || selectedOptions[index] === 'MISS' ? 'small-font' : ''}" on:change={(e) => handleChange(e, index)}>
+                          <option value="" selected disabled hidden>?</option>
+                          {#each ["CRIT", "+5", "+4", "+3", "+2", "+1", "+0", "-1", "-2", "-3", "MISS"] as value}
+                          <option value={value}>{value}</option>
+                          {/each}
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
         {/each}
         <div class="col-xl-12">
           <button class="btn btn-success" on:click={startEncounter}>Start encounter</button>
@@ -158,7 +203,10 @@
               <div class="card border-0 m-1">
                 <div class="card-header">
                   <h5 id="card-name" class="m-0">{entity.title}</h5>
-                  <p class="m-0">Level: 1</p>
+                  <select class="btn btn-sm enemies-menu">
+                    <i class="bi bi-arrow-bar-down" />
+                    <!--Add enemies here-->
+                  </select>
                 </div>
                 <div class="card-body">
                   <div class="position-relative">
@@ -182,7 +230,7 @@
           {/if}
         {/each}
         <div class="col-xl-12">
-          <button class="btn btn-primary" on:click={endEncounter}>End encounter</button>
+          <button class="btn btn-primary" on:click={endTurn}>Next turn</button>
         </div>
       {/if}
     </div>
@@ -230,35 +278,45 @@
   }
 
   .big-card .stat-image {
-    width: 50px;
+    width: 3rem;
   }
 
   .big-card h5 {
     font-size: 2rem;
   }
 
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
   .stat-input {
-    width: 35px;
-    background-color: #fff;
-    border-color: #222;
-    color: #222;
+    width: 50px;
+    height: 50px;
+    background-color: #333;
+    color: #bababa;
     text-align: center;
-    border-radius: 5px 0 0 5px;
+    justify-content: center;
+    border: none;
+    border-radius: 5px 5px 5px 0;
+    font-size: 1.5rem;
+    padding: 0;
   }
 
-  .stat-input-disabled {
-    width: 35px;
-    background-color: #bababa;
-    border-color: #222;
-    color: #222;
-    text-align: center;
-    border-radius: 0 5px 5px 0;
+  select.stat-input {
+    border: 1px solid #4fc780;
+    color: #4fc780;
+  }
+
+  select.stat-input option {
+    font-size: 1rem;
+  }
+  
+  select.stat-input.small-font {
+    font-size: 1rem;
+  }
+
+  .stat-input:disabled {
+    width: 30px;
+    height: 30px;
+    border-radius: 5px 0 0 5px;
+    background-color: #333;
+    font-size: 1rem;
   }
 
   .card-header {
@@ -273,5 +331,11 @@
 
   h5 {
     color: white;
+  }
+
+  .enemies-menu {
+    color: #bababa;
+    border: none;
+    padding: 0;
   }
 </style>

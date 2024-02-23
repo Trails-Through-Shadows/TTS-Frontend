@@ -3,10 +3,10 @@
   import { CharacterList } from "./Adventure";
   import { Notify, Loading } from "notiflix";
 
-  let licenseId = sessionStorage.getItem('licenseId') ? parseInt(sessionStorage.getItem('licenseId') as string) : 0;
+  let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
   
-  if (licenseId === 0 || token === '') {
+  if (idLicense === 0 || token === '') {
     sessionStorage.clear();
     window.location.href = "/";
   }
@@ -14,16 +14,16 @@
   Loading.dots('Loading characters...');
 
   const urlParams = new URLSearchParams(window.location.search);
-  let adventureId = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
+  let idAdventure = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
 
-  if (adventureId === 0) {
+  if (idAdventure === 0) {
     Notify.failure('Something went wrong.');
   }
 
   let charList: Character[] = [];
 
   const creator = new CharacterList();
-  creator.readData(`${api}/adventures/${adventureId}/characters?token=${token}&lazy=false`,
+  creator.readData(`${api}/adventures/${idAdventure}/characters?token=${token}&lazy=false`,
     () => {
       charList = creator.getCharacters();
       Loading.remove();
@@ -33,6 +33,20 @@
       Loading.remove();
     }
   );
+
+  function handleContinue() {
+    Loading.dots('Creating encounter...');
+    creator.postDataCreateAdventure(`${api}/encounter/${idAdventure}?token=${token}`, 1,
+      (idEncounter: number) => {
+        Loading.remove();
+        window.location.href = `/encounter?id=${idEncounter}`;
+      },
+      () => {
+        Loading.remove();
+        Notify.failure('Something went wrong.');
+      }
+    );
+  }
 </script>
 
 
@@ -143,7 +157,7 @@
       </div>
     {/each}
     <div class="col-xl-12">
-      <a class="btn btn-success" href="/encounter?id={adventureId}">Start encounter</a>
+      <button class="btn btn-success" on:click="{handleContinue}">Start encounter</button>
     </div>
   </div>
 </main>
