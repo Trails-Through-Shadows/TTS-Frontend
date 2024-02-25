@@ -99,34 +99,35 @@
 
     const newAdventure = new Adventure(null, title.value, description.value, 0, 0, 0, selectedCampaign.id);
 
-    creator.postDataCreateAdventure(`${api}/adventures/${idLicense}?token=${token}`, newAdventure, () => {
-      adventureList = [...adventureList, newAdventure];
-      Loading.remove();
-      Notify.success('Adventure created successfully');
-      window.location.href = "/char";
-      
-    },
-    (response: any) => {
-      Loading.remove();
-      const titleErrors = response.errors.filter((error: any) => error.object === "Title");
-      const descriptionErrors = response.errors.filter((error: any) => error.object === "Description");
+    creator.postDataCreateAdventure(`${api}/adventures/${idLicense}?token=${token}`, newAdventure,
+      (idAdventure: number) => {
+        adventureList = [...adventureList, newAdventure];
+        Loading.remove();
+        Notify.success('Adventure created successfully');
+        window.location.href = `/char?id=${idAdventure}`;
+        
+      },
+      (response: any) => {
+        Loading.remove();
+        const titleErrors = response.errors.filter((error: any) => error.object === "Title");
+        const descriptionErrors = response.errors.filter((error: any) => error.object === "Description");
 
-      if (titleErrors.length > 0) {
-        titleErrors.forEach((titleError: any) => {
-          titleError.errors.forEach((innerError: any) => {
-            Notify.failure(innerError.message);
+        if (titleErrors.length > 0) {
+          titleErrors.forEach((titleError: any) => {
+            titleError.errors.forEach((innerError: any) => {
+              Notify.failure(innerError.message);
+            });
           });
-        });
-      }
+        }
 
-      if (descriptionErrors.length > 0) {
-        descriptionErrors.forEach((descriptionError: any) => {
-          descriptionError.errors.forEach((innerError: any) => {
-            Notify.failure(innerError.message);
+        if (descriptionErrors.length > 0) {
+          descriptionErrors.forEach((descriptionError: any) => {
+            descriptionError.errors.forEach((innerError: any) => {
+              Notify.failure(innerError.message);
+            });
           });
-        });
+        }
       }
-    }
     );
   }
 </script>
@@ -176,7 +177,7 @@
   {:else}
     <div class="row w-100">
       {#each adventureList as adventure, index}
-        <div class="col-xl-3">
+        <div class="col-xl-3 col-lg-4 col-md-6">
           <div class="card adventure-card border-0 m-3">
             <div class="card-header">
               <div class="d-flex justify-content-between">
@@ -234,7 +235,7 @@
         </div>
       {/each}
     {#if adventureList.length < 8}
-      <div class="col-xl-3">
+      <div class="col-xl-3 col-lg-4 col-md-6">
         <div class="small-card-container">
           <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#createModal">
             <img class="scroll-image" src="assets/scroll.png" alt="Add adventure" />
@@ -307,6 +308,7 @@
 
   .login-card {
     width: 20vw;
+    min-width: 250px;
   }
 
   .login-card .card-header {
@@ -328,7 +330,6 @@
   }
 
   .adventure-card {
-    height: 35vh;
     background-color: #222;
   }
 

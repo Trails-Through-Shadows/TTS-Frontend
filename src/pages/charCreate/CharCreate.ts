@@ -1,4 +1,4 @@
-import { api, Character, Clazz, Race } from "../../lib/Exports";
+import { api, LazyCharacter, Character, Clazz, Race } from "../../lib/Exports";
 
 export class CharCreate {
     public characters: Character[] = [];
@@ -58,6 +58,9 @@ export class CharCreate {
     }
 
     putDataCreateCharacters(url: string, characters: Character[], successCallback: Function, failureCallback: Function): void {
+        //rewrite characters to lazy characters
+        //let lazyCharacters = characters.map((character: Character) => new LazyCharacter(character.id, character.clazz.id, character.race.id, character.title, character.playerName));
+
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
             console.log(`Character | Sending data to ${url}`);

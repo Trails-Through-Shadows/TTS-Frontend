@@ -1,5 +1,8 @@
 <script lang="ts">
   import { CharCreate } from './CharCreate';
+  import { LazyCharacter } from '../../lib/Exports';
+  import { api } from '../../lib/Exports';
+  import { Notify, Loading } from 'notiflix';
 
   let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
@@ -8,6 +11,9 @@
     sessionStorage.clear();
     window.location.href = "/";
   }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  let idAdventure = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
 
   const creator = new CharCreate();
   let charList = creator.getCharacters();
@@ -23,8 +29,20 @@
   }
 
   function handleConfirm() {
-    
+    creator.putDataCreateCharacters(`${api}/adventures/${idAdventure}/characters?token=${token}`, charList,
+      () => {
+        window.location.href = `/adventure?id=${idAdventure}`;
+      },
+      () => {
+        Notify.failure('Something went wrong.');
+      }
+    );
   }
+
+  let mobile = window.innerWidth < 500;
+  window.addEventListener('resize', () => {
+    mobile = window.innerWidth < 500;
+  });
 </script>
 
 
@@ -47,19 +65,19 @@
 </nav>
 
 
-<main>
+<main data-simplebar>
   <div class="container-fluid">
     <div class="row">
       {#each charList as character, index}
-        <div class="col-xl-4">
+        <div class="col-xl-4 col-lg-6">
           <div class="card border-0 m-3">
             <div class="card-header">
               <input class="form-control character-input" type="text" placeholder="The name of the hero" bind:value={character.title} />
               <input class="form-control character-input mt-1" type="text" placeholder="The name of the puppeteer" bind:value={character.playerName} />
             </div>
             <div class="card-body">
-              <div class="d-flex">
-                <div class="col-5 class-image-container">
+              <div class="{mobile ? '' : 'd-flex'}">
+                <div class="class-image-container {mobile ? 'mobile' : ''}">
                   <img class="class-image" src="assets/chars/{character.race.title}-{character.clazz.title}.png" alt="{character.clazz.title}" />
                   <div class="position-absolute bottom-0 start-0">
                     <div class="position-relative">
@@ -84,36 +102,38 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-7 container-fluid">
-                    <div class="row">
-                      <div class="col-6 bordered-right">
-                        <select class="form-control character-input mb-1" bind:value={character.race}>
-                          {#each creator.getRaces() as race}
-                            <option value={race}>{race.title}</option>
-                          {/each}
-                          <option value={character.race} selected disabled hidden>Hero's race</option>
-                        </select>
-                      </div>
-                      <div class="col-6">
-                        <select class="form-control character-input mb-1" bind:value={character.clazz}>
-                          {#each creator.getClazzes() as clazz}
-                            <option value={clazz}>{clazz.title}</option>
-                          {/each}
-                          <option value={character.clazz} selected disabled hidden>Hero's class</option>
-                        </select>
-                      </div>
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col-6 bordered-right">
+                      <select class="form-control character-input mb-1" bind:value={character.race}>
+                        {#each creator.getRaces() as race}
+                          <option value={race}>{race.title}</option>
+                        {/each}
+                        <option value={character.race} selected disabled hidden>Hero's race</option>
+                      </select>
                     </div>
-                    <div class="row">
-                      <div class = "col-6 textarea-container bordered-right">
-                        <p class="form-control description" data-simplebar>{character.race.description}</p>
-                      </div>
-                      <div class = "col-6 textarea-container">
-                        <p class="form-control description" data-simplebar>{character.clazz.description}</p>
-                      </div>
+                    <div class="col-6">
+                      <select class="form-control character-input mb-1" bind:value={character.clazz}>
+                        {#each creator.getClazzes() as clazz}
+                          <option value={clazz}>{clazz.title}</option>
+                        {/each}
+                        <option value={character.clazz} selected disabled hidden>Hero's class</option>
+                      </select>
                     </div>
+                  </div>
+                  <div class="row">
+                    <div class = "col-6 textarea-container bordered-right">
+                      <p class="form-control description" data-simplebar>{character.race.description}</p>
+                    </div>
+                    <div class = "col-6 textarea-container">
+                      <p class="form-control description" data-simplebar>{character.clazz.description}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <button class="btn btn-danger position-absolute bottom-0 end-0 m-3" on:click={() => deleteCharacter(index)}>Delete</button>
+            </div>
+            <div class="card-footer d-flex justify-content-end">
+              <button class="btn btn-danger" on:click={() => deleteCharacter(index)}>Delete</button>
             </div>
           </div>
         </div>
@@ -150,19 +170,24 @@
   .class-image-container {
     position: relative;
     height: 25vh;
+    min-width: 25vh;
+  }
+
+  .class-image-container.mobile {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    margin-bottom: 1rem;
   }
 
   .class-image {
-    width: 100%;
-    border-radius: 50%;
+    max-height: 100%;
+    width: auto;
+    border-radius: 25%;
   }
 
   .stat-image {
     width: 50px;
-  }
-
-  .card {
-    height: 40vh;
   }
 
   .card-header {
@@ -171,7 +196,10 @@
 
   .card-body {
     background-color: #222;
-    border-radius: 0 0 5px 5px;
+  }
+
+  .card-footer {
+    background-color: #222;
   }
 
   .small-card-container {
@@ -200,7 +228,7 @@
   }
 
   .textarea-container {
-    height: 18vh;
+    height: 20vh;
   }
 
   .textarea-container .description {

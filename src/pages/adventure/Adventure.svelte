@@ -23,7 +23,7 @@
   let charList: Character[] = [];
 
   const creator = new CharacterList();
-  creator.readData(`${api}/adventures/${idAdventure}/characters?token=${token}&lazy=false`,
+  creator.readCharacterData(`${api}/adventures/${idAdventure}/characters?token=${token}&lazy=false`,
     () => {
       charList = creator.getCharacters();
       Loading.remove();
@@ -36,7 +36,7 @@
 
   function handleContinue() {
     Loading.dots('Creating encounter...');
-    creator.postDataCreateAdventure(`${api}/encounter/${idAdventure}?token=${token}`, 1,
+    creator.postCreateAdventureData(`${api}/encounter/${idAdventure}?token=${token}`, 1,
       (idEncounter: number) => {
         Loading.remove();
         window.location.href = `/encounter?id=${idEncounter}`;
@@ -69,10 +69,10 @@
 </nav>
 
 
-<main>
+<main data-simplebar>
   <div class="row">
     {#each charList as character, index}
-      <div class="col-4">
+      <div class="col-xl-4 col-lg-6">
         <div class="row m-3">
           <div class="col-2 d-flex align-items-center justify-content-center p-0">
             <div class="card border-0 side-card left-card">
@@ -191,6 +191,7 @@
 
   .card {
     height: 40vh;
+    background-color: #222;
   }
 
   .card-header {
@@ -218,6 +219,7 @@
   .side-card {
     height: 80%;
     width: 100%;
+    background-color: #1c1c1c;
   }
 
   .side-card .card-body {
@@ -248,6 +250,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    aspect-ratio: 1;
   }
 
   .item-image {

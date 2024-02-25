@@ -16,7 +16,7 @@ main {
   color: #4fc780;
   text-align: center;
   padding: 12.5px;
-  height: 75px;
+  height: auto;
   z-index: 1000;
 }
 

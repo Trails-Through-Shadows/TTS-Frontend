@@ -141,7 +141,8 @@ export class Login {
                 if (request.status === 200)
                 {
                     console.log('Adventure | Data sent');
-                    successCallback();
+                    const response = JSON.parse(request.responseText);
+                    successCallback(response.id);
                 }
                 else {
                     console.log('Error: ' + request.status);

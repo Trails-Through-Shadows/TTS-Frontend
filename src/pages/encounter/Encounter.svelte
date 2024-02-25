@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { api, Character, Enemy } from '../../lib/Exports';
+  import { api, LazyCharacter, Enemy } from '../../lib/Exports';
   import { Canvas } from '../../lib/hexGridMap/Canvas';
   import { HexGrid } from '../../lib/hexGridMap/HexGrid';
   import { HexMap } from '../../lib/hexGridMap/HexMap';
-  import { EntityList } from './Encounter';
+  import { Encounter } from './Encounter';
   import { onMount } from 'svelte';
+  import { Notify, Loading } from "notiflix";
 
   let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
@@ -15,19 +16,29 @@
   }
 
   const urlParams = new URLSearchParams(window.location.search);
-  let idAdventure = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
+  let idEncounter = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
 
   let playing = false;
-  let characterList: Character[] = [];
-  let enemyList: Enemy[][] = [];
-  let entityList: (Character | Enemy[])[] = [];
+  let story = '';
 
-  let partId = 0;
+  let creator = new Encounter();
 
-  const creator = new EntityList();
-  creator.readDataCharacters(`${api}/adventures/${idAdventure}/characters?token=${token}&lazy=false`, () => characterList = creator.getCharacters());
-  //creator.readDataEnemies(`${api}/locations/1/parts/1`, () => enemyList = creator.getEnemies());
+  creator.readStoryData(`${api}/encounter/${idEncounter}/story?token=${token}`,
+    (story: string) => {
+      story = story;
 
+      const storyModal = document.getElementById('storyModal');
+      if (storyModal) {
+        storyModal.classList.add('show');
+      }
+    },
+    () => {
+      Notify.failure('Something went wrong.');
+    }
+  );
+
+
+  /*
   creator.readDataEnemies(`${api}/locations/1/parts/1`, () => {
     let enemies: Enemy[] = creator.getEnemies();
     enemies = [...enemies, ...enemies, ...enemies, ...enemies, ...enemies, ...enemies, ...enemies, ...enemies];
@@ -50,6 +61,7 @@
       }
     }
   });
+  */
 
   let canvasRoot: HTMLCanvasElement | undefined;
 /*
@@ -91,11 +103,11 @@
   }
 
   function startEncounter() {
-    entityList = [...characterList, ...enemyList];
-    console.log(entityList);
-    playing = true;
+    let charInitiative: { id: number, initiative: number }[] = [];
+
   }
 
+  /*
   function endTurn() {
     let entityListCopy = [...entityList];
     if (entityListCopy.length > 0) {
@@ -108,6 +120,7 @@
   function endEncounter() {
     playing = false;
   }
+  */
 
   let selectedOptions = Array(characterList.length).fill("");
 
@@ -234,6 +247,20 @@
         </div>
       {/if}
     </div>
+  </div>
+  <div>
+    <div class="modal fade" id="storyModal" tabindex="-1" aria-labelledby="storyModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="storyModalLabel">Story</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>{story}</p>
+          </div>
+        </div>
+      </div>
   </div>
 </main>
 

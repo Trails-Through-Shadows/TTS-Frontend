@@ -3,7 +3,7 @@ import { api, Character, Clazz, Race } from '../../lib/Exports'
 export class CharacterList {
     public characters: Character[] = [];
 
-    readData(url: string, successCallback: Function, failureCallback: Function): void {
+    readCharacterData(url: string, successCallback: Function, failureCallback: Function): void {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
 
@@ -29,7 +29,7 @@ export class CharacterList {
         request.send();
     }
 
-    postDataCreateAdventure(url: string, idLocation: number, successCallback: Function, failureCallback: Function): void {
+    postCreateAdventureData(url: string, idLocation: number, successCallback: Function, failureCallback: Function): void {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
 

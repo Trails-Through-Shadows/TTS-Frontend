@@ -33,6 +33,17 @@ export class Character {
     ) {}
 }
 
+export class LazyCharacter {
+    constructor(
+        public id: number,
+        public clazz: number,
+        public race: number,
+        public title: string,
+        public playerName: string | null,
+        public baseInitiative: number | null = null,
+    ) {}
+}
+
 export class Enemy {
     constructor(
         public id: number,
