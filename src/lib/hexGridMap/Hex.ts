@@ -116,6 +116,10 @@ import { CubeCoordinate } from "./Coordinate";
             ctx.drawImage(entityImage, offset.x + x - enemyWidth / 2, offset.y + y - enemyHeight / 2, enemyWidth, enemyHeight);
         }
 
+        setEntityImage(image: HTMLImageElement): void {
+            this.entityImage = image;
+        }
+
         getNeighbor(direction: CubeCoordinate): Hex | null {
             return this.neighbors.find(hex => hex.coords.equals(this.coords.add(direction))) || null;
         }

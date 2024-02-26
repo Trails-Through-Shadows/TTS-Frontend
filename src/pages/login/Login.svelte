@@ -36,6 +36,9 @@
         sessionStorage.clear();
         Loading.remove();
         Notify.failure(m)
+        if (m === 'Invalid session token!') {
+          loggedIn = false;
+        }
       }
     );
     creator.readDataCampaigns(`${api}/campaigns`, () => campaignList = creator.getCampaigns(), (m: string) => Notify.failure(m));

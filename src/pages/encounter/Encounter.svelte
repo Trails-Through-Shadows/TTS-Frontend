@@ -2,9 +2,9 @@
   import { api } from '../../lib/Exports';
   import { Canvas } from '../../lib/hexGridMap/Canvas';
   import { HexGrid } from '../../lib/hexGridMap/HexGrid';
-  import { HexMap } from '../../lib/hexGridMap/HexMap';
+  import { Hex } from '../../lib/hexGridMap/Hex';
+  import { CubeCoordinate } from '../../lib/hexGridMap/Coordinate';
   import { Encounter } from './Encounter';
-  import { onMount } from 'svelte';
   import { Notify, Loading } from "notiflix";
 
   let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
@@ -19,11 +19,22 @@
   let idEncounter = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
 
   let playing = false;
-  let story = '';
 
   type baseCharacter = { id: number, title: string, playerName: string, health: number, defence: number, baseInitiative: number, url:string };
   type baseEnemy = { id: number, idGroup:number, title: string, health: number, initiative: number, url: string };
   type baseEnemyGroup = { id:number, enemy:baseEnemy[]};
+
+  let idLocation: number = 0;
+  let idParts: number[] = [];
+
+  let canvasRoot: HTMLCanvasElement | undefined;
+  let hexGridMap: HexGrid[] = [];
+
+  const textureImage = new Image();
+  textureImage.src = '/assets/map-texture-smol-light.jpg';
+
+  const borderImage = new Image();
+  borderImage.src = '/assets/map-texture-smol.jpg';
 
   let characterList: baseCharacter[] = [];
   let enemyList: baseEnemy[] = [];
@@ -34,6 +45,68 @@
 
   creator.readEncounterData(`${api}/encounter/${idEncounter}?token=${token}`,
     (data: any) => {
+      idLocation = data.idLocation;
+      idParts = data.idParts;
+
+      if (!canvasRoot)
+      {
+        Notify.failure("Canvas not found.");
+        return;
+      }
+      
+      let canvas = new Canvas(canvasRoot);
+      canvas.setLoading(true);
+
+      for (let part of idParts) {
+        creator.readPartsData(`${api}/parts/${part}`,
+          (dataParts: any) => {
+            let hexGrid = new HexGrid(
+              dataParts.id,
+              canvas,
+              dataParts.hexes.map((hex: any) => new Hex(hex.key.idPart, hex.key.id, new CubeCoordinate(hex.q, hex.r, hex.s))),
+              textureImage,
+              borderImage
+            );
+
+            //add entities to hexGrid
+            for (let enemy of data.enemies) {
+              if (enemy.startingHex.key.idPart === dataParts.id) {
+                //entityImage.src = enemy.url;
+                hexGrid.addEntity({
+                  title: enemy.title,
+                  coords: new CubeCoordinate(enemy.startingHex.q, enemy.startingHex.r, enemy.startingHex.s),
+                  url: enemy.url,
+                  image: new Image()
+                });
+              }
+            }
+
+            hexGrid.getImages();
+
+            hexGridMap.push(hexGrid);
+
+            if (hexGridMap.length === idParts.length) {
+              canvas.setLoading(false);
+              console.log(hexGridMap);
+              hexGridMap[0].draw();
+
+              canvas.setBackgroundImage('/assets/map-background.jpg', () => {
+                canvas.clear();
+                hexGridMap[0].draw();
+              });
+
+              canvas.addOnSizeListener(() => {
+                canvas.clear();
+                hexGridMap[0].draw();
+              });
+            }
+          },
+          (m: string) => {
+            Notify.failure(m);
+          }
+        );
+      }
+
       characterList = data.characters;
       enemyList = data.enemies;
 
@@ -62,39 +135,6 @@
     }
   );
 
-  let canvasRoot: HTMLCanvasElement | undefined;
-/*
-  onMount(() => {
-    if (!canvasRoot) {
-      return;
-    }
-
-    const canvas = new Canvas(canvasRoot);
-
-    const textureImage = new Image();
-    textureImage.src = '/assets/map-texture-smol-light.jpg';
-
-    const borderImage = new Image();
-    borderImage.src = '/assets/map-texture-smol.jpg';
-
-    const hexMap = new HexMap(canvas, textureImage, borderImage);
-    hexMap.readData(`${api}/locations/1`);
-
-    const hexGrid = new HexGrid(1, canvas, []);
-    hexGrid.setTextures(textureImage, borderImage);
-    hexGrid.readData(`${api}/locations/1/parts/1`);
-
-    canvas.setBackgroundImage('/assets/map-background.jpg', () => {
-      canvas.clear();
-      hexMap.draw(partId);
-    });
-
-    canvas.addOnSizeListener(() => {
-      canvas.clear();
-      hexMap.draw(partId);
-    });
-  });
-*/
   let isSliderVisible = false;
 
   function toggleSlider() {
@@ -261,7 +301,7 @@
                 </div>
                 <div class="card-body">
                   <div class="position-relative">
-                    <img class="class-image" src="assets/enemy.png" alt="{entity.entity.enemy[0].title}" />
+                    <img class="class-image" src="{entity.entity.enemy[0].url}" alt="{entity.entity.enemy[0].title}" />
                     <div class="position-absolute bottom-0 start-50 translate-middle-x">
                       <div class="position-relative">
                         <img class="stat-image" src="assets/heart.png" alt="Health" />
@@ -280,26 +320,13 @@
       {/if}
     </div>
   </div>
-  <div class="modal fade" id="storyModal" tabindex="-1" aria-labelledby="storyModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="storyModalLabel">Story</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>{story}</p>
-        </div>
-      </div>
-    </div>
-  </div>
 </main>
 
 
 <style>
   .slider {
     position: fixed;
-    top: calc(-100% - 75px);
+    top: -100%;
     left: 0;
     width: 100%;
     height: 100%;
@@ -308,7 +335,6 @@
     transition: top 0.5s ease;
     overflow: hidden;
     z-index: 999;
-    margin-top: 75px;
   }
 
   .slider.visible {

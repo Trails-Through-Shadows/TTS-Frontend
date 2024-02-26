@@ -12,8 +12,8 @@ export interface BoundingBox {
 
 type HexEntity = {
     title: string;
-    tag: string | null;
     coords: CubeCoordinate;
+    url: string;
     image: HTMLImageElement;
 }
 
@@ -31,7 +31,7 @@ export class HexGrid {
     ) {
         this.canvas.addOnMouseHoverListener((x: number, y: number) => {
             if (this.canvas.isLoading()) {
-                return
+                return;
             }
 
             const offset: Offset = this.getOffset();
@@ -48,7 +48,6 @@ export class HexGrid {
             } else {
                 this.hoveredHex = null;
             }
-            this.draw();
         });
     }
 
@@ -72,6 +71,10 @@ export class HexGrid {
 
     setEntities(entities: HexEntity[]): void {
         this.entities = entities;
+    }
+
+    addEntity(entity: HexEntity): void {
+        this.entities.push(entity);
     }
 /*
     readData(url: string, callback?: () => void): void {
@@ -128,40 +131,26 @@ export class HexGrid {
     }
 
     //mapData();
-    
+*/    
     getImages(): void {
         // get all unique enemy names
-        const enemyTitles = [...new Set(this.enemies.map(enemy => enemy.title))];
-        const obstacleTitles = [...new Set(this.obstacles.map(obstacle => obstacle.title))];
+        const entityTitles = this.entities.map(entity => entity.title);
 
         let loaded = 0;
 
         // for each unique enemy name, get the image
-        enemyTitles.forEach(title => {
-            const image = new Image();
-            //image.src = `./assets/${title}.png`;
-            image.src = `./assets/enemy.png`;
-            image.onload = () => {
-                this.enemies.filter(enemy => enemy.title === title).map(enemy => {
-                    enemy.image = image;
-                    console.log(`Image loaded for enemy: ${enemy.title}`);
-                });
-                if (++loaded === enemyTitles.length + obstacleTitles.length) this.bindImages();
-            }
-        });
-
-        // for each unique obstacle name, get the image
-        obstacleTitles.forEach(title => {
-            const image = new Image();
-            //image.src = `./assets/${title}.png`;
-            image.src = `./assets/obstacle.png`;
-            console.log(image.src);
-            image.onload = () => {
-                this.obstacles.filter(obstacle => obstacle.title === title).map(obstacle => {
-                    obstacle.image = image;
-                    console.log(`Image loaded for obstacle: ${obstacle.title}`);
-                });
-                if (++loaded === enemyTitles.length + obstacleTitles.length) this.bindImages();
+        entityTitles.forEach(title => {
+            const entity = this.entities.find(entity => entity.title === title);
+            if (entity) {
+                const image = new Image();
+                image.src = entity.url;
+                image.onload = () => {
+                    entity.image = image;
+                    loaded++;
+                    if (loaded === entityTitles.length) {
+                        this.bindImages();
+                    }
+                }
             }
         });
 
@@ -169,24 +158,17 @@ export class HexGrid {
     }
 
     bindImages(): void {
-        this.enemies.forEach(enemy => {
-            const hex = this.hexes.find(hex => hex.coords.equals(enemy.coords));
+        this.entities.forEach((entity: HexEntity) => {
+            const hex = this.hexes.find(hex => hex.coords.equals(entity.coords));
             if (hex) {
-                hex.entityImage = enemy.image;
-                console.log('HexGrid | Enemy mapped to hex');
-            }
-        });
-
-        this.obstacles.forEach(obstacle => {
-            const hex = this.hexes.find(hex => hex.coords.equals(obstacle.coords));
-            if (hex) {
-                hex.entityImage = obstacle.image;
+                hex.setEntityImage(entity.image);
+                console.log(`HexGrid | ${entity.title} mapped to hex`);
             }
         });
 
         console.log('HexGrid | Entities mapped to hexes');
     }
-*/
+
     draw(): void {
         if (this.hexes.length === 0) return;
         const offset: Offset = this.getOffset();
@@ -197,7 +179,7 @@ export class HexGrid {
 
         this.hexes.forEach(hex => {
             if (this.hoveredHex && this.hoveredHex.coords.equals(hex.coords)) {
-                this.borderImage = this.borderImage.darken(0.1);
+                console.log('HexGrid | Hovered hex at', hex.coords);
             }
 
             hex.draw(this.canvas.getContext(), this.textureImage, this.borderImage, offset);

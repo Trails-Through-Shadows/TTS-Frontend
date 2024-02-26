@@ -77,6 +77,31 @@ export class Encounter {
         request.send();
     }
 
+    readPartsData(url: string, successCallback: Function, failureCallback: Function): void {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = () => {
+
+            console.log(`Parts | Reading data from ${url}`);
+
+            if (request.readyState === 4) {
+                if (request.status === 200)
+                {
+                    const data = JSON.parse(request.responseText);
+                    console.log(data);
+                    successCallback(data);
+                }
+                else {
+                    console.log('Error: ' + request.status);
+                    const response = JSON.parse(request.responseText);
+                    failureCallback(response.message);
+                }
+            }
+        }
+
+        request.open('GET', url, true);
+        request.send();
+    }
+
     /*
     getCharacters(): Character[] {
         return this.characters;
