@@ -13,7 +13,7 @@ export class CharacterList {
                 if (request.status === 200)
                 {
                     const data = JSON.parse(request.responseText);
-                    this.characters = data.entries.map((character: any) => new Character(character.id, character.clazz, character.race, character.title, character.playerName));
+                    this.characters = data.entries.map((character: any) => new Character(character.id, character.clazz, character.race, character.title, character.playerName, character.url));
                     console.log(this.characters);
                     successCallback();
                 }
@@ -29,18 +29,18 @@ export class CharacterList {
         request.send();
     }
 
-    postCreateAdventureData(url: string, idLocation: number, successCallback: Function, failureCallback: Function): void {
+    postCreateEncounterData(url: string, idLocation: number, successCallback: Function, failureCallback: Function): void {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
 
-            console.log(`Create Adventure | Posting data to ${url}`);
+            console.log(`Create Encounter | Posting data to ${url}`);
 
             if (request.readyState === 4) {
                 if (request.status === 200)
                 {
-                    console.log('Adventure created');
+                    console.log('Encounter created');
                     const response = JSON.parse(request.responseText);
-                    successCallback(response.idEncounter);
+                    successCallback(response.id);
                 }
                 else {
                     console.log('Error: ' + request.status);

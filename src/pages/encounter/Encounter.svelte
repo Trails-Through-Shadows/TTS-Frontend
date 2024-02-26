@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { api, LazyCharacter, Enemy } from '../../lib/Exports';
+  import { api } from '../../lib/Exports';
   import { Canvas } from '../../lib/hexGridMap/Canvas';
   import { HexGrid } from '../../lib/hexGridMap/HexGrid';
   import { HexMap } from '../../lib/hexGridMap/HexMap';
@@ -21,47 +21,46 @@
   let playing = false;
   let story = '';
 
+  type baseCharacter = { id: number, title: string, playerName: string, health: number, defence: number, baseInitiative: number, url:string };
+  type baseEnemy = { id: number, idGroup:number, title: string, health: number, initiative: number, url: string };
+  type baseEnemyGroup = { id:number, enemy:baseEnemy[]};
+
+  let characterList: baseCharacter[] = [];
+  let enemyList: baseEnemy[] = [];
+  let enemyGroupList: baseEnemyGroup[] = [];
+  let entityList: { id:number, initiative: number, type: string, entity: (baseCharacter | baseEnemyGroup) }[] = [];
+
   let creator = new Encounter();
 
-  creator.readStoryData(`${api}/encounter/${idEncounter}/story?token=${token}`,
-    (story: string) => {
-      story = story;
+  creator.readEncounterData(`${api}/encounter/${idEncounter}?token=${token}`,
+    (data: any) => {
+      characterList = data.characters;
+      enemyList = data.enemies;
 
-      const storyModal = document.getElementById('storyModal');
-      if (storyModal) {
-        storyModal.classList.add('show');
-      }
-    },
-    () => {
-      Notify.failure('Something went wrong.');
-    }
-  );
-
-
-  /*
-  creator.readDataEnemies(`${api}/locations/1/parts/1`, () => {
-    let enemies: Enemy[] = creator.getEnemies();
-    enemies = [...enemies, ...enemies, ...enemies, ...enemies, ...enemies, ...enemies, ...enemies, ...enemies];
-
-    for (let enemy of enemies) {
-      if (enemyList.length === 0) {
-        enemyList.push([enemy]);
-      } else {
-        let added = false;
-        for (let i = 0; i < enemyList.length; i++) {
-          if (enemyList[i][0].title === enemy.title) {
-            enemyList[i].push(enemy);
-            added = true;
-            break;
+      for (let enemy of enemyList) {
+        if (enemyGroupList.length === 0) {
+          enemyGroupList.push({id:enemy.idGroup, enemy:[enemy]});
+        } else {
+          let added = false;
+          for (let i = 0; i < enemyGroupList.length; i++) {
+            if (enemyGroupList[i].id === enemy.idGroup) {
+              enemyGroupList[i].enemy.push(enemy);
+              added = true;
+              break;
+            }
+          }
+          if (!added) {
+            enemyGroupList.push({id:enemy.idGroup, enemy:[enemy]});
           }
         }
-        if (!added) {
-          enemyList.push([enemy]);
-        }
       }
+
+      console.log(enemyGroupList);
+    },
+    (m: string) => {
+      Notify.failure(m);
     }
-  });
-  */
+  );
 
   let canvasRoot: HTMLCanvasElement | undefined;
 /*
@@ -102,30 +101,64 @@
     isSliderVisible = !isSliderVisible;
   }
 
-  function startEncounter() {
-    let charInitiative: { id: number, initiative: number }[] = [];
-
-  }
-
-  /*
-  function endTurn() {
-    let entityListCopy = [...entityList];
-    if (entityListCopy.length > 0) {
-      const firstItem = entityListCopy.shift();
-      entityListCopy.push(firstItem as Character | Enemy);
-    }
-    entityList = entityListCopy;
-  }
-
-  function endEncounter() {
-    playing = false;
-  }
-  */
-
   let selectedOptions = Array(characterList.length).fill("");
 
   function handleChange(event: any, index: any) {
     selectedOptions[index] = event.target.value;
+  }
+
+  function startEncounter() {
+    let charInitiative: { id: number, initiative: number }[] = [];
+
+    for (let i = 0; i < characterList.length; i++) {
+      if (isNaN(selectedOptions[i]) && selectedOptions[i] !== "CRIT" && selectedOptions[i] !== "MISS") {
+        Notify.failure("All characters must have an initiative value.");
+        return;
+      }
+      charInitiative.push({ id: characterList[i].id, initiative: selectedOptions[i] === "CRIT" ? 10 : selectedOptions[i] === "MISS" ? -10 : parseInt(selectedOptions[i]) });
+    }
+
+    creator.postInitiativeData(`${api}/encounter/${idEncounter}/initiative?token=${token}`, charInitiative,
+      () => {
+        creator.readInitiativeData(`${api}/encounter/${idEncounter}/initiative?token=${token}`,
+          (data: any) => {
+            let initiativeList: { id: number, initiative: number, type: string }[] = data;
+
+            for (let entity of initiativeList) {
+              if (entity.type === "CHARACTER") {
+                for (let character of characterList) {
+                  if (character.id === entity.id) {
+                    entityList.push({ id: entity.id, initiative: entity.initiative, type: "CHARACTER", entity: character });
+                    break;
+                  }
+                }
+              } else if (entity.type === "ENEMY") {
+                for (let enemyGroup of enemyGroupList) {
+                    if (enemyGroup.id === entity.id) {
+                      entityList.push({ id: entity.id, initiative: entity.initiative, type: "ENEMY", entity: enemyGroup });
+                      break;
+                    }
+                  }
+              }
+            }
+
+            entityList = entityList;
+            console.log(entityList);
+          },
+          (m: string) => {
+            Notify.failure(m);
+          }
+        );
+        playing = true;
+      },
+      (m: string) => {
+        Notify.failure(m);
+      }
+    );
+  }
+
+  function endTurn() {
+    
   }
 </script>
 
@@ -167,11 +200,11 @@
               </div>
               <div class="card-body">
                 <div class="position-relative">
-                  <img class="class-image" src="assets/chars/{character.race.title}-{character.clazz.title}.png" alt="{character.clazz.title}" />
+                  <img class="class-image" src="{character.url}" alt="{character.title}" />
                   <div class="position-absolute bottom-0 end-0">
                     <div class="position-relative">
                       <div class="d-flex align-items-end">
-                        <input type="text" class="form-control form-control-sm stat-input" value={character.clazz.baseInitiative + character.race.baseInitiative} disabled />
+                        <input type="text" class="form-control form-control-sm stat-input" value={character.baseInitiative} disabled />
                         <select class="form-control stat-input {selectedOptions[index] === 'CRIT' || selectedOptions[index] === 'MISS' ? 'small-font' : ''}" on:change={(e) => handleChange(e, index)}>
                           <option value="" selected disabled hidden>?</option>
                           {#each ["CRIT", "+5", "+4", "+3", "+2", "+1", "+0", "-1", "-2", "-3", "MISS"] as value}
@@ -191,49 +224,48 @@
         </div>
       {:else}
         {#each entityList as entity, index}
-          {#if entity instanceof Character}
+          {#if entity.type === 'CHARACTER'}
             <div class="{index === 0 ? 'col-xl-2 big-card' : 'col-xl-1'}">
               <div class="card border-0 m-1">
                 <div class="card-header">
-                  <h5 id="card-name" class="m-0">{entity.title}</h5>
-                  <p class="m-0">{entity.playerName}</p>
+                  <h5 id="card-name" class="m-0">{entity.entity.title}</h5>
+                  <p class="m-0">{entity.entity.playerName}</p>
                 </div>
                 <div class="card-body">
                   <div class="position-relative">
-                    <img class="class-image" src="assets/chars/{entity.race.title}-{entity.clazz.title}.png" alt="{entity.clazz.title}" />
+                    <img class="class-image" src={entity.entity.url} alt="{entity.entity.title}" />
                     <div class="position-absolute bottom-0 start-50 translate-middle-x">
                       <div class="position-relative">
                         <img class="stat-image" src="assets/heart.png" alt="Health" />
-                        <div class="stat-container"><h5>{entity.clazz.baseHealth}</h5></div>
+                        <div class="stat-container"><h5>{entity.entity.health}</h5></div>
+                      </div>
+                    </div>
+                    <div class="position-absolute bottom-0 end-0">
+                      <div class="position-relative">
+                        <img class="stat-image" src="assets/shield.png" alt="Defence" />
+                        <div class="stat-container"><h5>{entity.entity.defence}</h5></div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          {:else if entity instanceof Enemy}
+          {:else if entity.type === 'ENEMY'}
             <div class="{index === 0 ? 'col-xl-2 big-card' : 'col-xl-1'}">
               <div class="card border-0 m-1">
                 <div class="card-header">
-                  <h5 id="card-name" class="m-0">{entity.title}</h5>
+                  <h5 id="card-name" class="m-0">{entity.entity.enemy[0].title}</h5>
                   <select class="btn btn-sm enemies-menu">
                     <i class="bi bi-arrow-bar-down" />
-                    <!--Add enemies here-->
                   </select>
                 </div>
                 <div class="card-body">
                   <div class="position-relative">
-                    <img class="class-image" src="assets/enemy.png" alt="{entity.title}" />
+                    <img class="class-image" src="assets/enemy.png" alt="{entity.entity.enemy[0].title}" />
                     <div class="position-absolute bottom-0 start-50 translate-middle-x">
                       <div class="position-relative">
                         <img class="stat-image" src="assets/heart.png" alt="Health" />
-                        <div class="stat-container"><h5>{entity.baseHealth}</h5></div>
-                      </div>
-                    </div>
-                    <div class="position-absolute bottom-0 end-0">
-                      <div class="position-relative">
-                        <img class="stat-image" src="assets/shield.png" alt="Defence" />
-                        <div class="stat-container"><h5>{entity.baseDefence}</h5></div>
+                        <div class="stat-container"><h5>{entity.entity.enemy[0].health}</h5></div>
                       </div>
                     </div>
                   </div>
@@ -248,19 +280,18 @@
       {/if}
     </div>
   </div>
-  <div>
-    <div class="modal fade" id="storyModal" tabindex="-1" aria-labelledby="storyModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="storyModalLabel">Story</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p>{story}</p>
-          </div>
+  <div class="modal fade" id="storyModal" tabindex="-1" aria-labelledby="storyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="storyModalLabel">Story</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>{story}</p>
         </div>
       </div>
+    </div>
   </div>
 </main>
 
@@ -297,7 +328,7 @@
 
   .class-image {
     width: 100%;
-    border-radius: 50%;
+    border-radius: 25%;
   }
 
   .stat-image {

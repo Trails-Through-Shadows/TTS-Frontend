@@ -30,6 +30,7 @@ export class Character {
         public race: Race,
         public title: string,
         public playerName: string | null,
+        public url: string | null = null,
     ) {}
 }
 
@@ -53,6 +54,7 @@ export class Enemy {
         public baseHealth: number,
         public baseDefence: number,
         public baseInitiative: number,
+        public url: string | null = null,
     ) {}
 }
 
@@ -65,6 +67,7 @@ export class Obstacle {
         public baseDamage: number,
         public baseHealth: number,
         public crossable: boolean,
+        public url: string | null = null,
     ) {}
 }
 
@@ -105,3 +108,7 @@ export class Location {
         public description: string | null,
     ) {}
 }
+
+export function IsInvalidToken(token: string): boolean {
+    return token === 'Invalid session token!';
+} 

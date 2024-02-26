@@ -78,7 +78,7 @@
             <div class="card-body">
               <div class="{mobile ? '' : 'd-flex'}">
                 <div class="class-image-container {mobile ? 'mobile' : ''}">
-                  <img class="class-image" src="assets/chars/{character.race.title}-{character.clazz.title}.png" alt="{character.clazz.title}" />
+                  <img class="class-image" src="{api}/images/characters/{character.race.title}-{character.clazz.title}.png" alt="{character.race.title}-{character.clazz.title}" />
                   <div class="position-absolute bottom-0 start-0">
                     <div class="position-relative">
                       <img class="stat-image" src="assets/heart.png" alt="Health" />
