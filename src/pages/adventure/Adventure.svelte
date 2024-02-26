@@ -33,6 +33,10 @@
     (m: string) => {
       Notify.failure(m);
       Loading.remove();
+      if (m === 'Invalid session token!') {
+        sessionStorage.clear();
+        window.location.href = "/";
+      }
     }
   );
 

@@ -102,17 +102,123 @@ export class Encounter {
         request.send();
     }
 
-    /*
-    getCharacters(): Character[] {
-        return this.characters;
+    postTurnStartEnemyData(url: string, successCallback: Function, failureCallback: Function): void {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = () => {
+
+            console.log(`Turn | Posting data to ${url}`);
+
+            if (request.readyState === 4) {
+                if (request.status === 200)
+                {
+                    console.log('Turn posted');
+                    successCallback();
+                }
+                else {
+                    console.log('Error: ' + request.status);
+                    const response = JSON.parse(request.responseText);
+                    failureCallback(response.message);
+                }
+            }
+        }
+
+        request.open('POST', url, true);
+        request.send();
     }
 
-    getEnemies(): Enemy[] {
-        return this.enemies;
+    postTurnEndEnemyData(url: string, successCallback: Function, failureCallback: Function): void {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = () => {
+
+            console.log(`Turn | Posting data to ${url}`);
+
+            if (request.readyState === 4) {
+                if (request.status === 200)
+                {
+                    console.log('Turn posted');
+                    successCallback();
+                }
+                else {
+                    console.log('Error: ' + request.status);
+                    const response = JSON.parse(request.responseText);
+                    failureCallback(response.message);
+                }
+            }
+        }
+
+        request.open('POST', url, true);
+        request.send();
     }
 
-    getObstacles(): Obstacle[] {
-        return this.obstacles;
+    postTurnStartCharacterData(url: string, successCallback: Function, failureCallback: Function): void {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = () => {
+
+            console.log(`Turn | Posting data to ${url}`);
+
+            if (request.readyState === 4) {
+                if (request.status === 200)
+                {
+                    console.log('Turn posted');
+                    successCallback();
+                }
+                else {
+                    console.log('Error: ' + request.status);
+                    const response = JSON.parse(request.responseText);
+                    failureCallback(response.message);
+                }
+            }
+        }
+
+        request.open('POST', url, true);
+        request.send();
     }
-    */
+
+    postTurnEndCharacterData(url: string, successCallback: Function, failureCallback: Function): void {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = () => {
+
+            console.log(`Turn | Posting data to ${url}`);
+
+            if (request.readyState === 4) {
+                if (request.status === 200)
+                {
+                    console.log('Turn posted');
+                    successCallback();
+                }
+                else {
+                    console.log('Error: ' + request.status);
+                    const response = JSON.parse(request.responseText);
+                    failureCallback(response.message);
+                }
+            }
+        }
+
+        request.open('POST', url, true);
+        request.send();
+    }
+
+    postRoundEndData(url: string, successCallback: Function, failureCallback: Function): void {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = () => {
+
+            console.log(`Round | Posting data to ${url}`);
+
+            if (request.readyState === 4) {
+                if (request.status === 200)
+                {
+                    console.log('Round posted');
+                    successCallback();
+                }
+                else {
+                    console.log('Error: ' + request.status);
+                    const response = JSON.parse(request.responseText);
+                    failureCallback(response.message);
+                }
+            }
+        }
+
+        request.open('POST', url, true);
+        request.send();
+    }
 }

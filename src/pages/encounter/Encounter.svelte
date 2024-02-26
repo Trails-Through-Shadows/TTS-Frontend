@@ -18,6 +18,7 @@
   const urlParams = new URLSearchParams(window.location.search);
   let idEncounter = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
 
+  let onTurn: number = 0;
   let playing = false;
 
   type baseCharacter = { id: number, title: string, playerName: string, health: number, defence: number, baseInitiative: number, url:string };
@@ -132,6 +133,10 @@
     },
     (m: string) => {
       Notify.failure(m);
+      if (m === 'Invalid session token!') {
+        sessionStorage.clear();
+        window.location.href = "/";
+      }
     }
   );
 
@@ -184,6 +189,23 @@
 
             entityList = entityList;
             console.log(entityList);
+
+            if (entityList[0].type === "CHARACTER") {
+              creator.postTurnStartCharacterData(`${api}/encounter/${idEncounter}/turn/character/${entityList[0].id}/start?token=${token}`,
+                () => {},
+                (m: string) => {
+                  Notify.failure(m);
+                }
+              );
+            }
+            else if (entityList[0].type === "ENEMY") {
+              creator.postTurnStartEnemyData(`${api}/encounter/${idEncounter}/turn/enemy/${entityList[0].id}/start?token=${token}`,
+                () => {},
+                (m: string) => {
+                  Notify.failure(m);
+                }
+              );
+            }
           },
           (m: string) => {
             Notify.failure(m);
@@ -198,7 +220,83 @@
   }
 
   function endTurn() {
-    
+    if (entityList[onTurn].type === "CHARACTER") {
+      creator.postTurnEndCharacterData(`${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn].id}/end?token=${token}`,
+        () => {
+          onTurn++;
+          if (onTurn === entityList.length) {
+            onTurn = 0;
+            creator.postRoundEndData(`${api}/encounter/${idEncounter}/end?token=${token}`,
+              () => {},
+              (m: string) => {
+                Notify.failure(m);
+              }
+            );
+          }
+          if (entityList[onTurn].type === "CHARACTER") {
+            creator.postTurnStartEnemyData(`${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn].id}/start?token=${token}`,
+              () => {
+                entityList = entityList;
+              },
+              (m: string) => {
+                Notify.failure(m);
+              }
+            );
+          }
+          else if (entityList[onTurn].type === "ENEMY") {
+            creator.postTurnStartCharacterData(`${api}/encounter/${idEncounter}/turn/enemy/${entityList[onTurn].id}/start?token=${token}`,
+              () => {
+                entityList = entityList;
+              },
+              (m: string) => {
+                Notify.failure(m);
+              }
+            );
+          }
+        },
+        (m: string) => {
+          Notify.failure(m);
+        }
+      );
+    } else if (entityList[onTurn].type === "ENEMY") {
+      creator.postTurnEndEnemyData(`${api}/encounter/${idEncounter}/turn/enemy/${entityList[onTurn].id}/end?token=${token}`,
+        () => {
+          onTurn++;
+          if (onTurn === entityList.length) {
+            onTurn = 0;
+            creator.postRoundEndData(`${api}/encounter/${idEncounter}/end?token=${token}`,
+              () => {},
+              (m: string) => {
+                Notify.failure(m);
+              }
+            );
+          }
+          if (entityList[onTurn].type === "CHARACTER") {
+            creator.postTurnStartEnemyData(`${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn].id}/start?token=${token}`,
+              () => {
+                entityList = entityList;
+              },
+              (m: string) => {
+                Notify.failure(m);
+              }
+            );
+          }
+          else if (entityList[onTurn].type === "ENEMY") {
+            creator.postTurnStartCharacterData(`${api}/encounter/${idEncounter}/turn/enemy/${entityList[onTurn].id}/start?token=${token}`,
+              () => {
+                entityList = entityList;
+              },
+              (m: string) => {
+                Notify.failure(m);
+              }
+            );
+          }
+        },
+        (m: string) => {
+          Notify.failure(m);
+        }
+      );
+    }
   }
 </script>
 
@@ -265,7 +363,7 @@
       {:else}
         {#each entityList as entity, index}
           {#if entity.type === 'CHARACTER'}
-            <div class="{index === 0 ? 'col-xl-2 big-card' : 'col-xl-1'}">
+            <div class="{index === onTurn ? 'col-xl-2 big-card' : 'col-xl-1'}">
               <div class="card border-0 m-1">
                 <div class="card-header">
                   <h5 id="card-name" class="m-0">{entity.entity.title}</h5>
@@ -291,7 +389,7 @@
               </div>
             </div>
           {:else if entity.type === 'ENEMY'}
-            <div class="{index === 0 ? 'col-xl-2 big-card' : 'col-xl-1'}">
+            <div class="{index === onTurn ? 'col-xl-2 big-card' : 'col-xl-1'}">
               <div class="card border-0 m-1">
                 <div class="card-header">
                   <h5 id="card-name" class="m-0">{entity.entity.enemy[0].title}</h5>

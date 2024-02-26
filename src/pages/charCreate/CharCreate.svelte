@@ -33,8 +33,12 @@
       () => {
         window.location.href = `/adventure?id=${idAdventure}`;
       },
-      () => {
-        Notify.failure('Something went wrong.');
+      (m: string) => {
+        Notify.failure(m);
+        if (m === 'Invalid session token!') {
+        sessionStorage.clear();
+        window.location.href = "/";
+      }
       }
     );
   }
