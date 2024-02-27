@@ -23,6 +23,7 @@
   "dependencies": {
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "interactjs": "^1.10.26",
     "jquery": "^3.7.1",
     "notiflix": "^3.2.7",
     "simplebar": "^6.2.5",

@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { api } from '../../lib/Exports';
+  import { api, checkToken } from '../../lib/Exports';
   import { Canvas } from '../../lib/hexGridMap/Canvas';
   import { HexGrid } from '../../lib/hexGridMap/HexGrid';
   import { Hex } from '../../lib/hexGridMap/Hex';
   import { CubeCoordinate } from '../../lib/hexGridMap/Coordinate';
   import { Encounter } from './Encounter';
   import { Notify, Loading } from "notiflix";
+  import interact from 'interactjs';
 
   let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
@@ -133,10 +134,7 @@
     },
     (m: string) => {
       Notify.failure(m);
-      if (m === 'Invalid session token!') {
-        sessionStorage.clear();
-        window.location.href = "/";
-      }
+      checkToken(m);
     }
   );
 
@@ -191,113 +189,137 @@
             console.log(entityList);
 
             if (entityList[0].type === "CHARACTER") {
-              creator.postTurnStartCharacterData(`${api}/encounter/${idEncounter}/turn/character/${entityList[0].id}/start?token=${token}`,
+              creator.postTurnData(`${api}/encounter/${idEncounter}/turn/character/${entityList[0].id}/start?token=${token}`,
                 () => {},
                 (m: string) => {
                   Notify.failure(m);
+                  checkToken(m);
                 }
               );
             }
             else if (entityList[0].type === "ENEMY") {
-              creator.postTurnStartEnemyData(`${api}/encounter/${idEncounter}/turn/enemy/${entityList[0].id}/start?token=${token}`,
+              creator.postTurnData(`${api}/encounter/${idEncounter}/turn/enemy/${entityList[0].id}/start?token=${token}`,
                 () => {},
                 (m: string) => {
                   Notify.failure(m);
+                  checkToken(m);
                 }
               );
             }
           },
           (m: string) => {
             Notify.failure(m);
+            checkToken(m);
           }
         );
         playing = true;
       },
       (m: string) => {
         Notify.failure(m);
+        checkToken(m);
       }
     );
   }
 
   function endTurn() {
+    let url0 = "";
+    let url1 = "";
+
     if (entityList[onTurn].type === "CHARACTER") {
-      creator.postTurnEndCharacterData(`${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn].id}/end?token=${token}`,
+      url0 = `${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn].id}/end?token=${token}`;
+    } else if (entityList[onTurn].type === "ENEMY") {
+      url0 = `${api}/encounter/${idEncounter}/turn/enemy/${entityList[onTurn].id}/end?token=${token}`;
+    }
+
+    if (entityList[onTurn + 1].type === "CHARACTER") {
+      url1 = `${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn + 1].id}/start?token=${token}`;
+    } else if (entityList[onTurn + 1].type === "ENEMY") {
+      url1 = `${api}/encounter/${idEncounter}/turn/enemy/${entityList[onTurn + 1].id}/start?token=${token}`;
+    }
+
+    creator.postTurnData(url0,
+      () => {
+        onTurn++;
+        if (onTurn === entityList.length) {
+          onTurn = 0;
+          creator.postRoundEndData(`${api}/encounter/${idEncounter}/end?token=${token}`,
+            () => {},
+            (m: string) => {
+              Notify.failure(m);
+              checkToken(m);
+            }
+          );
+        }
+        creator.postTurnData(url1,
+          () => {
+            entityList = entityList;
+          },
+          (m: string) => {
+            Notify.failure(m);
+            checkToken(m);
+          }
+        );
+      },
+      (m: string) => {
+        Notify.failure(m);
+        checkToken(m);
+      }
+    );
+  }
+
+  interact('.entity-card').dropzone({
+  ondrop(event) {
+    let target = event.target;
+    let entityId = target.dataset.entityId;
+    let entityType = target.dataset.entityType;
+    let damage = event.relatedTarget.value;
+
+    console.log(entityId, entityType, damage);
+
+    if (entityType === "CHARACTER") {
+      creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/character/${entityId}?token=${token}`, parseInt(damage),
         () => {
-          onTurn++;
-          if (onTurn === entityList.length) {
-            onTurn = 0;
-            creator.postRoundEndData(`${api}/encounter/${idEncounter}/end?token=${token}`,
-              () => {},
-              (m: string) => {
-                Notify.failure(m);
-              }
-            );
-          }
-          if (entityList[onTurn].type === "CHARACTER") {
-            creator.postTurnStartEnemyData(`${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn].id}/start?token=${token}`,
-              () => {
-                entityList = entityList;
-              },
-              (m: string) => {
-                Notify.failure(m);
-              }
-            );
-          }
-          else if (entityList[onTurn].type === "ENEMY") {
-            creator.postTurnStartCharacterData(`${api}/encounter/${idEncounter}/turn/enemy/${entityList[onTurn].id}/start?token=${token}`,
-              () => {
-                entityList = entityList;
-              },
-              (m: string) => {
-                Notify.failure(m);
-              }
-            );
-          }
+          Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId}, with damage: ${damage}.`);
         },
         (m: string) => {
           Notify.failure(m);
+          checkToken(m);
         }
       );
-    } else if (entityList[onTurn].type === "ENEMY") {
-      creator.postTurnEndEnemyData(`${api}/encounter/${idEncounter}/turn/enemy/${entityList[onTurn].id}/end?token=${token}`,
+    } else if (entityType === "ENEMY") {
+      let selectedEnemy = target.querySelector('.enemies-menu').value;
+      creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/enemy/${entityId}/${selectedEnemy}?token=${token}`, parseInt(damage),
         () => {
-          onTurn++;
-          if (onTurn === entityList.length) {
-            onTurn = 0;
-            creator.postRoundEndData(`${api}/encounter/${idEncounter}/end?token=${token}`,
-              () => {},
-              (m: string) => {
-                Notify.failure(m);
-              }
-            );
-          }
-          if (entityList[onTurn].type === "CHARACTER") {
-            creator.postTurnStartEnemyData(`${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn].id}/start?token=${token}`,
-              () => {
-                entityList = entityList;
-              },
-              (m: string) => {
-                Notify.failure(m);
-              }
-            );
-          }
-          else if (entityList[onTurn].type === "ENEMY") {
-            creator.postTurnStartCharacterData(`${api}/encounter/${idEncounter}/turn/enemy/${entityList[onTurn].id}/start?token=${token}`,
-              () => {
-                entityList = entityList;
-              },
-              (m: string) => {
-                Notify.failure(m);
-              }
-            );
-          }
+          Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId} and enemy ID: ${selectedEnemy}, with damage: ${damage}.`);
         },
         (m: string) => {
           Notify.failure(m);
+          checkToken(m);
         }
       );
     }
   }
+});
+
+  interact('.dragabble').draggable({
+    listeners: {
+      move(event) {
+        let target = event.target;
+        let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+        let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+        target.style.transform = `translate(${x}px, ${y}px)`;
+        target.setAttribute('data-x', x);
+        target.setAttribute('data-y', y);
+      },
+      end(event) {
+        let target = event.target;
+        target.style.transform = 'translate(0px, 0px)';
+        target.setAttribute('data-x', 0);
+        target.setAttribute('data-y', 0);
+      }
+    }
+  });
 </script>
 
 
@@ -363,8 +385,8 @@
       {:else}
         {#each entityList as entity, index}
           {#if entity.type === 'CHARACTER'}
-            <div class="{index === onTurn ? 'col-xl-2 big-card' : 'col-xl-1'}">
-              <div class="card border-0 m-1">
+          <div class="{index === onTurn ? 'col-xl-2 big-card' : 'col-xl-1'}">
+              <div class="card entity-card border-0 m-1" data-entity-id={entity.entity.id} data-entity-type={entity.type}>
                 <div class="card-header">
                   <h5 id="card-name" class="m-0">{entity.entity.title}</h5>
                   <p class="m-0">{entity.entity.playerName}</p>
@@ -389,12 +411,15 @@
               </div>
             </div>
           {:else if entity.type === 'ENEMY'}
-            <div class="{index === onTurn ? 'col-xl-2 big-card' : 'col-xl-1'}">
-              <div class="card border-0 m-1">
+          <div class="{index === onTurn ? 'col-xl-2 big-card' : 'col-xl-1'}">
+              <div class="card entity-card border-0 m-1" data-entity-id={entity.entity.id} data-entity-type={entity.type}>
                 <div class="card-header">
                   <h5 id="card-name" class="m-0">{entity.entity.enemy[0].title}</h5>
                   <select class="btn btn-sm enemies-menu">
                     <i class="bi bi-arrow-bar-down" />
+                    {#each entity.entity.enemy as enemy, indexEnemy}
+                      <option value={enemy.id}>{indexEnemy + 1}</option>
+                    {/each}
                   </select>
                 </div>
                 <div class="card-body">
@@ -414,6 +439,9 @@
         {/each}
         <div class="col-xl-12">
           <button class="btn btn-primary" on:click={endTurn}>Next turn</button>
+        </div>
+        <div class="col-xl-12">
+          <input type="number" class="btn btn-danger dragabble" />
         </div>
       {/if}
     </div>
@@ -437,6 +465,13 @@
 
   .slider.visible {
     top: 0;
+  }
+
+  .entity-card {
+    background-color: #222;
+    color: #bababa;
+    border: 0;
+
   }
 
   .stat-container {
@@ -519,5 +554,9 @@
     color: #bababa;
     border: none;
     padding: 0;
+  }
+
+  .drop-active {
+    border: 1px solid #4fc780;
   }
 </style>

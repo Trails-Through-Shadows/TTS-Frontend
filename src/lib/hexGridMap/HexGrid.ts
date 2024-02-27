@@ -140,13 +140,14 @@ export class HexGrid {
 
         // for each unique enemy name, get the image
         entityTitles.forEach(title => {
-            const entity = this.entities.find(entity => entity.title === title);
+            const entity = this.entities.filter(entity => entity.title === title);
             if (entity) {
                 const image = new Image();
-                image.src = entity.url;
+                image.src = entity[0].url;
                 image.onload = () => {
-                    entity.image = image;
+                    entity.forEach(e => e.image = image);
                     loaded++;
+
                     if (loaded === entityTitles.length) {
                         this.bindImages();
                     }

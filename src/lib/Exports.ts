@@ -109,6 +109,9 @@ export class Location {
     ) {}
 }
 
-export function IsInvalidToken(token: string): boolean {
-    return token === 'Invalid session token!';
+export function checkToken(m: string): void {
+    if (m === 'Invalid session token!') {
+        sessionStorage.clear();
+        window.location.href = "/";
+    }
 } 
