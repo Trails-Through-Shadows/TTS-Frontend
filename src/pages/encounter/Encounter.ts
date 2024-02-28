@@ -123,6 +123,7 @@ export class Encounter {
         }
 
         request.open('POST', url, true);
+        request.setRequestHeader('Content-Type', 'application/json');
         request.send();
     }
 
@@ -147,6 +148,7 @@ export class Encounter {
         }
 
         request.open('POST', url, true);
+        request.setRequestHeader('Content-Type', 'application/json');
         request.send();
     }
 
@@ -160,7 +162,8 @@ export class Encounter {
                 if (request.status === 200)
                 {
                     console.log('Interaction posted');
-                    successCallback();
+                    const data = JSON.parse(request.responseText);
+                    successCallback(data.object);
                 }
                 else {
                     console.log('Error: ' + request.status);

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { api, Character } from "../../lib/Exports";
+  import { api, checkToken, Character } from "../../lib/Exports";
   import { CharacterList } from "./Adventure";
   import { Notify, Loading } from "notiflix";
 
@@ -33,10 +33,7 @@
     (m: string) => {
       Notify.failure(m);
       Loading.remove();
-      if (m === 'Invalid session token!') {
-        sessionStorage.clear();
-        window.location.href = "/";
-      }
+      checkToken(m);
     }
   );
 
@@ -50,6 +47,7 @@
       (m: string) => {
         Loading.remove();
         Notify.failure(m);
+        checkToken(m);
       }
     );
   }

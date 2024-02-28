@@ -22,7 +22,8 @@
   let onTurn: number = 0;
   let playing = false;
 
-  type baseCharacter = { id: number, title: string, playerName: string, health: number, defence: number, baseInitiative: number, url:string };
+  type effect = { type: string, strength: number, duration: number };
+  type baseCharacter = { id: number, title: string, playerName: string, health: number, defence: number, baseInitiative: number, activeEffects: effect[], url:string };
   type baseEnemy = { id: number, idGroup:number, title: string, health: number, initiative: number, url: string };
   type baseEnemyGroup = { id:number, enemy:baseEnemy[]};
 
@@ -134,6 +135,9 @@
     },
     (m: string) => {
       Notify.failure(m);
+      if (m === "Encounter not found!") {
+        window.location.href = "/adventure";
+      }
       checkToken(m);
     }
   );
@@ -224,6 +228,7 @@
   function endTurn() {
     let url0 = "";
     let url1 = "";
+    let pos = 0;
 
     if (entityList[onTurn].type === "CHARACTER") {
       url0 = `${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn].id}/end?token=${token}`;
@@ -231,10 +236,17 @@
       url0 = `${api}/encounter/${idEncounter}/turn/enemy/${entityList[onTurn].id}/end?token=${token}`;
     }
 
-    if (entityList[onTurn + 1].type === "CHARACTER") {
-      url1 = `${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn + 1].id}/start?token=${token}`;
-    } else if (entityList[onTurn + 1].type === "ENEMY") {
-      url1 = `${api}/encounter/${idEncounter}/turn/enemy/${entityList[onTurn + 1].id}/start?token=${token}`;
+    if (!entityList[onTurn + 1]) {
+      pos = 0;
+    }
+    else {
+      pos = onTurn + 1;
+    }
+
+    if (entityList[pos].type === "CHARACTER") {
+      url1 = `${api}/encounter/${idEncounter}/turn/character/${entityList[pos].id}/start?token=${token}`;
+    } else if (entityList[pos].type === "ENEMY") {
+      url1 = `${api}/encounter/${idEncounter}/turn/enemy/${entityList[pos].id}/start?token=${token}`;
     }
 
     creator.postTurnData(url0,
@@ -242,23 +254,35 @@
         onTurn++;
         if (onTurn === entityList.length) {
           onTurn = 0;
-          creator.postRoundEndData(`${api}/encounter/${idEncounter}/end?token=${token}`,
-            () => {},
+          creator.postRoundEndData(`${api}/encounter/${idEncounter}/endRound?token=${token}`,
+            () => {
+              creator.postTurnData(url1,
+                () => {
+                  entityList = entityList;
+                },
+                (m: string) => {
+                  Notify.failure(m);
+                  checkToken(m);
+                }
+              );
+            },
             (m: string) => {
               Notify.failure(m);
               checkToken(m);
             }
           );
         }
-        creator.postTurnData(url1,
-          () => {
-            entityList = entityList;
-          },
-          (m: string) => {
-            Notify.failure(m);
-            checkToken(m);
-          }
-        );
+        else {
+          creator.postTurnData(url1,
+            () => {
+              entityList = entityList;
+            },
+            (m: string) => {
+              Notify.failure(m);
+              checkToken(m);
+            }
+          );
+        }
       },
       (m: string) => {
         Notify.failure(m);
@@ -278,7 +302,31 @@
 
     if (entityType === "CHARACTER") {
       creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/character/${entityId}?token=${token}`, parseInt(damage),
-        () => {
+        (data: any) => {
+          const entity = entityList.find((entity) => entity.id == entityId && entity.type == entityType);
+          if (entity) {
+            entity.entity.health = data.health;
+            if (data.status === "DEAD") {
+              if (entityId === entityList[onTurn].id && entityType === entityList[onTurn].type) {
+                onTurn++;
+                creator.postTurnData(`${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn].id}/start?token=${token}`,
+                  () => {
+                    entityList = entityList.filter((entity) => entity.id != entityId || entity.type != entityType);
+                  },
+                  (m: string) => {
+                    Notify.failure(m);
+                    checkToken(m);
+                  }
+                );
+              }
+              else {
+                entityList = entityList.filter((entity) => entity.id != entityId || entity.type != entityType);
+              }
+            }
+          }
+
+          entityList = entityList;
+          
           Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId}, with damage: ${damage}.`);
         },
         (m: string) => {
@@ -289,7 +337,17 @@
     } else if (entityType === "ENEMY") {
       let selectedEnemy = target.querySelector('.enemies-menu').value;
       creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/enemy/${entityId}/${selectedEnemy}?token=${token}`, parseInt(damage),
-        () => {
+        (data: any) => {
+          const entity = entityList.find((entity) => entity.id == entityId && entity.type == entityType);
+          if (entity) {
+            entity.entity.enemy.find((enemy) => enemy.id == selectedEnemy).health = data.health;
+            if (data.status === "DEAD") {
+              entity.entity.enemy = entity.entity.enemy.filter((enemy) => enemy.id != selectedEnemy);
+            }
+          }
+
+          entityList = entityList;
+
           Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId} and enemy ID: ${selectedEnemy}, with damage: ${damage}.`);
         },
         (m: string) => {
@@ -385,7 +443,7 @@
       {:else}
         {#each entityList as entity, index}
           {#if entity.type === 'CHARACTER'}
-          <div class="{index === onTurn ? 'col-xl-2 big-card' : 'col-xl-1'}">
+            <div class="{index === onTurn ? 'col-xl-3 big-card' : 'col-xl-2'}">
               <div class="card entity-card border-0 m-1" data-entity-id={entity.entity.id} data-entity-type={entity.type}>
                 <div class="card-header">
                   <h5 id="card-name" class="m-0">{entity.entity.title}</h5>
@@ -408,10 +466,17 @@
                     </div>
                   </div>
                 </div>
+                <div class="card-footer">
+                  <ul class="effects-list">
+                    {#each entity.entity.activeEffects as effect}
+                      <li>{effect.type} {effect.strength} {effect.duration}</li>
+                    {/each}
+                  </ul>
+                </div>
               </div>
             </div>
           {:else if entity.type === 'ENEMY'}
-          <div class="{index === onTurn ? 'col-xl-2 big-card' : 'col-xl-1'}">
+            <div class="{index === onTurn ? 'col-xl-3 big-card' : 'col-xl-2'}">
               <div class="card entity-card border-0 m-1" data-entity-id={entity.entity.id} data-entity-type={entity.type}>
                 <div class="card-header">
                   <h5 id="card-name" class="m-0">{entity.entity.enemy[0].title}</h5>
@@ -431,7 +496,20 @@
                         <div class="stat-container"><h5>{entity.entity.enemy[0].health}</h5></div>
                       </div>
                     </div>
+                    <div class="position-absolute bottom-0 end-0">
+                      <div class="position-relative">
+                        <img class="stat-image" src="assets/shield.png" alt="Defence" />
+                        <div class="stat-container"><h5>{entity.entity.enemy[0].defence}</h5></div>
+                      </div>
+                    </div>
                   </div>
+                </div>
+                <div class="card-footer">
+                  <ul class="effects-list">
+                    {#each entity.entity.enemy[0].activeEffects as effect}
+                      <li>{effect.type} {effect.strength} {effect.duration}</li>
+                    {/each}
+                  </ul>
                 </div>
               </div>
             </div>
@@ -554,9 +632,5 @@
     color: #bababa;
     border: none;
     padding: 0;
-  }
-
-  .drop-active {
-    border: 1px solid #4fc780;
   }
 </style>

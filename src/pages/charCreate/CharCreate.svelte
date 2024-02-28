@@ -1,7 +1,7 @@
 <script lang="ts">
   import { CharCreate } from './CharCreate';
   import { LazyCharacter } from '../../lib/Exports';
-  import { api } from '../../lib/Exports';
+  import { api, checkToken } from '../../lib/Exports';
   import { Notify, Loading } from 'notiflix';
 
   let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
@@ -35,10 +35,7 @@
       },
       (m: string) => {
         Notify.failure(m);
-        if (m === 'Invalid session token!') {
-        sessionStorage.clear();
-        window.location.href = "/";
-      }
+        checkToken(m);
       }
     );
   }
