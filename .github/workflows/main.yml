@@ -1,0 +1,37 @@
+name: Build Frontend
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'development'
+  pull_request:
+    branches:
+      - 'master'
+      - 'development'
+  workflow_dispatch:
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Execute SSH Commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script_stop: true
+          script: |
+            cd /srv/tts-game/TTS-Frontend
+            eval $(keychain --eval ../.ssh/frontend-key)
+            git pull origin master
+            source ~/.nvm/nvm.sh
+            nvm use 20.11.0
+            npm install
+            npm run build
+            service tts-frontend restart
