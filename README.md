@@ -20,8 +20,8 @@ This repository contains the code for the TTS Frontend. <br>
 - Run the server *publicly*
   - `npm run dev -- --host`
 
-## Accessing the dashboard
-- Open a web browser and go to `http://localhost:8000/` to access the frontend website
+## Accessing the app
+- Open a web browser and go to `http://localhost:5173/` to access the frontend website
 - Use the superuser credentials to login and access the site
 
 ## Documentation

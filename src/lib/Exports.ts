@@ -1,5 +1,4 @@
-//export const api:string = 'https://api.tts-game.fun';
-export const api:string = 'http://localhost:8080';
+export const api:string = import.meta.env.VITE_API_URL; // 'https://api.example
 
 export class Clazz {
     constructor (
