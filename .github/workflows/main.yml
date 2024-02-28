@@ -30,8 +30,4 @@ jobs:
             cd /srv/tts-game/TTS-Frontend
             eval $(keychain --eval ../.ssh/frontend-key)
             git pull origin master
-            source ~/.nvm/nvm.sh
-            nvm use 20.11.0
-            npm install
-            npm run build
             service tts-frontend restart
