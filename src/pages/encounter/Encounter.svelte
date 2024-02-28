@@ -343,6 +343,9 @@
             entity.entity.enemy.find((enemy) => enemy.id == selectedEnemy).health = data.health;
             if (data.status === "DEAD") {
               entity.entity.enemy = entity.entity.enemy.filter((enemy) => enemy.id != selectedEnemy);
+              if (entity.entity.enemy.length === 0) {
+                entityList = entityList.filter((entity) => entity.id != entityId || entity.type != entityType);
+              }
             }
           }
 
