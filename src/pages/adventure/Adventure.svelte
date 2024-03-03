@@ -39,7 +39,7 @@
 
   function handleContinue() {
     Loading.dots('Creating encounter...');
-    creator.postCreateEncounterData(`${api}/encounter/${idAdventure}?token=${token}&idLocation=${idLocation}`, 1,
+    creator.postCreateEncounterData(`${api}/encounter/${idAdventure}?token=${token}&idLocation=${idLocation}`,
       (idEncounter: number) => {
         Loading.remove();
         window.location.href = `/encounter?id=${idEncounter}`;

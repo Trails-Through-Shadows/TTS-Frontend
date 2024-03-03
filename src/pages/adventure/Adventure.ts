@@ -29,7 +29,7 @@ export class CharacterList {
         request.send();
     }
 
-    postCreateEncounterData(url: string, idLocation: number, successCallback: Function, failureCallback: Function): void {
+    postCreateEncounterData(url: string, successCallback: Function, failureCallback: Function): void {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
 
@@ -51,8 +51,7 @@ export class CharacterList {
         }
 
         request.open('POST', url, true);
-        request.setRequestHeader('Content-Type', 'application/json');
-        request.send(JSON.stringify( idLocation ));
+        request.send();
     }
 
     getCharacters(): Character[] {
