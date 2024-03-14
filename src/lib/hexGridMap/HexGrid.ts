@@ -29,6 +29,7 @@ export class HexGrid {
         private borderImage: any,
         private hexSize: number = 50,
     ) {
+        /*
         this.canvas.addOnMouseHoverListener((x: number, y: number) => {
             if (this.canvas.isLoading()) {
                 return;
@@ -39,6 +40,7 @@ export class HexGrid {
             const hex = this.getHexAt(coords);
 
             // It's the same hex, ignore
+
             if (this.hoveredHex === hex) {
                 return;
             }
@@ -48,6 +50,15 @@ export class HexGrid {
             } else {
                 this.hoveredHex = null;
             }
+        });
+        */
+        this.canvas.addOnMouseClickListener((x: number, y: number) => {
+            if (this.canvas.isLoading()) {
+                return;
+            }
+            const offset: Offset = this.getOffset();
+            const coords = CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexSize);
+            console.log("Clicked coordinates:", coords);
         });
     }
 
@@ -64,6 +75,10 @@ export class HexGrid {
         this.hexes = hexes;
     }
 
+    addHexes(hexes: Hex[]): void {
+        this.hexes.push(...hexes);
+    }
+
     setTextures(textureImage: HTMLImageElement, borderImage: HTMLImageElement): void {
         this.textureImage = textureImage;
         this.borderImage = borderImage;
@@ -75,6 +90,13 @@ export class HexGrid {
 
     addEntity(entity: HexEntity): void {
         this.entities.push(entity);
+    }
+
+    addStartHex(hex: CubeCoordinate): void {
+        const startHex = this.getHexAt(hex);
+        if (startHex) {
+            startHex.isStart = true;
+        }
     }
 /*
     readData(url: string, callback?: () => void): void {

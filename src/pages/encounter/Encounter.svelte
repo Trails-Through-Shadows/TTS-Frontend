@@ -34,7 +34,7 @@
   let hexGridMap: HexGrid[] = [];
 
   const textureImage = new Image();
-  textureImage.src = '/assets/map-texture-smol-light.jpg';
+  textureImage.src = '/assets/map-texture-new-smol.png';
 
   const borderImage = new Image();
   borderImage.src = '/assets/map-texture-smol.jpg';
@@ -61,7 +61,7 @@
       canvas.setLoading(true);
 
       for (let part of idParts) {
-        creator.readPartsData(`${api}/parts/${part}`,
+        creator.readPartsData(`${api}/locations/${idLocation}/parts/${part}`,
           (dataParts: any) => {
             let hexGrid = new HexGrid(
               dataParts.id,
@@ -74,7 +74,6 @@
             //add entities to hexGrid
             for (let enemy of data.enemies) {
               if (enemy.startingHex.key.idPart === dataParts.id) {
-                //entityImage.src = enemy.url;
                 hexGrid.addEntity({
                   title: enemy.title,
                   coords: new CubeCoordinate(enemy.startingHex.q, enemy.startingHex.r, enemy.startingHex.s),
@@ -82,6 +81,22 @@
                   image: new Image()
                 });
               }
+            }
+
+            //add doors as new hexes to hexGrid
+            if (dataParts.doors) {
+              let doors: Hex[] = [];
+              for (let door of dataParts.doors) {
+                let tmpDoor = new Hex(door.key.idPartFrom, door.key.idPartTo, new CubeCoordinate(door.qcoord, door.rcoord, door.scoord));
+                tmpDoor.isDoor = true;
+                doors.push(tmpDoor);
+              }
+              hexGrid.addHexes(doors);
+            }
+
+            //add startingHexes to hexGrid
+            for (let startingHex of dataParts.startingHexes) {
+              hexGrid.addStartHex(new CubeCoordinate(startingHex.q, startingHex.r, startingHex.s));
             }
 
             hexGrid.getImages();
@@ -93,7 +108,7 @@
               console.log(hexGridMap);
               hexGridMap[0].draw();
 
-              canvas.setBackgroundImage('/assets/map-background.jpg', () => {
+              canvas.setBackgroundImage('/assets/map.png', () => {
                 canvas.clear();
                 hexGridMap[0].draw();
               });

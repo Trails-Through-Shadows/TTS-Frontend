@@ -17,8 +17,9 @@ import { CubeCoordinate } from "./Coordinate";
 
     export class Hex {
         public vertices: Vertex[] = [];
-        public entityImage?: HTMLImageElement
+        public entityImage?: HTMLImageElement;
         public isStart: boolean = false;
+        public isDoor: boolean = false;
 
         constructor(
             public readonly idPart: number,
@@ -49,9 +50,6 @@ import { CubeCoordinate } from "./Coordinate";
         draw(ctx: CanvasRenderingContext2D, textureImage: HTMLImageElement, borderImage: HTMLImageElement, offset: Offset): void {
             const {x, y} = this.coords.to2D(this.hexSize);
 
-            const texturePattern = ctx.createPattern(textureImage, 'repeat');
-            const borderPattern = ctx.createPattern(borderImage, 'repeat');
-
             // Draw hex vertices
             ctx.beginPath();
             this.vertices.forEach((vertex, index) => {
@@ -62,18 +60,32 @@ import { CubeCoordinate } from "./Coordinate";
                 }
             });
             ctx.closePath();
+            
+            const texturePattern = ctx.createPattern(textureImage, 'repeat');
+            const borderPattern = ctx.createPattern(borderImage, 'repeat');
 
             ctx.lineWidth = 3;
 
-            if (texturePattern && borderPattern) {
+            if (texturePattern) {
                 ctx.fillStyle = texturePattern;
+            }
+            
+            if (borderPattern) {
                 ctx.strokeStyle = borderPattern;
             }
 
             ctx.fill();
             ctx.stroke();
 
-            if (this.entityImage) {
+            if (this.isStart) {
+                console.log('Drawing start');
+                this.drawStart(ctx, offset);
+            }
+            else if (this.isDoor) {
+                console.log('Drawing door');
+                this.drawDoor(ctx, offset);
+            }
+            else if (this.entityImage) {
                 console.log('Drawing entity');
                 this.drawEntity(ctx, this.entityImage, offset);
             }
@@ -105,6 +117,30 @@ import { CubeCoordinate } from "./Coordinate";
             }
 
             ctx.restore();
+        }
+
+        drawStart(ctx: CanvasRenderingContext2D, offset: Offset): void {
+            const {x, y} = this.coords.to2D(this.hexSize);
+
+            const startImage = new Image();
+            startImage.src = 'assets/start.png';
+
+            const startHeight = this.hexSize * 1.2;
+            const startWidth = (startImage.height / startImage.width) * startHeight;
+
+            ctx.drawImage(startImage, offset.x + x - startWidth / 2, offset.y + y - startHeight / 2, startWidth, startHeight);
+        }
+
+        drawDoor(ctx: CanvasRenderingContext2D, offset: Offset): void {
+            const {x, y} = this.coords.to2D(this.hexSize);
+
+            const doorImage = new Image();
+            doorImage.src = 'assets/door.png';
+
+            const doorHeight = this.hexSize * 1.5;
+            const doorWidth = this.hexSize * 1.1;
+
+            ctx.drawImage(doorImage, offset.x + x - doorWidth / 2, offset.y + y - doorHeight / 2 - 5, doorWidth, doorHeight);
         }
 
         drawEntity(ctx: CanvasRenderingContext2D, entityImage: HTMLImageElement, offset: Offset): void {

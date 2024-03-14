@@ -29,7 +29,7 @@
   }
 
   function handleConfirm() {
-    creator.putDataCreateCharacters(`${api}/adventures/${idAdventure}/characters?token=${token}`, charList,
+    creator.postDataCreateCharacters(`${api}/adventures/${idAdventure}/characters?token=${token}`, charList,
       () => {
         window.location.href = `/adventure?id=${idAdventure}`;
       },

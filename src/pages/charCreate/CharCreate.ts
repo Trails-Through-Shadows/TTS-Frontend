@@ -57,7 +57,7 @@ export class CharCreate {
         request.send();
     }
 
-    putDataCreateCharacters(url: string, characters: Character[], successCallback: Function, failureCallback: Function): void {
+    postDataCreateCharacters(url: string, characters: Character[], successCallback: Function, failureCallback: Function): void {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
             console.log(`Character | Sending data to ${url}`);

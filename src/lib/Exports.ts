@@ -1,4 +1,4 @@
-export const api:string = import.meta.env.VITE_API_URL; // 'https://api.example
+export const api:string = import.meta.env.VITE_API_URL;
 
 export class Clazz {
     constructor (
