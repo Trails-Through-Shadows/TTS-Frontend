@@ -35,12 +35,11 @@ export class Character {
 
 export class LazyCharacter {
     constructor(
-        public id: number,
-        public clazz: number,
-        public race: number,
-        public title: string,
-        public playerName: string | null,
-        public baseInitiative: number | null = null,
+        public idClass: number = 0,
+        public idRace: number = 0,
+        public idAdventure: number = 0,
+        public title: string = '',
+        public playerName: string | null = null,
     ) {}
 }
 

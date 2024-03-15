@@ -37,7 +37,7 @@
   textureImage.src = '/assets/map-texture-new-smol.png';
 
   const borderImage = new Image();
-  borderImage.src = '/assets/map-texture-smol.jpg';
+  borderImage.src = '/assets/map-texture-new-smol-dark.png';
 
   let characterList: baseCharacter[] = [];
   let enemyList: baseEnemy[] = [];
@@ -87,7 +87,7 @@
             if (dataParts.doors) {
               let doors: Hex[] = [];
               for (let door of dataParts.doors) {
-                let tmpDoor = new Hex(door.key.idPartFrom, door.key.idPartTo, new CubeCoordinate(door.qcoord, door.rcoord, door.scoord));
+                let tmpDoor = new Hex(door.key.idPartFrom, door.key.idPartTo, new CubeCoordinate(door.q, door.r, door.s));
                 tmpDoor.isDoor = true;
                 doors.push(tmpDoor);
               }

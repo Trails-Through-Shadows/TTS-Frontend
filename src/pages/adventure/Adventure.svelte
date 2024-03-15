@@ -29,6 +29,10 @@
     () => {
       charList = creator.getCharacters();
       Loading.remove();
+      if (charList.length === 0) {
+        Notify.failure('No characters found.');
+        window.location.href = `/char?id=${idAdventure}`;
+      }
     },
     (m: string) => {
       Notify.failure(m);

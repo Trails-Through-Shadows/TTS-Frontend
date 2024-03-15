@@ -11,6 +11,27 @@ export class CharCreate {
         this.characters = [];
     }
 
+    getHello(url: string, successCallback: Function, failureCallback: Function): void {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = () => {
+            console.log(`Validating token`);
+            if (request.readyState === 4) {
+                if (request.status === 200)
+                {
+                    successCallback();
+                }
+                else {
+                    console.log('Error: ' + request.status);
+                    const response = JSON.parse(request.responseText);
+                    failureCallback(response.message);
+                }
+            }
+        }
+
+        request.open('GET', url, true);
+        request.send();
+    }
+
     readDataClazzes(): void {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
@@ -57,7 +78,7 @@ export class CharCreate {
         request.send();
     }
 
-    postDataCreateCharacters(url: string, characters: Character[], successCallback: Function, failureCallback: Function): void {
+    postDataCreateCharacters(url: string, character: LazyCharacter, successCallback: Function, failureCallback: Function): void {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
             console.log(`Character | Sending data to ${url}`);
@@ -78,7 +99,8 @@ export class CharCreate {
 
         request.open('POST', url, true);
         request.setRequestHeader('Content-Type', 'application/json');
-        request.send(JSON.stringify(characters));
+        request.send(JSON.stringify(character));
+        console.log(JSON.stringify(character));
     }
 
     addCharacter(character: Character): void {
@@ -92,6 +114,10 @@ export class CharCreate {
             this.characters.push(new Character(0, new Clazz(0, "", "", "", 0, 0, 0), new Race(0, "", "", "", 0), "", ""));
             console.log(this.characters);
         }
+    }
+
+    setCharacters(characters: Character[]): void {
+        this.characters = characters;
     }
     
     deleteCharacter(index: number): void {

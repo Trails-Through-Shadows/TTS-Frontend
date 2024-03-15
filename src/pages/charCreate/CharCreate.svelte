@@ -17,6 +17,12 @@
 
   const creator = new CharCreate();
   let charList = creator.getCharacters();
+
+  creator.getHello(`${api}/session/hello?token=${token}`, (m: string) => {
+  }, (m: string) => {
+    Notify.failure(m);
+    checkToken(m);
+  });
   
   function handleAddCharacter() {
     creator.addEmptyCharacter();
@@ -29,15 +35,35 @@
   }
 
   function handleConfirm() {
-    creator.postDataCreateCharacters(`${api}/adventures/${idAdventure}/characters?token=${token}`, charList,
-      () => {
-        window.location.href = `/adventure?id=${idAdventure}`;
-      },
-      (m: string) => {
-        Notify.failure(m);
-        checkToken(m);
+    Loading.dots('Creating characters...');
+
+    creator.getCharacters().forEach((c) => {
+      if (c.clazz.id === 0 || c.race.id === 0 || c.title === '') {
+        Loading.remove();
+        Notify.failure('Please fill in all the fields.');
+        return;
       }
-    );
+
+      let char: LazyCharacter = {
+        idClass: c.clazz.id,
+        idRace: c.race.id,
+        idAdventure: idAdventure,
+        title: c.title,
+        playerName: c.playerName,
+      };
+
+      creator.postDataCreateCharacters(`${api}/adventures/${idAdventure}/characters?token=${token}`, char,
+        () => {
+          Loading.remove();
+          window.location.href = `/adventure?id=${idAdventure}`;
+        },
+        (m: string) => {
+          Loading.remove();
+          Notify.failure(m);
+          checkToken(m);
+        }
+      );
+    });
   }
 
   let mobile = window.innerWidth < 500;
