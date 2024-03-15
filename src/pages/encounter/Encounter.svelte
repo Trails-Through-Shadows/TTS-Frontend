@@ -58,6 +58,30 @@
       }
       
       let canvas = new Canvas(canvasRoot);
+
+      canvas.addOnMouseClickListener((x: number, y: number) => {
+        hexGridMap[0].onClick(x, y, (hex: Hex) => {
+          let door = {
+            key: {
+              idPartFrom: hex.idPart,
+              idPartTo: hex.id
+            },
+            q: hex.coords.q,
+            r: hex.coords.r,
+            s: hex.coords.s
+          };
+          creator.postOpenDoorData(`${api}/encounter/${idEncounter}/openDoor?token=${token}`, door,
+            () => {
+              Notify.success("Door opened.");
+            },
+            (m: string) => {
+              Notify.failure(m);
+              checkToken(m);
+            }
+          );
+        });
+      });
+
       canvas.setLoading(true);
 
       for (let part of idParts) {

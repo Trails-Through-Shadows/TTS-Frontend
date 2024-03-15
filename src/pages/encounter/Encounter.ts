@@ -177,4 +177,29 @@ export class Encounter {
         request.setRequestHeader('Content-Type', 'application/json');
         request.send(JSON.stringify( {damage: damage} ));
     }
+
+    postOpenDoorData(url: string, door: any, successCallback: Function, failureCallback: Function): void {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = () => {
+
+            console.log(`Door | Posting data to ${url}`);
+
+            if (request.readyState === 4) {
+                if (request.status === 200)
+                {
+                    console.log('Door opened');
+                    successCallback();
+                }
+                else {
+                    console.log('Error: ' + request.status);
+                    const response = JSON.parse(request.responseText);
+                    failureCallback(response.message);
+                }
+            }
+        }
+
+        request.open('POST', url, true);
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.send(JSON.stringify( door ));
+    }
 }

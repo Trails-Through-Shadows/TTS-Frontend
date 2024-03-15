@@ -29,7 +29,6 @@ export class HexGrid {
         private borderImage: any,
         private hexSize: number = 50,
     ) {
-        /*
         this.canvas.addOnMouseHoverListener((x: number, y: number) => {
             if (this.canvas.isLoading()) {
                 return;
@@ -51,15 +50,24 @@ export class HexGrid {
                 this.hoveredHex = null;
             }
         });
-        */
-        this.canvas.addOnMouseClickListener((x: number, y: number) => {
-            if (this.canvas.isLoading()) {
-                return;
+    }
+
+    onClick(x: number, y: number, successCallback: Function): void {
+        if (this.canvas.isLoading()) {
+            return;
+        }
+        const offset: Offset = this.getOffset();
+        const coords = CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexSize);
+
+        const hex = this.getHexAt(coords);
+
+        if (hex) {
+            console.log("Clicked hex:", hex);
+            if (hex.isDoor) {
+                console.log("Clicked hex is a door");
+                successCallback(hex);
             }
-            const offset: Offset = this.getOffset();
-            const coords = CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexSize);
-            console.log("Clicked coordinates:", coords);
-        });
+        }
     }
 
     adjustCanvasHeight(): void {
@@ -98,62 +106,7 @@ export class HexGrid {
             startHex.isStart = true;
         }
     }
-/*
-    readData(url: string, callback?: () => void): void {
-        this.canvas.setLoading(true);
-        const currentTime = new Date().getTime();
 
-        console.log(`HexGrid | Reading data from ${url}`);
-
-        const request = new XMLHttpRequest();
-        request.onreadystatechange = () => {
-            if (request.readyState === 4 && request.status === 200) {
-                const data = JSON.parse(request.responseText);
-
-                // Map enemies and obstacles
-                this.entities = data['enemies'].map((enemy: any) => {
-                    return {
-                        title: enemy.title,
-                        tag: enemy.tag,
-                        coords: new CubeCoordinate(enemy.hex.q, enemy.hex.r, enemy.hex.s)
-                    }
-                });
-
-                this.entities = data['obstacles'].map((obstacle: any) => {
-                    return {
-                        title: obstacle.title,
-                        tag: obstacle.tag,
-                        coords: new CubeCoordinate(obstacle.hex.q, obstacle.hex.r, obstacle.hex.s)
-                    }
-                });
-
-                // Map hexes
-                this.hexes = data['hexes'].map((coords: CubeCoordinate) => {
-                    return new Hex(new CubeCoordinate(coords.q, coords.r, coords.s), this.hexSize, []);
-                })
-
-                // Map hex neighbors
-                this.hexes.forEach(hex => this.mapNeighbors(hex));
-
-                const took = new Date().getTime() - currentTime;
-                console.log(`HexGrid | Data read in ${took}ms`);
-
-                this.getImages();
-
-                this.canvas.setLoading(false);
-                // this.adjustCanvasHeight();
-                this.draw();
-
-                if (callback) callback();
-            }
-        };
-
-        request.open('GET', url, true);
-        request.send();
-    }
-
-    //mapData();
-*/    
     getImages(): void {
         // get all unique enemy names
         const entityTitles = this.entities.map(entity => entity.title);
