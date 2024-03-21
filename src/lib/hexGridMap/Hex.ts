@@ -17,9 +17,9 @@ import { CubeCoordinate } from "./Coordinate";
 
     export class Hex {
         public vertices: Vertex[] = [];
-        public entityImage?: HTMLImageElement;
         public isStart: boolean = false;
         public isDoor: boolean = false;
+        public entityImage?: HTMLImageElement;
 
         constructor(
             public readonly idPart: number,
@@ -74,14 +74,18 @@ import { CubeCoordinate } from "./Coordinate";
                 ctx.strokeStyle = borderPattern;
             }
 
+            if (this.isStart) {
+                ctx.fillStyle = 'rgba(186, 255, 140, 0.5)';
+            }
+
+            if (this.isDoor) {
+                ctx.fillStyle = 'rgba(123, 90, 163, 0.5)';
+            }
+
             ctx.fill();
             ctx.stroke();
 
-            if (this.isStart) {
-                console.log('Drawing start');
-                this.drawStart(ctx, offset);
-            }
-            else if (this.isDoor) {
+            if (this.isDoor) {
                 console.log('Drawing door');
                 this.drawDoor(ctx, offset);
             }
@@ -119,28 +123,15 @@ import { CubeCoordinate } from "./Coordinate";
             ctx.restore();
         }
 
-        drawStart(ctx: CanvasRenderingContext2D, offset: Offset): void {
-            const {x, y} = this.coords.to2D(this.hexSize);
-
-            const startImage = new Image();
-            startImage.src = 'assets/start.png';
-
-            const startHeight = this.hexSize * 1.2;
-            const startWidth = (startImage.height / startImage.width) * startHeight;
-
-            ctx.drawImage(startImage, offset.x + x - startWidth / 2, offset.y + y - startHeight / 2, startWidth, startHeight);
-        }
-
         drawDoor(ctx: CanvasRenderingContext2D, offset: Offset): void {
-            const {x, y} = this.coords.to2D(this.hexSize);
+            if (!this.entityImage) return;
 
-            const doorImage = new Image();
-            doorImage.src = 'assets/door.png';
+            const {x, y} = this.coords.to2D(this.hexSize);
 
             const doorHeight = this.hexSize * 1.5;
             const doorWidth = this.hexSize * 1.1;
 
-            ctx.drawImage(doorImage, offset.x + x - doorWidth / 2, offset.y + y - doorHeight / 2 - 5, doorWidth, doorHeight);
+            ctx.drawImage(this.entityImage, offset.x + x - doorWidth / 2, offset.y + y - doorHeight / 2 - 5, doorWidth, doorHeight);
         }
 
         drawEntity(ctx: CanvasRenderingContext2D, entityImage: HTMLImageElement, offset: Offset): void {

@@ -24,12 +24,11 @@
   }
 
   function logIn() {
-    loggedIn = true;
-
     Loading.dots('Loading...')
     creator.readDataAdventures(`${api}/adventures/?token=${token}`,
       () => {
         adventureList = creator.getAdventures();
+        loggedIn = true;
         Loading.remove();
       },
       (m: string) => {
@@ -141,17 +140,6 @@
     <img src="assets/logo-icon-small.png" alt="Logo" />
     Trails Through Shadows
   </div>
-  <div class="dropdown">
-    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      Temporary link menu
-    </button>
-  
-    <ul class="dropdown-menu">
-      <li><a class="dropdown-item" href="/">Login</a></li>
-      <li><a class="dropdown-item" href="/encounter">Encounter</a></li>
-      <li><a class="dropdown-item" href="/char">Characters</a></li>
-    </ul>
-  </div>
 </nav>
 
 
@@ -199,11 +187,11 @@
                 </div>
                 <div class="col-4">
                   <label for="gold" class="">Gold</label>
-                  <input type="text" class="resources-input form-control" disabled value={adventure.gold} />
+                  <input type="text" class="resources-input form-control align-self-center" disabled value={adventure.gold} />
                 </div>
                 <div class="col-4">
                   <label for="experience" class="">Experience</label>
-                  <input type="text" class="resources-input form-control" disabled value={adventure.experience} />
+                  <input type="text" class="resources-input form-control align-self-center" disabled value={adventure.experience} />
                 </div>
               </div>
             </div>
@@ -383,29 +371,19 @@
   }
 
   .resources-input {
-    width: 75px;
+    max-width: 75px;
     background-color: #333;
     border-color: #1c1c1c;
     text-align: center;
     margin: 0 auto 10px auto;
   }
 
-  .modal {
+  .modal-content{
     color: #bababa;
-  }
-
-  .modal .modal-header {
-    background-color: #222;
-    color: #bababa;
-    border-color: #1c1c1c;
-  }
-
-  .modal .modal-body {
     background-color: #222;
   }
 
-  .modal .modal-footer {
-    background-color: #222;
+  .modal-content > div {
     border-color: #1c1c1c;
   }
 

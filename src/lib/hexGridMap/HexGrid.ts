@@ -20,6 +20,8 @@ type HexEntity = {
 export class HexGrid {
     public hoveredHex: Hex | null = null;
     public entities: HexEntity[] = [];
+    public doorImage: HTMLImageElement = new Image();
+    public startImage: HTMLImageElement = new Image();
 
     constructor(
         public id: number,
@@ -29,6 +31,9 @@ export class HexGrid {
         private borderImage: any,
         private hexSize: number = 50,
     ) {
+        this.doorImage.src = 'assets/door.png';
+        this.startImage.src = 'assets/start.png';
+
         this.canvas.addOnMouseHoverListener((x: number, y: number) => {
             if (this.canvas.isLoading()) {
                 return;
@@ -143,6 +148,14 @@ export class HexGrid {
         });
 
         console.log('HexGrid | Entities mapped to hexes');
+
+        const doorHexes = this.hexes.filter(hex => hex.isDoor);
+        doorHexes.forEach(hex => hex.setEntityImage(this.doorImage));
+    }
+
+    redraw(): void {
+        this.canvas.clear();
+        this.draw();
     }
 
     draw(): void {
