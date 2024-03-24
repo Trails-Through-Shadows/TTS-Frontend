@@ -25,16 +25,6 @@ main {
   height: 50px;
 }
 
-.navbar button {
-  border-color: #4fc780;
-  color: #bababa;
-}
-
-.navbar button:active{
-  background-color: #4fc780;
-  color: #222;
-}
-
 .btn {
   background-color: #222;
   color: #bababa;
@@ -42,4 +32,15 @@ main {
 
 .btn:hover {
   background-color: #bababa;
+}
+
+.btn-success {
+  border-color: #4fc780;
+  color: #bababa;
+}
+
+.btn-success:hover {
+  border-color: #4fc780;
+  background-color: #4fc780;
+  color: #222;
 }

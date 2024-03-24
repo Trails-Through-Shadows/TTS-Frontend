@@ -37,7 +37,15 @@
   function handleConfirm() {
     Loading.dots('Creating characters...');
 
-    creator.getCharacters().forEach((c) => {
+    let chars = creator.getCharacters();
+
+    if (chars.length === 0) {
+      Loading.remove();
+      Notify.failure('Please add at least one character.');
+      return;
+    }
+
+    chars.forEach((c) => {
       if (c.clazz.id === 0 || c.race.id === 0 || c.title === '') {
         Loading.remove();
         Notify.failure('Please fill in all the fields.');
@@ -77,17 +85,6 @@
   <div class="logo-container">
     <img src="assets/logo-icon-small.png" alt="Logo" />
     Trails Through Shadows
-  </div>
-  <div class="dropdown">
-    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      Temporary link menu
-    </button>
-  
-    <ul class="dropdown-menu">
-      <li><a class="dropdown-item" href="/">Login</a></li>
-      <li><a class="dropdown-item" href="/encounter">Encounter</a></li>
-      <li><a class="dropdown-item" href="/char">Characters</a></li>
-    </ul>
   </div>
 </nav>
 

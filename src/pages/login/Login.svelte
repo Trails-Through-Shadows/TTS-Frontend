@@ -57,6 +57,12 @@
     );
   }
 
+  function handleKeyPress(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      handleLogin();
+    }
+  }
+
   function handleEditAdventure(index: number) {
     Loading.dots('Loading...')
     const title = document.getElementById(`editTitle${index}`) as HTMLInputElement;
@@ -154,11 +160,11 @@
           <form>
             <div class="form-group">
               <label for="licenseNumber">License Number</label>
-              <input type="text" class="form-control" id="licenseNumber" placeholder="ABCD-0123-EFGH-4567" bind:value="{licenseNumber}">
+              <input type="text" class="form-control" id="licenseNumber" placeholder="ABCD-0123-EFGH-4567" bind:value="{licenseNumber}" on:keypress="{handleKeyPress}">
             </div>
             <div class="form-group">
               <label for="password">Password</label>
-              <input type="password" class="form-control" id="password" placeholder="password" bind:value="{password}">
+              <input type="password" class="form-control" id="password" placeholder="password" bind:value="{password}" on:keypress="{handleKeyPress}">
             </div>
             <button type="button" class="btn btn-sm col-12 mt-3" on:click="{handleLogin}">Login</button>
           </form>

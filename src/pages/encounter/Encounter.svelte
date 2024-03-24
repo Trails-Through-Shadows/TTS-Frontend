@@ -427,19 +427,9 @@
     <img src="assets/logo-icon-small.png" alt="Logo" />
     Trails Through Shadows
   </div>
-  <button class="btn" on:click={toggleSlider}>
+  <button class="btn btn-success" on:click={toggleSlider}>
     Map
   </button>
-  <div class="dropdown">
-    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      Temporary link menu
-    </button>
-    <ul class="dropdown-menu">
-      <li><a class="dropdown-item" href="/">Login</a></li>
-      <li><a class="dropdown-item" href="/encounter">Encounter</a></li>
-      <li><a class="dropdown-item" href="/char">Characters</a></li>
-    </ul>
-  </div>
 </nav>
 
 
