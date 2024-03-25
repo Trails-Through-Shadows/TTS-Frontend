@@ -3,6 +3,7 @@
   import { LazyCharacter } from '../../lib/Exports';
   import { api, checkToken } from '../../lib/Exports';
   import { Notify, Loading } from 'notiflix';
+    import Navbar from '../../lib/Components/Navbar.svelte';
 
   let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
@@ -81,12 +82,7 @@
 </script>
 
 
-<nav class="navbar">
-  <div class="logo-container">
-    <img src="assets/logo-icon-small.png" alt="Logo" />
-    Trails Through Shadows
-  </div>
-</nav>
+<Navbar url="/" />
 
 
 <main data-simplebar>
@@ -166,7 +162,7 @@
         <div class="col-md-4">
           <div class="small-card-container">
             <button class="btn btn-success" on:click={handleAddCharacter}>
-              <img class="scroll-image" src="assets/scroll.png" alt="Add character" />
+              <img class="add-character-image" src="assets/add-character.svg" alt="Add character" />
             </button>
           </div>
         </div>
@@ -233,8 +229,17 @@
     justify-content: center;
   }
 
-  .scroll-image {
-    width: 120px;
+  .small-card-container .btn:hover img {
+    filter: invert(0%) sepia(13%) saturate(5094%) hue-rotate(358deg) brightness(85%) contrast(73%);
+  }
+
+  .add-character-image {
+    max-width: 120px;
+    filter: invert(90%) sepia(0%) saturate(0%) hue-rotate(177deg) brightness(86%) contrast(84%);
+  }
+
+  .add-character-image:hover {
+    filter: invert(0%) sepia(13%) saturate(5094%) hue-rotate(358deg) brightness(85%) contrast(73%);
   }
 
   .character-input {

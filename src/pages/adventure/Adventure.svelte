@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { api, checkToken, Character } from "../../lib/Exports";
+  import Navbar from "../../lib/Components/Navbar.svelte";
+import { api, checkToken, Character } from "../../lib/Exports";
   import { CharacterList } from "./Adventure";
   import { Notify, Loading } from "notiflix";
 
@@ -58,12 +59,7 @@
 </script>
 
 
-<nav class="navbar">
-  <div class="logo-container">
-    <img src="assets/logo-icon-small.png" alt="Logo" />
-    Trails Through Shadows
-  </div>
-</nav>
+<Navbar url="/" />
 
 
 <main>

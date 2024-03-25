@@ -1,12 +1,13 @@
 <script lang="ts">
   import { api, checkToken } from '../../lib/Exports';
-  import { Canvas } from '../../lib/hexGridMap/Canvas';
-  import { HexGrid } from '../../lib/hexGridMap/HexGrid';
-  import { Hex } from '../../lib/hexGridMap/Hex';
-  import { CubeCoordinate } from '../../lib/hexGridMap/Coordinate';
+  import { Canvas } from './hexGridMap/Canvas';
+  import { HexGrid } from './hexGridMap/HexGrid';
+  import { Hex } from './hexGridMap/Hex';
+  import { CubeCoordinate } from './hexGridMap/Coordinate';
   import { Encounter } from './Encounter';
   import { Notify, Loading } from "notiflix";
   import interact from 'interactjs';
+  import Navbar from '../../lib/Components/Navbar.svelte';
 
   let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
@@ -422,16 +423,10 @@
 </script>
 
 
-<nav class="navbar">
-  <div class="logo-container">
-    <img src="assets/logo-icon-small.png" alt="Logo" />
-    Trails Through Shadows
-  </div>
-  <button class="btn btn-success" on:click={toggleSlider}>
-    Map
-  </button>
-</nav>
-
+<Navbar />
+<button class="btn btn-success" on:click={toggleSlider}>
+  Map
+</button>
 
 <main>
   <div class="slider" class:visible={isSliderVisible}>

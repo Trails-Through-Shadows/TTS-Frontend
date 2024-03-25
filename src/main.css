@@ -1,7 +1,9 @@
 body {
-  background-image: url('/assets/invasion.png');
+  background-image: url('/assets/background.png');
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   font-family: "Times New Roman", Times, serif;
   overflow-x: hidden;
 }
@@ -9,20 +11,6 @@ body {
 main {
   display: flex;
   height: calc(100vh - 75px);
-}
-
-.navbar {
-  background-color: #222;
-  color: #4fc780;
-  text-align: center;
-  padding: 12.5px;
-  height: auto;
-  z-index: 1000;
-}
-
-.navbar img {
-  width: 50px;
-  height: 50px;
 }
 
 .btn {
@@ -42,5 +30,16 @@ main {
 .btn-success:hover {
   border-color: #4fc780;
   background-color: #4fc780;
+  color: #222;
+}
+
+.btn-danger {
+  border-color: #c23737;
+  color: #bababa;
+}
+
+.btn-danger:hover {
+  border-color: #c23737;
+  background-color: #c23737;
   color: #222;
 }

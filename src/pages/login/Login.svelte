@@ -1,5 +1,7 @@
 <script lang="ts">
   import { api, Adventure, Campaign } from "../../lib/Exports";
+  import Navbar from "../../lib/Components/Navbar.svelte";
+  import ScrollingText from "../../lib/Components/ScrollingText.svelte";
   import { Login } from "./Login";
   import { Notify, Loading } from "notiflix";
 
@@ -140,14 +142,7 @@
   }
 </script>
 
-
-<nav class="navbar">
-  <div class="logo-container">
-    <img src="assets/logo-icon-small.png" alt="Logo" />
-    Trails Through Shadows
-  </div>
-</nav>
-
+<Navbar />
 
 <main>
   {#if !loggedIn}
@@ -178,7 +173,11 @@
           <div class="card adventure-card border-0 m-3">
             <div class="card-header">
               <div class="d-flex justify-content-between">
-                <h5>{adventure.title}</h5>
+                <div class="title-container" data-simplebar>
+                  <ScrollingText>
+                    <h5>{adventure.title}</h5>
+                  </ScrollingText>
+                </div>
                 <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{index}">Edit</button>
               </div>
             </div>
@@ -234,8 +233,8 @@
     {#if adventureList.length < 8}
       <div class="col-xl-3 col-lg-4 col-md-6">
         <div class="small-card-container">
-          <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#createModal">
-            <img class="scroll-image" src="assets/scroll.png" alt="Add adventure" />
+          <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
+            <img class="add-campaign-image" src="assets/add-campaign.svg" alt="Add adventure" />
           </button>
         </div>
       </div>
@@ -272,8 +271,7 @@
                 {/if}
               </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer justify-content-right">
               <button type="button" class="btn btn-success" on:click="{() => handleCreateAdventure()}">Create adventure</button>
             </div>
           </div>
@@ -334,6 +332,12 @@
     color: #fff;
   }
 
+  .adventure-card .title-container {
+    overflow: hidden;
+    white-space: nowrap;
+    width: 85%;
+  }
+
   .adventure-card .adventure-description {
     height: 20vh;
     background-color: #333;
@@ -363,8 +367,17 @@
     justify-content: center;
   }
 
-  .scroll-image {
-    width: 120px;
+  .small-card-container .btn:hover img {
+    filter: invert(0%) sepia(13%) saturate(5094%) hue-rotate(358deg) brightness(85%) contrast(73%);
+  }
+
+  .add-campaign-image {
+    max-width: 120px;
+    filter: invert(90%) sepia(0%) saturate(0%) hue-rotate(177deg) brightness(86%) contrast(84%);
+  }
+
+  .add-campaign-image:hover {
+    filter: invert(0%) sepia(13%) saturate(5094%) hue-rotate(358deg) brightness(85%) contrast(73%);
   }
 
   .textarea-container {
