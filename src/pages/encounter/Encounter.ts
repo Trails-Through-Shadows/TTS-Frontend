@@ -137,7 +137,8 @@ export class Encounter {
                 if (request.status === 200)
                 {
                     console.log('Round posted');
-                    successCallback();
+                    const data = JSON.parse(request.responseText);
+                    successCallback(data.object);
                 }
                 else {
                     console.log('Error: ' + request.status);

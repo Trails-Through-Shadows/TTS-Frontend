@@ -3,7 +3,11 @@
   import { LazyCharacter } from '../../lib/Exports';
   import { api, checkToken } from '../../lib/Exports';
   import { Notify, Loading } from 'notiflix';
-    import Navbar from '../../lib/Components/Navbar.svelte';
+  import Navbar from '../../lib/Components/Navbar.svelte';
+
+  Notify.init({
+    clickToClose: true
+  });
 
   let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';

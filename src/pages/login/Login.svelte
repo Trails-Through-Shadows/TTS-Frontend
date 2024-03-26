@@ -4,6 +4,11 @@
   import ScrollingText from "../../lib/Components/ScrollingText.svelte";
   import { Login } from "./Login";
   import { Notify, Loading } from "notiflix";
+  import LogoutButton from "../../lib/Components/LogoutButton.svelte";
+
+  Notify.init({
+    clickToClose: true
+  });
 
   let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
@@ -142,7 +147,9 @@
   }
 </script>
 
-<Navbar />
+<Navbar>
+  <LogoutButton />
+</Navbar>
 
 <main>
   {#if !loggedIn}

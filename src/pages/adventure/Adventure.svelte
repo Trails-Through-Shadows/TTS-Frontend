@@ -1,8 +1,12 @@
 <script lang="ts">
   import Navbar from "../../lib/Components/Navbar.svelte";
-import { api, checkToken, Character } from "../../lib/Exports";
+  import { api, checkToken, Character } from "../../lib/Exports";
   import { CharacterList } from "./Adventure";
   import { Notify, Loading } from "notiflix";
+
+  Notify.init({
+    clickToClose: true
+  });
 
   let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';

@@ -8,6 +8,11 @@
   import { Notify, Loading } from "notiflix";
   import interact from 'interactjs';
   import Navbar from '../../lib/Components/Navbar.svelte';
+  import LogoutButton from '../../lib/Components/LogoutButton.svelte';
+
+  Notify.init({
+    clickToClose: true
+  });
 
   let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
@@ -32,6 +37,7 @@
   let idParts: number[] = [];
 
   let canvasRoot: HTMLCanvasElement | undefined;
+  let canvas: Canvas;
   let hexGridMap: HexGrid[] = [];
 
   const textureImage = new Image();
@@ -47,6 +53,91 @@
 
   let creator = new Encounter();
 
+  function receiveParts(part: number, partNum: number = 0) {
+    creator.readPartsData(`${api}/locations/${idLocation}/parts/${part}`,
+      (dataParts: any) => {
+        let hexGrid = new HexGrid(
+          dataParts.id,
+          canvas,
+          dataParts.hexes.map((hex: any) => new Hex(hex.key.idPart, hex.key.id, new CubeCoordinate(hex.q, hex.r, hex.s))),
+          textureImage,
+          borderImage
+        );
+
+        //add entities to hexGrid
+        for (let enemy of dataParts.enemies) {
+          if (enemy.startingHex.key.idPart === dataParts.id) {
+            hexGrid.addEntity({
+              title: enemy.title,
+              coords: new CubeCoordinate(enemy.startingHex.q, enemy.startingHex.r, enemy.startingHex.s),
+              url: enemy.url,
+              image: new Image()
+            });
+          }
+        }
+
+        //add doors as new hexes to hexGrid
+        if (dataParts.doors) {
+          let doors: Hex[] = [];
+          for (let door of dataParts.doors) {
+            let tmpDoor = new Hex(door.key.idPartFrom, door.key.idPartTo, new CubeCoordinate(door.q, door.r, door.s));
+            tmpDoor.isDoor = true;
+            doors.push(tmpDoor);
+          }
+          hexGrid.addHexes(doors);
+        }
+
+        //add startingHexes to hexGrid
+        for (let startingHex of dataParts.startingHexes) {
+          hexGrid.addStartHex(new CubeCoordinate(startingHex.q, startingHex.r, startingHex.s));
+        }
+
+        hexGrid.getImages();
+
+        hexGridMap.push(hexGrid);
+
+        if (hexGridMap.length === idParts.length) {
+          canvas.setLoading(false);
+          console.log(hexGridMap);
+          hexGridMap[partNum].draw();
+          hexGridMap[partNum].displayed = true;
+
+          canvas.addOnSizeListener(() => {
+            hexGridMap[partNum].redraw();
+          });
+        }
+
+        hexGridMap = hexGridMap;
+
+        canvas.addOnMouseClickListener((x: number, y: number) => {
+          hexGridMap[partNum].onClick(x, y, (hex: Hex) => {
+            let door = {
+              key: {
+                idPartFrom: hex.idPart,
+                idPartTo: hex.id
+              },
+              q: hex.coords.q,
+              r: hex.coords.r,
+              s: hex.coords.s
+            };
+            creator.postOpenDoorData(`${api}/encounter/${idEncounter}/openDoor?token=${token}`, door,
+              () => {
+                Notify.success("The door will open at the end of the round.");
+              },
+              (m: string) => {
+                Notify.failure(m);
+                checkToken(m);
+              }
+            );
+          });
+        });
+      },
+      (m: string) => {
+        Notify.failure(m);
+      }
+    );
+  }
+
   creator.readEncounterData(`${api}/encounter/${idEncounter}?token=${token}`,
     (data: any) => {
       idLocation = data.idLocation;
@@ -58,94 +149,12 @@
         return;
       }
       
-      let canvas = new Canvas(canvasRoot);
+      canvas = new Canvas(canvasRoot);
 
       canvas.setLoading(true);
 
       for (let part of idParts) {
-        creator.readPartsData(`${api}/locations/${idLocation}/parts/${part}`,
-          (dataParts: any) => {
-            let hexGrid = new HexGrid(
-              dataParts.id,
-              canvas,
-              dataParts.hexes.map((hex: any) => new Hex(hex.key.idPart, hex.key.id, new CubeCoordinate(hex.q, hex.r, hex.s))),
-              textureImage,
-              borderImage
-            );
-
-            //add entities to hexGrid
-            for (let enemy of data.enemies) {
-              if (enemy.startingHex.key.idPart === dataParts.id) {
-                hexGrid.addEntity({
-                  title: enemy.title,
-                  coords: new CubeCoordinate(enemy.startingHex.q, enemy.startingHex.r, enemy.startingHex.s),
-                  url: enemy.url,
-                  image: new Image()
-                });
-              }
-            }
-
-            //add doors as new hexes to hexGrid
-            if (dataParts.doors) {
-              let doors: Hex[] = [];
-              for (let door of dataParts.doors) {
-                let tmpDoor = new Hex(door.key.idPartFrom, door.key.idPartTo, new CubeCoordinate(door.q, door.r, door.s));
-                tmpDoor.isDoor = true;
-                doors.push(tmpDoor);
-              }
-              hexGrid.addHexes(doors);
-            }
-
-            //add startingHexes to hexGrid
-            for (let startingHex of dataParts.startingHexes) {
-              hexGrid.addStartHex(new CubeCoordinate(startingHex.q, startingHex.r, startingHex.s));
-            }
-
-            hexGrid.getImages();
-
-            hexGridMap.push(hexGrid);
-
-            if (hexGridMap.length === idParts.length) {
-              canvas.setLoading(false);
-              console.log(hexGridMap);
-              hexGridMap[0].draw();
-
-              canvas.setBackgroundImage('/assets/map.png', () => {
-                hexGridMap[0].redraw();
-              });
-
-              canvas.addOnSizeListener(() => {
-                hexGridMap[0].redraw();
-              });
-            }
-
-            canvas.addOnMouseClickListener((x: number, y: number) => {
-              hexGridMap[0].onClick(x, y, (hex: Hex) => {
-                let door = {
-                  key: {
-                    idPartFrom: hex.idPart,
-                    idPartTo: hex.id
-                  },
-                  q: hex.coords.q,
-                  r: hex.coords.r,
-                  s: hex.coords.s
-                };
-                creator.postOpenDoorData(`${api}/encounter/${idEncounter}/openDoor?token=${token}`, door,
-                  () => {
-                    Notify.success("Door opened.");
-                  },
-                  (m: string) => {
-                    Notify.failure(m);
-                    checkToken(m);
-                  }
-                );
-              });
-            });
-          },
-          (m: string) => {
-            Notify.failure(m);
-          }
-        );
+        receiveParts(part);
       }
 
       characterList = data.characters;
@@ -185,6 +194,14 @@
   function toggleSlider() {
     hexGridMap[0].redraw();
     isSliderVisible = !isSliderVisible;
+  }
+
+  function draw(id: number) {
+    for (let hexGrid of hexGridMap) {
+      hexGrid.displayed = false;
+    }
+    hexGridMap[id].displayed = true;
+    hexGridMap[id].redraw();
   }
 
   let selectedOptions = Array(characterList.length).fill("");
@@ -294,7 +311,12 @@
         if (onTurn === entityList.length) {
           onTurn = 0;
           creator.postRoundEndData(`${api}/encounter/${idEncounter}/endRound?token=${token}`,
-            () => {
+            (data: any) => {
+              if (data.unlockedParts) {
+                for (let part of data.unlockedParts) {
+                  receiveParts(part, hexGridMap.length);
+                }
+              }
               creator.postTurnData(url1,
                 () => {
                   entityList = entityList;
@@ -423,15 +445,28 @@
 </script>
 
 
-<Navbar />
-<button class="btn btn-success" on:click={toggleSlider}>
-  Map
-</button>
+<Navbar>
+  <button class="btn btn-success me-5" on:click={toggleSlider}>
+    Map
+  </button>
+  <LogoutButton />
+</Navbar>
 
-<main>
-  <div class="slider" class:visible={isSliderVisible}>
+<div class="slider" class:visible={isSliderVisible}>
+  <div class="canvas-container">
     <canvas bind:this={canvasRoot}></canvas>
   </div>
+  <div class="button-container">
+    {#each hexGridMap as hexGrid}
+      <button class="btn btn-success" on:click={() => draw(hexGridMap.indexOf(hexGrid))}>
+        {hexGridMap.indexOf(hexGrid) + 1}
+        <!--{hexGrid.id}-->
+      </button>
+    {/each}
+  </div>
+</div>
+
+<main>
   <div class="container-fluid">
     <div class="row">
       {#if !playing}
@@ -560,22 +595,37 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
+    background: url('/assets/map.png');
+    background-size: cover;
     color: #fff;
     transition: top 0.5s ease;
     overflow: hidden;
     z-index: 999;
+    display: flex;
   }
 
   .slider.visible {
     top: 0;
   }
 
+  .canvas-container {
+    flex: 1;
+  }
+
+  .button-container {
+    padding-top: 75px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .button-container button {
+    margin: 5px;
+  }
+
   .entity-card {
     background-color: #222;
     color: #bababa;
     border: 0;
-
   }
 
   .stat-container {

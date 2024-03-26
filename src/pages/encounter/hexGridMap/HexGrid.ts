@@ -21,7 +21,8 @@ export class HexGrid {
     public hoveredHex: Hex | null = null;
     public entities: HexEntity[] = [];
     public doorImage: HTMLImageElement = new Image();
-    public startImage: HTMLImageElement = new Image();
+
+    public displayed: boolean = false;
 
     constructor(
         public id: number,
@@ -32,33 +33,10 @@ export class HexGrid {
         private hexSize: number = 50,
     ) {
         this.doorImage.src = 'assets/door.png';
-        this.startImage.src = 'assets/start.png';
-
-        this.canvas.addOnMouseHoverListener((x: number, y: number) => {
-            if (this.canvas.isLoading()) {
-                return;
-            }
-
-            const offset: Offset = this.getOffset();
-            const coords = CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexSize);
-            const hex = this.getHexAt(coords);
-
-            // It's the same hex, ignore
-
-            if (this.hoveredHex === hex) {
-                return;
-            }
-
-            if (hex) {
-                this.hoveredHex = hex;
-            } else {
-                this.hoveredHex = null;
-            }
-        });
     }
 
     onClick(x: number, y: number, successCallback: Function): void {
-        if (this.canvas.isLoading()) {
+        if (this.canvas.isLoading() || !this.displayed) {
             return;
         }
         const offset: Offset = this.getOffset();
@@ -135,6 +113,8 @@ export class HexGrid {
             }
         });
 
+        this.bindDoors();
+
         console.log('HexGrid | Images loaded');
     }
 
@@ -148,7 +128,9 @@ export class HexGrid {
         });
 
         console.log('HexGrid | Entities mapped to hexes');
+    }
 
+    bindDoors(): void {
         const doorHexes = this.hexes.filter(hex => hex.isDoor);
         doorHexes.forEach(hex => hex.setEntityImage(this.doorImage));
     }
