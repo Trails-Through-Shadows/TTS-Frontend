@@ -86,7 +86,7 @@
 </script>
 
 
-<Navbar url="/" />
+<Navbar title="Character Creation"/>
 
 
 <main data-simplebar>
@@ -102,12 +102,13 @@
             <div class="card-body">
               <div class="{mobile ? '' : 'd-flex'}">
                 <div class="class-image-container {mobile ? 'mobile' : ''}">
-                  <img class="class-image" src="{api}/images/characters/{character.race.title}-{character.clazz.title}.png" alt="{character.race.title}-{character.clazz.title}" />
+                    <img class="class-image" src="{api}/images/characters/{character.race.title.toLowerCase()}-{character.clazz.title.toLowerCase()}.png" alt="{character.race.title} {character.clazz.title}" />
                   <div class="position-absolute bottom-0 start-0">
                     <div class="position-relative">
                       <img class="stat-image" src="assets/heart.png" alt="Health" />
                       <div class="stat-container">
                         <h1>{character.clazz.baseHealth}</h1>
+                        <div class="stat-text">Health</div>
                       </div>
                     </div>
                   </div>
@@ -116,6 +117,7 @@
                       <img class="stat-image" src="assets/shield.png" alt="Defence" />
                       <div class="stat-container">
                         <h1>{character.clazz.baseDefence + character.race.baseInitiative}</h1>
+                        <div class="stat-text">Defence</div>
                       </div>
                     </div>
                   </div>
@@ -123,6 +125,7 @@
                     <img class="stat-image" src="assets/speed.png" alt="Initiative" />
                     <div class="stat-container">
                       <h1>{character.clazz.baseInitiative}</h1>
+                      <div class="stat-text">Initiative</div>
                     </div>
                   </div>
                 </div>
@@ -182,6 +185,7 @@
 <style>
   .stat-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100%;
@@ -189,6 +193,10 @@
     bottom: -10%;
     left: 50%;
     transform: translateX(-50%);
+  }
+
+  .stat-container h1 {
+    margin: 0;
   }
 
   .class-image-container {
@@ -212,6 +220,11 @@
 
   .stat-image {
     width: 50px;
+    margin-top: -20px;
+  }
+
+  .stat-text {
+    color: #bababa;
   }
 
   .card-header {

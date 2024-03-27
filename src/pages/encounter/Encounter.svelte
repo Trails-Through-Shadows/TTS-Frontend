@@ -516,13 +516,19 @@
                     <div class="position-absolute bottom-0 start-50 translate-middle-x">
                       <div class="position-relative">
                         <img class="stat-image" src="assets/heart.png" alt="Health" />
-                        <div class="stat-container"><h5>{entity.entity.health}</h5></div>
+                        <div class="stat-container">
+                          <h5>{entity.entity.health}</h5>
+                          <div class="stat-text">Health</div>
+                        </div>
                       </div>
                     </div>
                     <div class="position-absolute bottom-0 end-0">
                       <div class="position-relative">
                         <img class="stat-image" src="assets/shield.png" alt="Defence" />
-                        <div class="stat-container"><h5>{entity.entity.defence}</h5></div>
+                        <div class="stat-container">
+                          <h5>{entity.entity.defence}</h5>
+                          <div class="stat-text">Defence</div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -554,13 +560,19 @@
                     <div class="position-absolute bottom-0 start-50 translate-middle-x">
                       <div class="position-relative">
                         <img class="stat-image" src="assets/heart.png" alt="Health" />
-                        <div class="stat-container"><h5>{entity.entity.enemy[0].health}</h5></div>
+                        <div class="stat-container">
+                          <h5>{entity.entity.enemy[0].health}</h5>
+                          <div class="stat-text">Health</div>
+                        </div>
                       </div>
                     </div>
                     <div class="position-absolute bottom-0 end-0">
                       <div class="position-relative">
                         <img class="stat-image" src="assets/shield.png" alt="Defence" />
-                        <div class="stat-container"><h5>{entity.entity.enemy[0].defence}</h5></div>
+                        <div class="stat-container">
+                          <h5>{entity.entity.enemy[0].defence}</h5>
+                          <div class="stat-text">Defence</div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -630,6 +642,7 @@
 
   .stat-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100%;
@@ -639,6 +652,10 @@
     transform: translateX(-50%);
   }
 
+  .stat-container h5 {
+    margin: 0;
+  }
+
   .class-image {
     width: 100%;
     border-radius: 25%;
@@ -646,6 +663,11 @@
 
   .stat-image {
     width: 25px;
+    margin-top: -20px;
+  }
+
+  .stat-text {
+    color: #bababa;
   }
 
   .big-card .stat-image {

@@ -147,7 +147,7 @@
   }
 </script>
 
-<Navbar>
+<Navbar title={loggedIn ? 'Adventures' : 'Login'}>
   <LogoutButton />
 </Navbar>
 
