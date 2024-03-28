@@ -86,11 +86,9 @@ import { CubeCoordinate } from "./Coordinate";
             ctx.stroke();
 
             if (this.isDoor) {
-                console.log('Drawing door');
                 this.drawDoor(ctx, offset);
             }
             else if (this.entityImage) {
-                console.log('Drawing entity');
                 this.drawEntity(ctx, this.entityImage, offset);
             }
         }

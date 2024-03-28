@@ -14,6 +14,8 @@
     clickToClose: true
   });
 
+  Loading.dots('Loading...');
+
   let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
   
@@ -39,6 +41,7 @@
   let canvasRoot: HTMLCanvasElement | undefined;
   let canvas: Canvas;
   let hexGridMap: HexGrid[] = [];
+  let currentMap: number = 0;
 
   const textureImage = new Image();
   textureImage.src = '/assets/map-texture-new-smol.png';
@@ -50,10 +53,11 @@
   let enemyList: baseEnemy[] = [];
   let enemyGroupList: baseEnemyGroup[] = [];
   let entityList: { id:number, initiative: number, type: string, entity: (baseCharacter | baseEnemyGroup) }[] = [];
+  let selectedEnemies: number[] = [];
 
   let creator = new Encounter();
 
-  function receiveParts(part: number, partNum: number = 0) {
+  function receiveParts(part: number) {
     creator.readPartsData(`${api}/locations/${idLocation}/parts/${part}`,
       (dataParts: any) => {
         let hexGrid = new HexGrid(
@@ -99,18 +103,18 @@
         if (hexGridMap.length === idParts.length) {
           canvas.setLoading(false);
           console.log(hexGridMap);
-          hexGridMap[partNum].draw();
-          hexGridMap[partNum].displayed = true;
+          hexGrid.draw();
+          hexGrid.displayed = true;
 
           canvas.addOnSizeListener(() => {
-            hexGridMap[partNum].redraw();
+            hexGrid.redraw();
           });
         }
 
         hexGridMap = hexGridMap;
 
         canvas.addOnMouseClickListener((x: number, y: number) => {
-          hexGridMap[partNum].onClick(x, y, (hex: Hex) => {
+          hexGrid.onClick(x, y, (hex: Hex) => {
             let door = {
               key: {
                 idPartFrom: hex.idPart,
@@ -178,7 +182,10 @@
         }
       }
 
-      console.log(enemyGroupList);
+      if (data.state === "ONGOING") {
+        playing = true;
+        receiveInitiative();
+      }
     },
     (m: string) => {
       Notify.failure(m);
@@ -192,7 +199,7 @@
   let isSliderVisible = false;
 
   function toggleSlider() {
-    hexGridMap[0].redraw();
+    hexGridMap[currentMap].redraw();
     isSliderVisible = !isSliderVisible;
   }
 
@@ -200,14 +207,60 @@
     for (let hexGrid of hexGridMap) {
       hexGrid.displayed = false;
     }
+    currentMap = id;
     hexGridMap[id].displayed = true;
     hexGridMap[id].redraw();
   }
 
   let selectedOptions = Array(characterList.length).fill("");
 
-  function handleChange(event: any, index: any) {
+  function handleSelectChange(event: any, index: any) {
     selectedOptions[index] = event.target.value;
+  }
+
+  // function handleEnemyChange that on change of enemies-menu select updates the enemy card to show the selected enemy's stats instead of the first in the list (use selectedEnemies array to store the selected enemy for each enemy card)
+  function handleEnemyChange(event: any, index: any) {
+    selectedEnemies[index] = event.target.value - 1;
+  }
+
+  function receiveInitiative(callback: Function = () => {}) {
+    creator.readInitiativeData(`${api}/encounter/${idEncounter}/initiative?token=${token}`,
+      (data: any) => {
+        let initiativeList: { id: number, initiative: number, type: string }[] = data;
+
+        entityList = [];
+        console.log(initiativeList);
+
+        for (let entity of initiativeList) {
+          if (entity.type === "CHARACTER") {
+            for (let character of characterList) {
+              if (character.id === entity.id) {
+                entityList.push({ id: entity.id, initiative: entity.initiative, type: "CHARACTER", entity: character });
+                break;
+              }
+            }
+          } else if (entity.type === "ENEMY") {
+            for (let enemyGroup of enemyGroupList) {
+                if (enemyGroup.id === entity.id) {
+                  entityList.push({ id: entity.id, initiative: entity.initiative, type: "ENEMY", entity: enemyGroup });
+                  break;
+                }
+              }
+          }
+        }
+
+        entityList = entityList;
+        console.log(entityList);
+
+        selectedEnemies = Array(entityList.length).fill(0);
+
+        callback();
+      },
+      (m: string) => {
+        Notify.failure(m);
+        checkToken(m);
+      }
+    );
   }
 
   function startEncounter() {
@@ -223,31 +276,8 @@
 
     creator.postInitiativeData(`${api}/encounter/${idEncounter}/initiative?token=${token}`, charInitiative,
       () => {
-        creator.readInitiativeData(`${api}/encounter/${idEncounter}/initiative?token=${token}`,
-          (data: any) => {
-            let initiativeList: { id: number, initiative: number, type: string }[] = data;
-
-            for (let entity of initiativeList) {
-              if (entity.type === "CHARACTER") {
-                for (let character of characterList) {
-                  if (character.id === entity.id) {
-                    entityList.push({ id: entity.id, initiative: entity.initiative, type: "CHARACTER", entity: character });
-                    break;
-                  }
-                }
-              } else if (entity.type === "ENEMY") {
-                for (let enemyGroup of enemyGroupList) {
-                    if (enemyGroup.id === entity.id) {
-                      entityList.push({ id: entity.id, initiative: entity.initiative, type: "ENEMY", entity: enemyGroup });
-                      break;
-                    }
-                  }
-              }
-            }
-
-            entityList = entityList;
-            console.log(entityList);
-
+        receiveInitiative(
+          () => {
             if (entityList[0].type === "CHARACTER") {
               creator.postTurnData(`${api}/encounter/${idEncounter}/turn/character/${entityList[0].id}/start?token=${token}`,
                 () => {},
@@ -266,10 +296,6 @@
                 }
               );
             }
-          },
-          (m: string) => {
-            Notify.failure(m);
-            checkToken(m);
           }
         );
         playing = true;
@@ -312,10 +338,48 @@
           onTurn = 0;
           creator.postRoundEndData(`${api}/encounter/${idEncounter}/endRound?token=${token}`,
             (data: any) => {
-              if (data.unlockedParts) {
+              if (data.unlockedParts.length > 0) {
+                Notify.success("New room has been unlocked.");
+                Loading.dots('Loading...');
+
                 for (let part of data.unlockedParts) {
-                  receiveParts(part, hexGridMap.length);
+                  receiveParts(part);
                 }
+
+                creator.readEncounterData(`${api}/encounter/${idEncounter}?token=${token}`,
+                  (data: any) => {
+                    characterList = data.characters;
+                    enemyList = data.enemies;
+                    
+                    enemyGroupList = [];
+
+                    for (let enemy of enemyList) {
+                      if (enemyGroupList.length === 0) {
+                        enemyGroupList.push({id:enemy.idGroup, enemy:[enemy]});
+                      } else {
+                        let added = false;
+                        for (let i = 0; i < enemyGroupList.length; i++) {
+                          if (enemyGroupList[i].id === enemy.idGroup) {
+                            enemyGroupList[i].enemy.push(enemy);
+                            added = true;
+                            break;
+                          }
+                        }
+                        if (!added) {
+                          enemyGroupList.push({id:enemy.idGroup, enemy:[enemy]});
+                        }
+                      }
+                    }
+
+                    receiveInitiative();
+                    Loading.remove();
+                  },
+                  (m: string) => {
+                    Loading.remove();
+                    Notify.failure(m);
+                    checkToken(m);
+                  }
+                );
               }
               creator.postTurnData(url1,
                 () => {
@@ -353,75 +417,75 @@
   }
 
   interact('.entity-card').dropzone({
-  ondrop(event) {
-    let target = event.target;
-    let entityId = target.dataset.entityId;
-    let entityType = target.dataset.entityType;
-    let damage = event.relatedTarget.value;
+    ondrop(event) {
+      let target = event.target;
+      let entityId = target.dataset.entityId;
+      let entityType = target.dataset.entityType;
+      let damage = event.relatedTarget.value;
 
-    console.log(entityId, entityType, damage);
+      console.log(entityId, entityType, damage);
 
-    if (entityType === "CHARACTER") {
-      creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/character/${entityId}?token=${token}`, parseInt(damage),
-        (data: any) => {
-          const entity = entityList.find((entity) => entity.id == entityId && entity.type == entityType);
-          if (entity) {
-            entity.entity.health = data.health;
-            if (data.status === "DEAD") {
-              if (entityId === entityList[onTurn].id && entityType === entityList[onTurn].type) {
-                onTurn++;
-                creator.postTurnData(`${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn].id}/start?token=${token}`,
-                  () => {
-                    entityList = entityList.filter((entity) => entity.id != entityId || entity.type != entityType);
-                  },
-                  (m: string) => {
-                    Notify.failure(m);
-                    checkToken(m);
-                  }
-                );
-              }
-              else {
-                entityList = entityList.filter((entity) => entity.id != entityId || entity.type != entityType);
-              }
-            }
-          }
-
-          entityList = entityList;
-          
-          Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId}, with damage: ${damage}.`);
-        },
-        (m: string) => {
-          Notify.failure(m);
-          checkToken(m);
-        }
-      );
-    } else if (entityType === "ENEMY") {
-      let selectedEnemy = target.querySelector('.enemies-menu').value;
-      creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/enemy/${entityId}/${selectedEnemy}?token=${token}`, parseInt(damage),
-        (data: any) => {
-          const entity = entityList.find((entity) => entity.id == entityId && entity.type == entityType);
-          if (entity) {
-            entity.entity.enemy.find((enemy) => enemy.id == selectedEnemy).health = data.health;
-            if (data.status === "DEAD") {
-              entity.entity.enemy = entity.entity.enemy.filter((enemy) => enemy.id != selectedEnemy);
-              if (entity.entity.enemy.length === 0) {
-                entityList = entityList.filter((entity) => entity.id != entityId || entity.type != entityType);
+      if (entityType === "CHARACTER") {
+        creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/character/${entityId}?token=${token}`, parseInt(damage),
+          (data: any) => {
+            const entity = entityList.find((entity) => entity.id == entityId && entity.type == entityType);
+            if (entity) {
+              entity.entity.health = data.health;
+              if (data.status === "DEAD") {
+                if (entityId === entityList[onTurn].id && entityType === entityList[onTurn].type) {
+                  onTurn++;
+                  creator.postTurnData(`${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn].id}/start?token=${token}`,
+                    () => {
+                      entityList = entityList.filter((entity) => entity.id != entityId || entity.type != entityType);
+                    },
+                    (m: string) => {
+                      Notify.failure(m);
+                      checkToken(m);
+                    }
+                  );
+                }
+                else {
+                  entityList = entityList.filter((entity) => entity.id != entityId || entity.type != entityType);
+                }
               }
             }
+
+            entityList = entityList;
+            
+            Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId}, with damage: ${damage}.`);
+          },
+          (m: string) => {
+            Notify.failure(m);
+            checkToken(m);
           }
+        );
+      } else if (entityType === "ENEMY") {
+        let selectedEnemy = target.querySelector('.enemies-menu').value;
+        creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/enemy/${entityId}/${selectedEnemy}?token=${token}`, parseInt(damage),
+          (data: any) => {
+            const entity = entityList.find((entity) => entity.id == entityId && entity.type == entityType);
+            if (entity) {
+              entity.entity.enemy.find((enemy) => enemy.id == selectedEnemy).health = data.health;
+              if (data.status === "DEAD") {
+                entity.entity.enemy = entity.entity.enemy.filter((enemy) => enemy.id != selectedEnemy);
+                if (entity.entity.enemy.length === 0) {
+                  entityList = entityList.filter((entity) => entity.id != entityId || entity.type != entityType);
+                }
+              }
+            }
 
-          entityList = entityList;
+            entityList = entityList;
 
-          Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId} and enemy ID: ${selectedEnemy}, with damage: ${damage}.`);
-        },
-        (m: string) => {
-          Notify.failure(m);
-          checkToken(m);
-        }
-      );
+            Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId} and enemy ID: ${selectedEnemy}, with damage: ${damage}.`);
+          },
+          (m: string) => {
+            Notify.failure(m);
+            checkToken(m);
+          }
+        );
+      }
     }
-  }
-});
+  });
 
   interact('.dragabble').draggable({
     listeners: {
@@ -442,10 +506,12 @@
       }
     }
   });
+
+  Loading.remove();
 </script>
 
 
-<Navbar>
+<Navbar title="To battle!">
   <button class="btn btn-success me-5" on:click={toggleSlider}>
     Map
   </button>
@@ -459,8 +525,7 @@
   <div class="button-container">
     {#each hexGridMap as hexGrid}
       <button class="btn btn-success" on:click={() => draw(hexGridMap.indexOf(hexGrid))}>
-        {hexGridMap.indexOf(hexGrid) + 1}
-        <!--{hexGrid.id}-->
+        {hexGrid.id}
       </button>
     {/each}
   </div>
@@ -484,7 +549,7 @@
                     <div class="position-relative">
                       <div class="d-flex align-items-end">
                         <input type="text" class="form-control form-control-sm stat-input" value={character.baseInitiative} disabled />
-                        <select class="form-control stat-input {selectedOptions[index] === 'CRIT' || selectedOptions[index] === 'MISS' ? 'small-font' : ''}" on:change={(e) => handleChange(e, index)}>
+                        <select class="form-control stat-input {selectedOptions[index] === 'CRIT' || selectedOptions[index] === 'MISS' ? 'small-font' : ''}" on:change={(e) => handleSelectChange(e, index)}>
                           <option value="" selected disabled hidden>?</option>
                           {#each ["CRIT", "+5", "+4", "+3", "+2", "+1", "+0", "-1", "-2", "-3", "MISS"] as value}
                           <option value={value}>{value}</option>
@@ -546,22 +611,22 @@
             <div class="{index === onTurn ? 'col-xl-3 big-card' : 'col-xl-2'}">
               <div class="card entity-card border-0 m-1" data-entity-id={entity.entity.id} data-entity-type={entity.type}>
                 <div class="card-header">
-                  <h5 id="card-name" class="m-0">{entity.entity.enemy[0].title}</h5>
-                  <select class="btn btn-sm enemies-menu">
+                  <h5 id="card-name" class="m-0">{entity.entity.enemy[selectedEnemies[index]].title}</h5>
+                  <select class="btn btn-sm enemies-menu" on:change={(e) => handleEnemyChange(e, index)}>
                     <i class="bi bi-arrow-bar-down" />
-                    {#each entity.entity.enemy as enemy, indexEnemy}
-                      <option value={enemy.id}>{indexEnemy + 1}</option>
+                    {#each entity.entity.enemy as enemy}
+                      <option value={enemy.id}>{enemy.id}</option>
                     {/each}
                   </select>
                 </div>
                 <div class="card-body">
                   <div class="position-relative">
-                    <img class="class-image" src="{entity.entity.enemy[0].url}" alt="{entity.entity.enemy[0].title}" />
+                    <img class="class-image" src="{entity.entity.enemy[selectedEnemies[index]].url}" alt="{entity.entity.enemy[selectedEnemies[index]].title}" />
                     <div class="position-absolute bottom-0 start-50 translate-middle-x">
                       <div class="position-relative">
                         <img class="stat-image" src="assets/heart.png" alt="Health" />
                         <div class="stat-container">
-                          <h5>{entity.entity.enemy[0].health}</h5>
+                          <h5>{entity.entity.enemy[selectedEnemies[index]].health}</h5>
                           <div class="stat-text">Health</div>
                         </div>
                       </div>
@@ -570,7 +635,7 @@
                       <div class="position-relative">
                         <img class="stat-image" src="assets/shield.png" alt="Defence" />
                         <div class="stat-container">
-                          <h5>{entity.entity.enemy[0].defence}</h5>
+                          <h5>{entity.entity.enemy[selectedEnemies[index]].defence}</h5>
                           <div class="stat-text">Defence</div>
                         </div>
                       </div>
@@ -579,7 +644,7 @@
                 </div>
                 <div class="card-footer">
                   <ul class="effects-list">
-                    {#each entity.entity.enemy[0].activeEffects as effect}
+                    {#each entity.entity.enemy[selectedEnemies[index]].activeEffects as effect}
                       <li>{effect.type} {effect.strength} {effect.duration}</li>
                     {/each}
                   </ul>
