@@ -9,6 +9,7 @@
   import interact from 'interactjs';
   import Navbar from '../../lib/Components/Navbar.svelte';
   import LogoutButton from '../../lib/Components/LogoutButton.svelte';
+    import ScrollingText from '../../lib/Components/ScrollingText.svelte';
 
   Notify.init({
     clickToClose: true
@@ -102,7 +103,6 @@
 
         if (hexGridMap.length === idParts.length) {
           canvas.setLoading(false);
-          console.log(hexGridMap);
           hexGrid.draw();
           hexGrid.displayed = true;
 
@@ -138,6 +138,44 @@
       },
       (m: string) => {
         Notify.failure(m);
+      }
+    );
+  }
+
+  function receiveInitiative(callback: Function = (data: any) => {}) {
+    creator.readInitiativeData(`${api}/encounter/${idEncounter}/initiative?token=${token}`,
+      (data: any) => {
+        let initiativeList: { id: number, initiative: number, type: string }[] = data.initiatives;
+
+        entityList = [];
+
+        for (let entity of initiativeList) {
+          if (entity.type === "CHARACTER") {
+            for (let character of characterList) {
+              if (character.id === entity.id) {
+                entityList.push({ id: entity.id, initiative: entity.initiative, type: "CHARACTER", entity: character });
+                break;
+              }
+            }
+          } else if (entity.type === "ENEMY") {
+            for (let enemyGroup of enemyGroupList) {
+                if (enemyGroup.id === entity.id) {
+                  entityList.push({ id: entity.id, initiative: entity.initiative, type: "ENEMY", entity: enemyGroup });
+                  break;
+                }
+              }
+          }
+        }
+
+        entityList = entityList;
+
+        selectedEnemies = Array(entityList.length).fill(0);
+
+        callback(data);
+      },
+      (m: string) => {
+        Notify.failure(m);
+        checkToken(m);
       }
     );
   }
@@ -184,7 +222,28 @@
 
       if (data.state === "ONGOING") {
         playing = true;
-        receiveInitiative();
+        receiveInitiative(
+          (data: any) => {
+            if (data.active) {
+              if (data.active.type === "CHARACTER") {
+                for (let i = 0; i < entityList.length; i++) {
+                  if (entityList[i].id === data.active.id && entityList[i].type === data.active.type) {
+                    onTurn = i;
+                    break;
+                  }
+                }
+              }
+              else if (data.active.type === "ENEMY") {
+                for (let i = 0; i < entityList.length; i++) {
+                  if (entityList[i].id === data.active.id && entityList[i].type === data.active.type) {
+                    onTurn = i;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        );
       }
     },
     (m: string) => {
@@ -218,49 +277,8 @@
     selectedOptions[index] = event.target.value;
   }
 
-  // function handleEnemyChange that on change of enemies-menu select updates the enemy card to show the selected enemy's stats instead of the first in the list (use selectedEnemies array to store the selected enemy for each enemy card)
   function handleEnemyChange(event: any, index: any) {
     selectedEnemies[index] = event.target.value - 1;
-  }
-
-  function receiveInitiative(callback: Function = () => {}) {
-    creator.readInitiativeData(`${api}/encounter/${idEncounter}/initiative?token=${token}`,
-      (data: any) => {
-        let initiativeList: { id: number, initiative: number, type: string }[] = data;
-
-        entityList = [];
-        console.log(initiativeList);
-
-        for (let entity of initiativeList) {
-          if (entity.type === "CHARACTER") {
-            for (let character of characterList) {
-              if (character.id === entity.id) {
-                entityList.push({ id: entity.id, initiative: entity.initiative, type: "CHARACTER", entity: character });
-                break;
-              }
-            }
-          } else if (entity.type === "ENEMY") {
-            for (let enemyGroup of enemyGroupList) {
-                if (enemyGroup.id === entity.id) {
-                  entityList.push({ id: entity.id, initiative: entity.initiative, type: "ENEMY", entity: enemyGroup });
-                  break;
-                }
-              }
-          }
-        }
-
-        entityList = entityList;
-        console.log(entityList);
-
-        selectedEnemies = Array(entityList.length).fill(0);
-
-        callback();
-      },
-      (m: string) => {
-        Notify.failure(m);
-        checkToken(m);
-      }
-    );
   }
 
   function startEncounter() {
@@ -423,8 +441,6 @@
       let entityType = target.dataset.entityType;
       let damage = event.relatedTarget.value;
 
-      console.log(entityId, entityType, damage);
-
       if (entityType === "CHARACTER") {
         creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/character/${entityId}?token=${token}`, parseInt(damage),
           (data: any) => {
@@ -432,7 +448,8 @@
             if (entity) {
               entity.entity.health = data.health;
               if (data.status === "DEAD") {
-                if (entityId === entityList[onTurn].id && entityType === entityList[onTurn].type) {
+                if (entityId == entityList[onTurn].id && entityType === entityList[onTurn].type) {
+                  console.log(`I am dead: ${entityId}`);
                   onTurn++;
                   creator.postTurnData(`${api}/encounter/${idEncounter}/turn/character/${entityList[onTurn].id}/start?token=${token}`,
                     () => {
@@ -539,8 +556,12 @@
           <div class="col-xl-2 big-card">
             <div class="card border-0 m-1">
               <div class="card-header">
-                <h5 id="card-name" class="m-0">{character.title}</h5>
-                <p class="m-0">{character.playerName}</p>
+                <ScrollingText>
+                  <h5 id="card-name" class="m-0">{character.title}</h5>
+                </ScrollingText>
+                <ScrollingText>
+                  <p class="m-0">{character.playerName}</p>
+                </ScrollingText>
               </div>
               <div class="card-body">
                 <div class="position-relative">
@@ -569,11 +590,15 @@
       {:else}
         {#each entityList as entity, index}
           {#if entity.type === 'CHARACTER'}
-            <div class="{index === onTurn ? 'col-xl-3 big-card' : 'col-xl-2'}">
+            <div class="{index === onTurn ? 'col-xl-2 big-card' : 'col-xl-1'}">
               <div class="card entity-card border-0 m-1" data-entity-id={entity.entity.id} data-entity-type={entity.type}>
                 <div class="card-header">
+                <ScrollingText>
                   <h5 id="card-name" class="m-0">{entity.entity.title}</h5>
+                </ScrollingText>
+                <ScrollingText>
                   <p class="m-0">{entity.entity.playerName}</p>
+                </ScrollingText>
                 </div>
                 <div class="card-body">
                   <div class="position-relative">
@@ -583,7 +608,9 @@
                         <img class="stat-image" src="assets/heart.png" alt="Health" />
                         <div class="stat-container">
                           <h5>{entity.entity.health}</h5>
-                          <div class="stat-text">Health</div>
+                          {#if index === onTurn}
+                            <div class="stat-text">Health</div>
+                          {/if}
                         </div>
                       </div>
                     </div>
@@ -592,26 +619,30 @@
                         <img class="stat-image" src="assets/shield.png" alt="Defence" />
                         <div class="stat-container">
                           <h5>{entity.entity.defence}</h5>
-                          <div class="stat-text">Defence</div>
+                          {#if index === onTurn}
+                            <div class="stat-text">Defence</div>
+                          {/if}
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="card-footer">
-                  <ul class="effects-list">
+                  <div class="effects-list">
                     {#each entity.entity.activeEffects as effect}
-                      <li>{effect.type} {effect.strength} {effect.duration}</li>
+                      <p>{effect.type} {effect.strength} {effect.duration}</p>
                     {/each}
-                  </ul>
+                  </div>
                 </div>
               </div>
             </div>
           {:else if entity.type === 'ENEMY'}
-            <div class="{index === onTurn ? 'col-xl-3 big-card' : 'col-xl-2'}">
+            <div class="{index === onTurn ? 'col-xl-2 big-card' : 'col-xl-1'}">
               <div class="card entity-card border-0 m-1" data-entity-id={entity.entity.id} data-entity-type={entity.type}>
                 <div class="card-header">
+                <ScrollingText>
                   <h5 id="card-name" class="m-0">{entity.entity.enemy[selectedEnemies[index]].title}</h5>
+                </ScrollingText>
                   <select class="btn btn-sm enemies-menu" on:change={(e) => handleEnemyChange(e, index)}>
                     <i class="bi bi-arrow-bar-down" />
                     {#each entity.entity.enemy as enemy}
@@ -627,7 +658,9 @@
                         <img class="stat-image" src="assets/heart.png" alt="Health" />
                         <div class="stat-container">
                           <h5>{entity.entity.enemy[selectedEnemies[index]].health}</h5>
-                          <div class="stat-text">Health</div>
+                          {#if index === onTurn}
+                            <div class="stat-text">Health</div>,
+                          {/if}
                         </div>
                       </div>
                     </div>
@@ -636,25 +669,27 @@
                         <img class="stat-image" src="assets/shield.png" alt="Defence" />
                         <div class="stat-container">
                           <h5>{entity.entity.enemy[selectedEnemies[index]].defence}</h5>
-                          <div class="stat-text">Defence</div>
+                          {#if index === onTurn}
+                            <div class="stat-text">Defence</div>,
+                          {/if}
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="card-footer">
-                  <ul class="effects-list">
+                  <div class="effects-list">
                     {#each entity.entity.enemy[selectedEnemies[index]].activeEffects as effect}
-                      <li>{effect.type} {effect.strength} {effect.duration}</li>
+                      <p>{effect.type} {effect.strength} {effect.duration}</p>
                     {/each}
-                  </ul>
+                  </div>
                 </div>
               </div>
             </div>
           {/if}
         {/each}
         <div class="col-xl-12">
-          <button class="btn btn-primary" on:click={endTurn}>Next turn</button>
+          <button class="btn btn-success" on:click={endTurn}>Next turn</button>
         </div>
         <div class="col-xl-12">
           <input type="number" class="btn btn-danger dragabble" />
@@ -726,8 +761,27 @@
     border-radius: 25%;
   }
 
+  .card-body {
+    padding: 8px;
+  }
+
+  .card-header, .card-footer {
+    padding: 4px 8px;
+  }
+
+  .big-card .card-body {
+    padding: 16px;
+  }
+
+  .big-card .card-header, .big-card .card-footer {
+    padding: 8px 16px;
+  }
+
   .stat-image {
     width: 25px;
+  }
+
+  .big-card .stat-image {
     margin-top: -20px;
   }
 
@@ -795,5 +849,13 @@
     color: #bababa;
     border: none;
     padding: 0;
+  }
+
+  .enemies-menu option {
+    color: #222;
+  }
+
+  .enemies-menu:hover {
+    color: #222;
   }
 </style>
