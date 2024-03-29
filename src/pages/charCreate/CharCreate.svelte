@@ -4,6 +4,7 @@
   import { api, checkToken } from '../../lib/Exports';
   import { Notify, Loading } from 'notiflix';
   import Navbar from '../../lib/Components/Navbar.svelte';
+    import LogoutButton from '../../lib/Components/LogoutButton.svelte';
 
   Notify.init({
     clickToClose: true
@@ -86,7 +87,9 @@
 </script>
 
 
-<Navbar title="Character Creation"/>
+<Navbar title="Character Creation">
+  <LogoutButton />
+</Navbar>
 
 
 <main data-simplebar>

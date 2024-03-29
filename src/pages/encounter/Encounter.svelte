@@ -9,7 +9,7 @@
   import interact from 'interactjs';
   import Navbar from '../../lib/Components/Navbar.svelte';
   import LogoutButton from '../../lib/Components/LogoutButton.svelte';
-    import ScrollingText from '../../lib/Components/ScrollingText.svelte';
+  import ScrollingText from '../../lib/Components/ScrollingText.svelte';
 
   Notify.init({
     clickToClose: true
@@ -659,7 +659,7 @@
                         <div class="stat-container">
                           <h5>{entity.entity.enemy[selectedEnemies[index]].health}</h5>
                           {#if index === onTurn}
-                            <div class="stat-text">Health</div>,
+                            <div class="stat-text">Health</div>
                           {/if}
                         </div>
                       </div>
@@ -670,7 +670,7 @@
                         <div class="stat-container">
                           <h5>{entity.entity.enemy[selectedEnemies[index]].defence}</h5>
                           {#if index === onTurn}
-                            <div class="stat-text">Defence</div>,
+                            <div class="stat-text">Defence</div>
                           {/if}
                         </div>
                       </div>
@@ -754,47 +754,98 @@
 
   .stat-container h5 {
     margin: 0;
+    font-size: 1.6vw;
   }
 
-  .class-image {
-    width: 100%;
-    border-radius: 25%;
+  .col-xl-1 {
+    width: 16%;
+  }
+
+  @media (max-width: 1200px) {
+    .col-xl-1 {
+      width: 19.05%;
+    }
+  }
+
+  @media (max-width: 992px) {
+    .col-xl-1 {
+      width: 23.53%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .col-xl-1 {
+      width: 30.77%;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .col-xl-1 {
+      width: 80%;
+    }
+  }
+
+  .col-xl-2 {
+    width: 20%;
+  }
+
+  @media (max-width: 1200px) {
+    .col-xl-2 {
+      width: 23.81%;
+    }
+  }
+
+  @media (max-width: 992px) {
+    .col-xl-2 {
+      width: 29.41%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .col-xl-2 {
+      width: 38.46%;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .col-xl-2 {
+      width: 100%;
+    }
   }
 
   .card-body {
     padding: 8px;
   }
 
-  .card-header, .card-footer {
-    padding: 4px 8px;
-  }
-
-  .big-card .card-body {
-    padding: 16px;
-  }
-
-  .big-card .card-header, .big-card .card-footer {
-    padding: 8px 16px;
-  }
-
   .stat-image {
-    width: 25px;
+    width: 2.4vw;
+    margin-top: 0.5vw;
   }
 
   .big-card .stat-image {
-    margin-top: -20px;
+    margin-top: -1.2vw;
   }
 
   .stat-text {
     color: #bababa;
+    font-size: 0.75vw;
   }
 
   .big-card .stat-image {
-    width: 3rem;
+    width: 3vw;
   }
 
   .big-card h5 {
     font-size: 2rem;
+  }
+
+  .big-card .stat-container h5 {
+    font-size: 2vw;
+  }
+
+  .class-image {
+    width: 100%;
+    border-radius: 25%;
   }
 
   .stat-input {
