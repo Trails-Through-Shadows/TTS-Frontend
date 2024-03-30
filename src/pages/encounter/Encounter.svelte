@@ -56,6 +56,9 @@
   let entityList: { id:number, initiative: number, type: string, entity: (baseCharacter | baseEnemyGroup) }[] = [];
   let selectedEnemies: number[] = [];
 
+  let effectList: string[] = [];
+  let effectTargets: string[] = [];
+
   let creator = new Encounter();
 
   function receiveParts(part: number) {
@@ -242,9 +245,47 @@
                 }
               }
             }
+            else if (data.next)
+            {
+              if (data.next.type === "CHARACTER") {
+                for (let i = 0; i < entityList.length; i++) {
+                  if (entityList[i].id === data.next.id && entityList[i].type === data.next.type) {
+                    onTurn = i;
+                    break;
+                  }
+                }
+              }
+              else if (data.next.type === "ENEMY") {
+                for (let i = 0; i < entityList.length; i++) {
+                  if (entityList[i].id === data.next.id && entityList[i].type === data.next.type) {
+                    onTurn = i;
+                    break;
+                  }
+                }
+              }
+            }
           }
         );
       }
+
+      creator.readEnumEffectType(`${api}/enum/effectType`,
+        (data: any) => {
+          effectList = data;
+          creator.readEnumEffectTarget(`${api}/enum/effectTarget`,
+            (data: any) => {
+              effectTargets = data;
+
+              Loading.remove();
+            },
+            (m: string) => {
+              Notify.failure(m);
+            }
+          );
+        },
+        (m: string) => {
+          Notify.failure(m);
+        }
+      );
     },
     (m: string) => {
       Notify.failure(m);
@@ -255,11 +296,17 @@
     }
   );
 
-  let isSliderVisible = false;
+  let isMapSliderVisible = false;
 
-  function toggleSlider() {
+  function toggleMapSlider() {
     hexGridMap[currentMap].redraw();
-    isSliderVisible = !isSliderVisible;
+    isMapSliderVisible = !isMapSliderVisible;
+  }
+
+  let isInteractionSliderVisible = false;
+
+  function toggleInteractionSlider() {
+    isInteractionSliderVisible = !isInteractionSliderVisible;
   }
 
   function draw(id: number) {
@@ -439,7 +486,7 @@
       let target = event.target;
       let entityId = target.dataset.entityId;
       let entityType = target.dataset.entityType;
-      let damage = event.relatedTarget.value;
+      let damage = event.relatedTarget.querySelector('input').value;
 
       if (entityType === "CHARACTER") {
         creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/character/${entityId}?token=${token}`, parseInt(damage),
@@ -524,18 +571,17 @@
     }
   });
 
-  Loading.remove();
 </script>
 
 
 <Navbar title="To battle!">
-  <button class="btn btn-success me-5" on:click={toggleSlider}>
+  <button class="btn btn-success me-5" on:click={toggleMapSlider}>
     Map
   </button>
   <LogoutButton />
 </Navbar>
 
-<div class="slider" class:visible={isSliderVisible}>
+<div class="map-slider" class:visible={isMapSliderVisible}>
   <div class="canvas-container">
     <canvas bind:this={canvasRoot}></canvas>
   </div>
@@ -690,9 +736,25 @@
         {/each}
         <div class="col-xl-12">
           <button class="btn btn-success" on:click={endTurn}>Next turn</button>
+          <button class="btn btn-danger" on:click={toggleInteractionSlider}>A</button>
         </div>
-        <div class="col-xl-12">
-          <input type="number" class="btn btn-danger dragabble" />
+        <div class="interaction-slider" class:visible={isInteractionSliderVisible}>
+          <div class="container">
+            <div class="row">
+              <div class="col-xl-6">
+                <div class="input-group dragabble">
+                  <span class="input-group-text">Damage:</span>
+                  <input type="number" class="btn btn-danger damage-input" />
+                  <select class="btn btn-danger">
+                    <option value="" selected disabled hidden>Effect</option>
+                    {#each effectList as effect}
+                      <option value={effect}>{effect}</option>
+                    {/each}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       {/if}
     </div>
@@ -700,8 +762,10 @@
 </main>
 
 
+
+
 <style>
-  .slider {
+  .map-slider {
     position: fixed;
     top: -100%;
     left: 0;
@@ -716,7 +780,7 @@
     display: flex;
   }
 
-  .slider.visible {
+  .map-slider.visible {
     top: 0;
   }
 
@@ -732,6 +796,24 @@
 
   .button-container button {
     margin: 5px;
+  }
+
+  .interaction-slider {
+    position: fixed;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 25%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    transition: top 0.5s ease;
+    overflow: hidden;
+    z-index: 999;
+    display: flex;
+  }
+
+  .interaction-slider.visible {
+    top: 75%;
   }
 
   .entity-card {
@@ -908,5 +990,13 @@
 
   .enemies-menu:hover {
     color: #222;
+  }
+
+  .damage-input {
+    cursor: grab;
+  }
+
+  .damage-input:active {
+    cursor: grabbing;
   }
 </style>
