@@ -740,19 +740,19 @@
         </div>
         <div class="interaction-slider" class:visible={isInteractionSliderVisible}>
           <div class="container">
-            <div class="row">
-              <div class="col-xl-6">
-                <div class="input-group dragabble">
-                  <span class="input-group-text">Damage:</span>
-                  <input type="number" class="btn btn-danger damage-input" />
-                  <select class="btn btn-danger">
-                    <option value="" selected disabled hidden>Effect</option>
-                    {#each effectList as effect}
-                      <option value={effect}>{effect}</option>
-                    {/each}
-                  </select>
-                </div>
-              </div>
+          </div>
+        </div>
+        <div class="row interaction" class:visible={isInteractionSliderVisible}>
+          <div class="col-xl-6">
+            <div class="input-group dragabble">
+              <span class="input-group-text">Damage:</span>
+              <input type="number" class="btn btn-danger damage-input" />
+              <select class="btn btn-danger">
+                <option value="" selected disabled hidden>Effect</option>
+                {#each effectList as effect}
+                  <option value={effect}>{effect}</option>
+                {/each}
+              </select>
             </div>
           </div>
         </div>
@@ -813,6 +813,17 @@
   }
 
   .interaction-slider.visible {
+    top: 75%;
+  }
+
+  .interaction {
+    position: fixed;
+    top: 100%;
+    z-index: 999;
+    transition: top 0.5s ease;
+  }
+
+  .interaction.visible {
     top: 75%;
   }
 
