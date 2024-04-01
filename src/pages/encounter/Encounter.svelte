@@ -10,6 +10,8 @@
   import Navbar from '../../lib/Components/Navbar.svelte';
   import LogoutButton from '../../lib/Components/LogoutButton.svelte';
   import ScrollingText from '../../lib/Components/ScrollingText.svelte';
+    import { event } from 'jquery';
+    import { slide } from 'svelte/transition';
 
   Notify.init({
     clickToClose: true
@@ -297,16 +299,26 @@
   );
 
   let isMapSliderVisible = false;
+  let isInteractionSliderVisible = false;
 
   function toggleMapSlider() {
     hexGridMap[currentMap].redraw();
     isMapSliderVisible = !isMapSliderVisible;
+    isInteractionSliderVisible = false;
   }
-
-  let isInteractionSliderVisible = false;
 
   function toggleInteractionSlider() {
     isInteractionSliderVisible = !isInteractionSliderVisible;
+  }
+
+  function numpad(number: number) {
+    let input = document.querySelector('.damage-input') as HTMLInputElement;
+    if (number < 0) {
+      input.value = input.value.slice(0, number);
+      return;
+    }
+    input.value += number;
+    input.value = input.value.slice(0, 3);
   }
 
   function draw(id: number) {
@@ -551,7 +563,7 @@
     }
   });
 
-  interact('.dragabble').draggable({
+  interact('.draggable').draggable({
     listeners: {
       move(event) {
         let target = event.target;
@@ -585,12 +597,38 @@
   <div class="canvas-container">
     <canvas bind:this={canvasRoot}></canvas>
   </div>
-  <div class="button-container">
+  <div class="map-button-container">
     {#each hexGridMap as hexGrid}
       <button class="btn btn-success" on:click={() => draw(hexGridMap.indexOf(hexGrid))}>
         {hexGrid.id}
       </button>
     {/each}
+  </div>
+</div>
+
+<div class="card interaction-slider" class:visible={isInteractionSliderVisible}>
+  <div class="card-header d-flex">
+    <div class="d-flex flex-grow-1">
+      <h5 class="text-center mx-auto mb-0">Interaction</h5>
+    </div>
+    <div>
+      <button class="btn btn-close float-end" on:click={toggleInteractionSlider}></button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="draggable">
+      <input type="number" class="btn btn-danger damage-input" placeholder="Damage" max="999" min="0" maxlength="2" on:input={(event) => event.target.value = event.target.value.slice(0, 3)} />
+      <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#effectModal"><i class="bi bi-plus-lg"></i></button>
+      <i class="bi bi-arrows-move moving-indicator"></i>
+    </div>
+    <div class="num-pad">
+      {#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as number}
+        <button class="btn btn-lg btn-success" on:click={() => numpad(number)}>{number}</button>
+      {/each}
+      <button class="btn btn-lg btn-danger" on:click={() => numpad(-1)}><i class="bi bi-backspace"></i></button>
+      <button class="btn btn-lg btn-success" on:click={() => numpad(0)}>0</button>
+      <button class="btn btn-lg btn-danger" on:click={() => numpad(-3)}><i class="bi bi-arrow-repeat"></i></button>
+    </div>
   </div>
 </div>
 
@@ -738,30 +776,49 @@
           <button class="btn btn-success" on:click={endTurn}>Next turn</button>
           <button class="btn btn-danger" on:click={toggleInteractionSlider}>A</button>
         </div>
-        <div class="interaction-slider" class:visible={isInteractionSliderVisible}>
-          <div class="container">
-          </div>
-        </div>
-        <div class="row interaction" class:visible={isInteractionSliderVisible}>
-          <div class="col-xl-6">
-            <div class="input-group dragabble">
-              <span class="input-group-text">Damage:</span>
-              <input type="number" class="btn btn-danger damage-input" />
-              <select class="btn btn-danger">
-                <option value="" selected disabled hidden>Effect</option>
-                {#each effectList as effect}
-                  <option value={effect}>{effect}</option>
-                {/each}
-              </select>
-            </div>
-          </div>
-        </div>
       {/if}
     </div>
   </div>
+  <div class="modal fade" id="effectModal" tabindex="-1" aria-labelledby="effectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="effectModalLabel">Effects</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group mb-3">
+            <label for="effectType">Type</label>
+            <select class="form-select" id="effectType">
+              {#each effectList as effect}
+                <option value="{effect}">{effect}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="effectTarget">Target</label>
+            <select class="form-select" id="effectTarget">
+              {#each effectTargets as target}
+                <option value="{target}">{target}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="effectStrength">Strength</label>
+            <input type="number" class="form-control" id="effectStrength" placeholder="Enter strength" />
+          </div>
+          <div class="form-group">
+            <label for="effectDuration">Duration</label>
+            <input type="number" class="form-control" id="effectDuration" placeholder="Enter duration" />
+          </div>
+        </div>
+        <div class="modal-footer justify-content-right">
+          <button type="button" class="btn btn-success">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
-
-
 
 
 <style>
@@ -788,43 +845,107 @@
     flex: 1;
   }
 
-  .button-container {
+  .map-button-container {
     padding-top: 75px;
     display: flex;
     flex-direction: column;
   }
 
-  .button-container button {
+  .map-button-container button {
     margin: 5px;
   }
 
   .interaction-slider {
     position: fixed;
     top: 100%;
-    left: 0;
-    width: 100%;
-    height: 25%;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: #fff;
+    left: 90%;
+    transform: translateX(-100%);
+    width: 250px;
+    height: 40%;
     transition: top 0.5s ease;
-    overflow: hidden;
     z-index: 999;
-    display: flex;
+    border: 0;
   }
 
   .interaction-slider.visible {
-    top: 75%;
+    top: 60%;
   }
 
-  .interaction {
-    position: fixed;
-    top: 100%;
-    z-index: 999;
-    transition: top 0.5s ease;
+  .interaction-slider .card-body {
+    border-radius: 0;
   }
 
-  .interaction.visible {
-    top: 75%;
+  .draggable {
+    cursor: grab !important;
+    border: 2px solid #c23737;
+    border-radius: 5px;
+    background-color: #333;
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .draggable * {
+    cursor: grab !important;
+  }
+
+  .draggable:active, .draggable *:active {
+    cursor: grabbing !important;
+  }
+
+  .draggable:active, .draggable *:active {
+    cursor: grabbing !important;
+  }
+
+  .draggable input {
+    width: 100%;
+    height: 50px;
+    background-color: #333;
+    color: #bababa;
+    text-align: center;
+    justify-content: center;
+    border: none;
+    border-bottom: #222 1px solid;
+    border-radius: 5px 5px 0 0;
+    font-size: 1.5rem;
+    padding: 0;
+  }
+
+  .draggable button {
+    width: 35px;
+    height: 35px;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+  }
+
+  .draggable .moving-indicator {
+    position: absolute;
+    top: 0;
+    right: 5px;
+    color: #757575;
+    font-size: 1.25rem;
+  }
+
+  .num-pad {
+    display: flex;
+    flex-wrap: wrap;
+    width: 156px;
+    margin: 0 auto;
+  }
+
+  .num-pad .btn {
+    margin: 1px;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .entity-card {
@@ -1003,11 +1124,10 @@
     color: #222;
   }
 
-  .damage-input {
-    cursor: grab;
-  }
-
-  .damage-input:active {
-    cursor: grabbing;
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"] {
+    -webkit-appearance: none;
+    margin: 0;
   }
 </style>
