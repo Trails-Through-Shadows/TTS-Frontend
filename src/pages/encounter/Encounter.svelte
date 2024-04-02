@@ -607,12 +607,12 @@
 </div>
 
 <div class="card interaction-slider" class:visible={isInteractionSliderVisible}>
+  <button class="btn btn-success btn-toggle" on:click={toggleInteractionSlider}>
+    <i class="bi" class:bi-chevron-compact-down={isInteractionSliderVisible} class:bi-chevron-compact-up={!isInteractionSliderVisible}></i>
+  </button>
   <div class="card-header d-flex">
     <div class="d-flex flex-grow-1">
       <h5 class="text-center mx-auto mb-0">Interaction</h5>
-    </div>
-    <div>
-      <button class="btn btn-close float-end" on:click={toggleInteractionSlider}></button>
     </div>
   </div>
   <div class="card-body">
@@ -774,7 +774,6 @@
         {/each}
         <div class="col-xl-12">
           <button class="btn btn-success" on:click={endTurn}>Next turn</button>
-          <button class="btn btn-danger" on:click={toggleInteractionSlider}>A</button>
         </div>
       {/if}
     </div>
@@ -857,22 +856,39 @@
 
   .interaction-slider {
     position: fixed;
-    top: 100%;
+    bottom: -40%;
     left: 90%;
     transform: translateX(-100%);
     width: 250px;
-    height: 40%;
-    transition: top 0.5s ease;
+    height: calc(40% + 30px);
+    transition: bottom 0.5s ease;
     z-index: 999;
     border: 0;
+    background: 0;
   }
 
   .interaction-slider.visible {
-    top: 60%;
+    bottom: 0;
+  }
+
+  .interaction-slider .card-header {
+    border-radius: 5px 5px 0 0;
   }
 
   .interaction-slider .card-body {
     border-radius: 0;
+  }
+
+  .interaction-slider .btn-toggle {
+    margin: 0 auto;
+    height: 30px;
+    width: 50px;
+    border-radius: 5px 5px 0 0;
+    border-bottom: 0;
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .draggable {
@@ -885,6 +901,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    position: relative;
   }
 
   .draggable * {
@@ -923,7 +940,7 @@
     margin: 5px;
   }
 
-  .draggable .moving-indicator {
+  .moving-indicator {
     position: absolute;
     top: 0;
     right: 5px;
