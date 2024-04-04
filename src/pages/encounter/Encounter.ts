@@ -151,7 +151,7 @@ export class Encounter {
         request.send();
     }
 
-    postInteractionData(url: string, damage: number | null, successCallback: Function, failureCallback: Function): void {
+    postInteractionData(url: string, damage: number | null, effects: any, successCallback: Function, failureCallback: Function): void {
         const request = new XMLHttpRequest();
         request.onreadystatechange = () => {
 
@@ -174,7 +174,7 @@ export class Encounter {
 
         request.open('POST', url, true);
         request.setRequestHeader('Content-Type', 'application/json');
-        request.send(JSON.stringify( {damage: damage} ));
+        request.send(JSON.stringify( {damage: damage, effects: effects} ));
     }
 
     postOpenDoorData(url: string, door: any, successCallback: Function, failureCallback: Function): void {

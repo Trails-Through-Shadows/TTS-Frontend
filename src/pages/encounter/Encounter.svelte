@@ -10,8 +10,6 @@
   import Navbar from '../../lib/Components/Navbar.svelte';
   import LogoutButton from '../../lib/Components/LogoutButton.svelte';
   import ScrollingText from '../../lib/Components/ScrollingText.svelte';
-    import { event } from 'jquery';
-    import { slide } from 'svelte/transition';
 
   Notify.init({
     clickToClose: true
@@ -33,7 +31,8 @@
   let onTurn: number = 0;
   let playing = false;
 
-  type effect = { type: string, strength: number, duration: number };
+  type effectType = { title: string, displayTitle: string, description: string, hasDuration: boolean, hasStrength: boolean, isResistance: boolean, url: string };
+  type effect = { type: string, strength: number, duration: number, description: string };
   type baseCharacter = { id: number, title: string, playerName: string, health: number, defence: number, baseInitiative: number, activeEffects: effect[], url:string };
   type baseEnemy = { id: number, idGroup:number, title: string, health: number, initiative: number, url: string };
   type baseEnemyGroup = { id:number, enemy:baseEnemy[]};
@@ -58,8 +57,11 @@
   let entityList: { id:number, initiative: number, type: string, entity: (baseCharacter | baseEnemyGroup) }[] = [];
   let selectedEnemies: number[] = [];
 
-  let effectList: string[] = [];
-  let effectTargets: string[] = [];
+  let selectedEffect: effectType = { title: "", displayTitle: "", description: "", hasDuration: false, hasStrength: false, isResistance: false, url: "" };
+
+  let effectList: effectType[] = [];
+  let effectTargets: any = [];
+  let selectedEffects: effect[] = [];
 
   let creator = new Encounter();
 
@@ -299,7 +301,7 @@
   );
 
   let isMapSliderVisible = false;
-  let isInteractionSliderVisible = false;
+  let isInteractionSliderVisible = true;
 
   function toggleMapSlider() {
     hexGridMap[currentMap].redraw();
@@ -313,12 +315,47 @@
 
   function numpad(number: number) {
     let input = document.querySelector('.damage-input') as HTMLInputElement;
-    if (number < 0) {
-      input.value = input.value.slice(0, number);
+    if (number == -1) {
+      input.value = input.value.slice(0, -1);
+      return;
+    }
+    else if (number == -3) {
+      input.value = "";
+      selectedEffects = [];
+      selectedEffects = selectedEffects;
       return;
     }
     input.value += number;
     input.value = input.value.slice(0, 3);
+  }
+
+  function handleAddEffect() {
+    if (selectedEffect.title === "") {
+      Notify.failure("Please select an effect.");
+      return;
+    }
+
+    let strength = document.getElementById('effectStrength') as HTMLInputElement;
+    let duration = document.getElementById('effectDuration') as HTMLInputElement;
+
+    let effect: effect = {
+      type: selectedEffect.title,
+      strength: strength ? parseInt(strength.value) : 0,
+      duration: duration ? parseInt(duration.value) : 0,
+      description: selectedEffect.description
+    };
+
+    selectedEffects.push(effect);
+
+    selectedEffects = selectedEffects;
+
+    strength.value = "";
+    duration.value = "";
+  }
+
+  function handleRemoveEffect(index: number) {
+    selectedEffects.splice(index, 1);
+    selectedEffects = selectedEffects;
   }
 
   function draw(id: number) {
@@ -501,7 +538,7 @@
       let damage = event.relatedTarget.querySelector('input').value;
 
       if (entityType === "CHARACTER") {
-        creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/character/${entityId}?token=${token}`, parseInt(damage),
+        creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/character/${entityId}?token=${token}`, parseInt(damage), selectedEffects,
           (data: any) => {
             const entity = entityList.find((entity) => entity.id == entityId && entity.type == entityType);
             if (entity) {
@@ -537,7 +574,7 @@
         );
       } else if (entityType === "ENEMY") {
         let selectedEnemy = target.querySelector('.enemies-menu').value;
-        creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/enemy/${entityId}/${selectedEnemy}?token=${token}`, parseInt(damage),
+        creator.postInteractionData(`${api}/encounter/${idEncounter}/interaction/enemy/${entityId}/${selectedEnemy}?token=${token}`, parseInt(damage), selectedEffects,
           (data: any) => {
             const entity = entityList.find((entity) => entity.id == entityId && entity.type == entityType);
             if (entity) {
@@ -606,36 +643,10 @@
   </div>
 </div>
 
-<div class="card interaction-slider" class:visible={isInteractionSliderVisible}>
-  <button class="btn btn-success btn-toggle" on:click={toggleInteractionSlider}>
-    <i class="bi" class:bi-chevron-compact-down={isInteractionSliderVisible} class:bi-chevron-compact-up={!isInteractionSliderVisible}></i>
-  </button>
-  <div class="card-header d-flex">
-    <div class="d-flex flex-grow-1">
-      <h5 class="text-center mx-auto mb-0">Interaction</h5>
-    </div>
-  </div>
-  <div class="card-body">
-    <div class="draggable">
-      <input type="number" class="btn btn-danger damage-input" placeholder="Damage" max="999" min="0" maxlength="2" on:input={(event) => event.target.value = event.target.value.slice(0, 3)} />
-      <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#effectModal"><i class="bi bi-plus-lg"></i></button>
-      <i class="bi bi-arrows-move moving-indicator"></i>
-    </div>
-    <div class="num-pad">
-      {#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as number}
-        <button class="btn btn-lg btn-success" on:click={() => numpad(number)}>{number}</button>
-      {/each}
-      <button class="btn btn-lg btn-danger" on:click={() => numpad(-1)}><i class="bi bi-backspace"></i></button>
-      <button class="btn btn-lg btn-success" on:click={() => numpad(0)}>0</button>
-      <button class="btn btn-lg btn-danger" on:click={() => numpad(-3)}><i class="bi bi-arrow-repeat"></i></button>
-    </div>
-  </div>
-</div>
-
 <main>
   <div class="container-fluid">
-    <div class="row">
-      {#if !playing}
+    {#if !playing}
+      <div class="row">
         {#each characterList as character, index}
           <div class="col-xl-2 big-card">
             <div class="card border-0 m-1">
@@ -671,7 +682,9 @@
         <div class="col-xl-12">
           <button class="btn btn-success" on:click={startEncounter}>Start encounter</button>
         </div>
-      {:else}
+      </div>
+    {:else}
+      <div class="row">
         {#each entityList as entity, index}
           {#if entity.type === 'CHARACTER'}
             <div class="{index === onTurn ? 'col-xl-2 big-card' : 'col-xl-1'}">
@@ -775,47 +788,103 @@
         <div class="col-xl-12">
           <button class="btn btn-success" on:click={endTurn}>Next turn</button>
         </div>
-      {/if}
-    </div>
-  </div>
-  <div class="modal fade" id="effectModal" tabindex="-1" aria-labelledby="effectModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="effectModalLabel">Effects</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group mb-3">
-            <label for="effectType">Type</label>
-            <select class="form-select" id="effectType">
-              {#each effectList as effect}
-                <option value="{effect}">{effect}</option>
-              {/each}
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="effectTarget">Target</label>
-            <select class="form-select" id="effectTarget">
-              {#each effectTargets as target}
-                <option value="{target}">{target}</option>
-              {/each}
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="effectStrength">Strength</label>
-            <input type="number" class="form-control" id="effectStrength" placeholder="Enter strength" />
-          </div>
-          <div class="form-group">
-            <label for="effectDuration">Duration</label>
-            <input type="number" class="form-control" id="effectDuration" placeholder="Enter duration" />
+      </div>
+      <div class="card interaction-slider" class:visible={isInteractionSliderVisible}>
+        <button class="btn btn-success btn-toggle" on:click={toggleInteractionSlider}>
+          <i class="bi" class:bi-chevron-compact-down={isInteractionSliderVisible} class:bi-chevron-compact-up={!isInteractionSliderVisible}></i>
+        </button>
+        <div class="card-header d-flex">
+          <div class="d-flex flex-grow-1">
+            <h5 class="text-center mx-auto mb-0">Interaction</h5>
           </div>
         </div>
-        <div class="modal-footer justify-content-right">
-          <button type="button" class="btn btn-success">Add</button>
+        <div class="card-body">
+          <div class="draggable">
+            <input type="number" class="btn btn-danger damage-input" placeholder="Damage" max="999" min="0" maxlength="2" on:input={(event) => event.target.value = event.target.value.slice(0, 3)} />
+            <div class="row">
+              {#each selectedEffects as effect, index}
+                <div class="col">
+                  <button class="btn btn-danger" on:click={() => handleRemoveEffect(index)}>{index}</button>
+                </div>
+              {/each}
+              {#if selectedEffects.length < 5}
+                <div class="col">
+                  <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#effectModal"><i class="bi bi-plus-lg"></i></button>
+                </div>
+              {/if}
+            </div>
+            <i class="bi bi-arrows-move moving-indicator"></i>
+          </div>
+          <div class="num-pad">
+            {#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as number}
+              <button class="btn btn-lg btn-success" on:click={() => numpad(number)}>{number}</button>
+            {/each}
+            <button class="btn btn-lg btn-danger" on:click={() => numpad(-1)}><i class="bi bi-backspace"></i></button>
+            <button class="btn btn-lg btn-success" on:click={() => numpad(0)}>0</button>
+            <button class="btn btn-lg btn-danger" on:click={() => numpad(-3)}><i class="bi bi-arrow-repeat"></i></button>
+          </div>
         </div>
       </div>
-    </div>
+      <div class="modal fade" id="effectModal" tabindex="-1" aria-labelledby="effectModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="effectModalLabel">Effects</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group mb-3">
+                <label for="effectType">Type</label>
+                <select class="form-select" id="effectType" bind:value={selectedEffect}>
+                  {#each effectList as effect}
+                    {#if effect.isResistance}
+                      <option value="{effect}">{effect.displayTitle} Resistance</option>
+                    {:else}
+                      <option value="{effect}">{effect.displayTitle}</option>
+                    {/if}
+                  {/each}
+                </select>
+              </div>
+              <div class="form-group mb-3">
+                <label for="effectTarget">Target</label>
+                <select class="form-select" id="effectTarget">
+                  {#each effectTargets as target}
+                    <option value="{target}">{target}</option>
+                  {/each}
+                </select>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <div class="form-group">
+                    {#if selectedEffect.hasStrength}
+                      <label for="effectStrength">Strength</label>
+                      <input type="number" class="form-control" id="effectStrength" placeholder="Enter strength" />
+                    {:else}
+                      <label for="effectStrength">Strength</label>
+                      <input type="number" class="form-control" id="effectStrength" placeholder="No need" disabled />
+                    {/if}
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-group">
+                    {#if selectedEffect.hasDuration}
+                      <label for="effectDuration">Duration</label>
+                      <input type="number" class="form-control" id="effectDuration" placeholder="Enter duration" />
+                    {:else}
+                      <label for="effectDuration">Duration</label>
+                      <input type="number" class="form-control" id="effectDuration" placeholder="No need" disabled />
+                    {/if}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer justify-content-right">
+              <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click={handleAddEffect}>Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    {/if}
   </div>
 </main>
 
@@ -930,6 +999,20 @@
     padding: 0;
   }
 
+  .draggable input[type="number"]::-webkit-outer-spin-button,
+  .draggable input[type="number"]::-webkit-inner-spin-button,
+  .draggable input[type="number"] {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .draggable .col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
+
   .draggable button {
     width: 35px;
     height: 35px;
@@ -963,6 +1046,42 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .modal-content{
+    color: #bababa;
+    background-color: #222;
+  }
+
+  .modal-content > div {
+    border-color: #1c1c1c;
+  }
+
+  .modal-dialog {
+    max-width: 325px;
+  }
+
+  .modal .form-control {
+    height: 2rem;
+    background-color: #333;
+    color: #bababa;
+    border: none;
+  }
+
+  .modal .form-control::placeholder {
+    color: #757575;
+  }
+
+  .modal .form-select {
+    height: 2rem;
+    background-color: #333;
+    color: #bababa;
+    border: none;
+  }
+
+  .modal .form-select option {
+    background-color: #333;
+    color: #bababa;
   }
 
   .entity-card {
@@ -1139,12 +1258,5 @@
 
   .enemies-menu:hover {
     color: #222;
-  }
-
-  input[type="number"]::-webkit-outer-spin-button,
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"] {
-    -webkit-appearance: none;
-    margin: 0;
   }
 </style>
