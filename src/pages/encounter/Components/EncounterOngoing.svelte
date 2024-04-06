@@ -150,7 +150,14 @@
               entity.entity.activeEffects = data.effects;
               if (data.status === "DEAD") {
                 if (entityId == entityList[onTurn].id && entityType === entityList[onTurn].type) {
-                  postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[onTurn + 1].id}/start?token=${token}`, {},
+                  let pos = 0;
+                  if (!entityList[onTurn + 1]) {
+                    onTurn = 0;
+                  }
+                  else {
+                    pos = onTurn + 1;
+                  }
+                  postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[pos].id}/start?token=${token}`, {},
                     () => {
                       entityList = entityList.filter((entity: any) => entity.id != entityId || entity.type != entityType);
                     },
