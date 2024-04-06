@@ -11,6 +11,11 @@
 
   let mobile = window.innerWidth < 500;
 
+  function refreshTooltip() {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+  }
+
   getRequest(`${api}/races`,
     (data: any) => {
       races = data.entries.map((race: any) => new Race(race.id, race.title, race.tag, race.description, race.baseInitiative));
@@ -77,30 +82,30 @@
           </div>
         </div>
         <div class="container-fluid">
-          <div class="row">
+          <div class="row background-container">
             <div class="col-6 bordered-right">
-              <select class="form-control character-input mb-1" bind:value={characterList[index].race}>
+              <select class="form-control character-input mb-1" bind:value={characterList[index].race} on:change={refreshTooltip}>
                 {#each races as race}
                   <option value={race}>{race.title}</option>
                 {/each}
                 <option value={characterList[index].race} selected disabled hidden>Hero's race</option>
               </select>
+              <div class="background-image-container {mobile ? 'mobile' : ''}">
+                <img class="background-image" src="{api}/images/races/{characterList[index].race.title.toLowerCase()}.png?size=300" alt="{characterList[index].race.title}" />
+              </div>
+              <button class="btn btn-sm btn-success lore" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" title="{characterList[index].race.description}">Lore</button>
             </div>
             <div class="col-6">
-              <select class="form-control character-input mb-1" bind:value={characterList[index].clazz}>
+              <select class="form-control character-input mb-1" bind:value={characterList[index].clazz} on:change={refreshTooltip}>
                 {#each classes as clazz}
                   <option value={clazz}>{clazz.title}</option>
                 {/each}
                 <option value={characterList[index].clazz} selected disabled hidden>Hero's class</option>
               </select>
-            </div>
-          </div>
-          <div class="row">
-            <div class = "col-6 textarea-container bordered-right">
-              <p class="form-control description" data-simplebar>{characterList[index].race.description}</p>
-            </div>
-            <div class = "col-6 textarea-container">
-              <p class="form-control description" data-simplebar>{characterList[index].clazz.description}</p>
+              <div class="background-image-container {mobile ? 'mobile' : ''}">
+                <img class="background-image" src="{api}/images/classes/{characterList[index].clazz.title.toLowerCase()}.png?size=300" alt="{characterList[index].clazz.title}" />
+              </div>
+              <button class="btn btn-sm btn-success lore" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" title="{characterList[index].clazz.description}">Lore</button>
             </div>
           </div>
         </div>
@@ -158,6 +163,41 @@
     color: #bababa;
   }
 
+  .background-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .background-image-container {
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .background-image-container.mobile {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  .background-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    border-radius: 25%;
+  }
+
+  .background-image {
+    max-height: 100%;
+    width: auto;
+  }
+
+  .lore {
+    margin-top: 1rem;
+  }
+
   .card-header {
     background-color: #222;
   }
@@ -182,18 +222,6 @@
 
   h1 {
     color: white;
-  }
-
-  .textarea-container {
-    height: 20vh;
-  }
-
-  .textarea-container .description {
-    background-color: #222;
-    color: #bababa;
-    border: none;
-    height: 100%;
-    resize: none;
   }
 
   .bordered-right {
