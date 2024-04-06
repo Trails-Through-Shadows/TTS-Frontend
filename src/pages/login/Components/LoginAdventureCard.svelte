@@ -4,13 +4,20 @@
   import { deleteRequest, putRequest } from "../../../lib/Functions";
 
   import ScrollingText from "../../../lib/Components/ScrollingText.svelte";
+  import ConfirmModal from "../../../lib/Components/ConfirmModal.svelte";
 
   export let adventureList: any;
   export let index: number;
 
 	let token = sessionStorage.getItem('token') || '';
 
-  function handleEditAdventure(index: number) {
+  let showConfirmModal = false;
+
+  function showModal() {
+    showConfirmModal = true;
+  }
+
+  function handleEditAdventure() {
     Loading.dots('Loading...')
     const title = document.getElementById(`editTitle${index}`) as HTMLInputElement;
     const description = document.getElementById(`editDescription${index}`) as HTMLInputElement;
@@ -20,7 +27,7 @@
     adventureCopy.description = description.value;
 
     putRequest(`${api}/adventures/${adventureCopy.id}?token=${token}`, adventureCopy,
-      (data: any) => {
+      () => {
         adventureList[index] = adventureCopy;
         Loading.remove();
         Notify.success('Adventure edited successfully');
@@ -32,7 +39,7 @@
     );
   }
 
-  function handleDeleteAdventure(index: number) {
+  function handleDeleteAdventure() {
     Loading.dots('Loading...')
 
     deleteRequest(`${api}/adventures/${adventureList[index].id}?token=${token}`,
@@ -104,12 +111,14 @@
         </div>
       </div>
       <div class="modal-footer justify-content-between">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" on:click={() => handleDeleteAdventure(index)}>Delete</button>
-        <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click="{() => handleEditAdventure(index)}">Save</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" on:click={() => showModal()}>Delete</button>
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click={() => handleDeleteAdventure()}>Save</button>
       </div>
     </div>
   </div>
 </div>
+
+<ConfirmModal title="Delete Adventure" body="Are you sure you want to delete this adventure?" buttonText="Delete" onConfirm={handleDeleteAdventure} bind:showConfirmModal={showConfirmModal} />
 
 
 <style>
