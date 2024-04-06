@@ -1,7 +1,7 @@
 <script lang="ts">
   import { api } from "../../../lib/Exports";
   import { Notify } from "notiflix";
-  import { checkToken, postRequest } from "../../../lib/Functions";
+  import { postRequest, checkToken } from "../../../lib/Functions";
 
   import ScrollingText from "../../../lib/Components/ScrollingText.svelte";
 

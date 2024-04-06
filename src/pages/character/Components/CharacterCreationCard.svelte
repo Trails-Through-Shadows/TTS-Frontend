@@ -1,6 +1,6 @@
 <script lang="ts">
   import { api, Character, Race, Clazz } from "../../../lib/Exports";
-  import { Notify, Loading } from "notiflix";
+  import { Notify } from "notiflix";
   import { getRequest } from "../../../lib/Functions";
 
   export let characterList: Character[];

@@ -117,10 +117,3 @@ export class EffectType {
         public url: string,
     ) {}
 }
-
-export function checkToken(m: string): void {
-    if (m === 'Invalid session token!') {
-        sessionStorage.clear();
-        window.location.href = "/";
-    }
-} 

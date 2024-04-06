@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { api, checkToken, Character } from "../../lib/Exports";
+  import { api, Character } from "../../lib/Exports";
   import { Notify, Loading } from "notiflix";
-  import { getRequest, postRequest } from "../../lib/Functions";
+  import { getRequest, postRequest, checkToken } from "../../lib/Functions";
 
   import Navbar from "../../lib/Components/Navbar.svelte";
   import AdventureCharacetrCard from "./Components/AdventureCharacterCard.svelte";

@@ -1,14 +1,13 @@
 <script lang="ts">
   import { api } from "../../../lib/Exports";
   import { Notify, Loading } from "notiflix";
-  import { postRequest, checkToken, getRequest } from "../../../lib/Functions";
+  import { postRequest, checkToken } from "../../../lib/Functions";
   import interact from 'interactjs';
 
   import EncounterCharacter from './EncounterCharacter.svelte';
   import EncounterEnemy from './EncounterEnemy.svelte';
   import EncounterInteractionSlider from './EncounterInteractionSlider.svelte';
   import EncounterActionSlider from './EncounterActionSlider.svelte';
-    import { data } from "jquery";
 
   export let entityList: any;
   export let selectedEnemies: any;

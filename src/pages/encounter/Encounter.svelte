@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { api, checkToken } from '../../lib/Exports';
+  import { api } from '../../lib/Exports';
   import { Canvas } from './hexGridMap/Canvas';
   import { HexGrid } from './hexGridMap/HexGrid';
   import { Hex } from './hexGridMap/Hex';
   import { CubeCoordinate } from './hexGridMap/Coordinate';
-  import { getRequest, postRequest } from '../../lib/Functions';
+  import { getRequest, postRequest, checkToken } from '../../lib/Functions';
   import { Notify, Loading } from "notiflix";
 
   import Navbar from '../../lib/Components/Navbar.svelte';
@@ -192,7 +192,7 @@
     getRequest(`${api}/encounter/${encounterId}?token=${token}`,
       (data: any) => {
         data = data.object;
-        
+
         characterList = data.characters;
         enemyList = data.enemies;
 

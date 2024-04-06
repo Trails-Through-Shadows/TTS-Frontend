@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Character, Clazz, Race } from '../../lib/Exports';
-  import { api, checkToken } from '../../lib/Exports';
+  import { Character } from '../../lib/Exports';
+  import { api } from '../../lib/Exports';
   import { Notify, Loading } from 'notiflix';
-  import { getRequest, postRequest } from '../../lib/Functions';
+  import { getRequest, postRequest, checkToken } from '../../lib/Functions';
 
   import Navbar from '../../lib/Components/Navbar.svelte';
   import LogoutButton from '../../lib/Components/LogoutButton.svelte';
