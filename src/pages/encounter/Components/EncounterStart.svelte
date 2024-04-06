@@ -35,8 +35,8 @@
     postRequest(`${api}/encounter/${encounterId}/initiative?token=${token}`, charInitiative,
       () => {
         receiveInitiative(
-          () => {
-            console.log(entityList);
+          (data: any) => {
+            entityList = data.entityList;
             if (entityList[0].type === "CHARACTER") {
               postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[0].id}/start?token=${token}`, {},
                 () => {},

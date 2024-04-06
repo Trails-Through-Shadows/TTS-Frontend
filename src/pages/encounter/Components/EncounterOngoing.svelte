@@ -1,15 +1,19 @@
 <script lang="ts">
   import { api } from "../../../lib/Exports";
+  import { Notify, Loading } from "notiflix";
+  import { postRequest, checkToken, getRequest } from "../../../lib/Functions";
   import interact from 'interactjs';
 
   import EncounterCharacter from './EncounterCharacter.svelte';
   import EncounterEnemy from './EncounterEnemy.svelte';
   import EncounterInteractionSlider from './EncounterInteractionSlider.svelte';
   import EncounterActionSlider from './EncounterActionSlider.svelte';
+    import { data } from "jquery";
 
   export let entityList: any;
   export let selectedEnemies: any;
   export let onTurn: number;
+  export let openDoor: Function;
 
   type effect = { type: string, strength: number, duration: number, description: string };
 
@@ -47,87 +51,85 @@
       isActionSliderVisible = true;
     }
 
-    creator.postTurnData(url0,
-      () => {
+    postRequest(url0, {},
+      (data: any) => {
+        data = data.object;
+        if (entityList[onTurn].type === "CHARACTER") {
+          entityList[onTurn].entity.health = data.health;
+          entityList[onTurn].entity.activeEffects = data.effects;
+        }
+        else if (entityList[onTurn].type === "ENEMY") {
+          for (let i = 0; i < entityList[onTurn].entity.enemy.length; i++) {
+            entityList[onTurn].entity.enemy[i].health = data[i].health;
+            entityList[onTurn].entity.enemy[i].activeEffects = data[i].effects;
+          }
+        }
+
         onTurn++;
         if (onTurn === entityList.length) {
           onTurn = 0;
-          creator.postRoundEndData(`${api}/encounter/${encounterId}/endRound?token=${token}`,
+          postRequest(`${api}/encounter/${encounterId}/endRound?token=${token}`, {},
             (data: any) => {
+              data = data.object;
               if (data.unlockedParts.length > 0) {
                 Notify.success("New room has been unlocked.");
                 Loading.dots('Loading...');
 
-                for (let part of data.unlockedParts) {
-                  receiveParts(part);
-                }
-
-                creator.readEncounterData(`${api}/encounter/${encounterId}?token=${token}`,
-                  (data: any) => {
-                    characterList = data.characters;
-                    enemyList = data.enemies;
-                    
-                    enemyGroupList = [];
-
-                    for (let enemy of enemyList) {
-                      if (enemyGroupList.length === 0) {
-                        enemyGroupList.push({id:enemy.idGroup, enemy:[enemy]});
-                      } else {
-                        let added = false;
-                        for (let i = 0; i < enemyGroupList.length; i++) {
-                          if (enemyGroupList[i].id === enemy.idGroup) {
-                            enemyGroupList[i].enemy.push(enemy);
-                            added = true;
-                            break;
-                          }
-                        }
-                        if (!added) {
-                          enemyGroupList.push({id:enemy.idGroup, enemy:[enemy]});
-                        }
-                      }
-                    }
-
-                    receiveInitiative();
-                    Loading.remove();
-                  },
-                  (m: string) => {
-                    Loading.remove();
-                    Notify.failure(m);
-                    checkToken(m);
-                  }
-                );
+                openDoor(data);
               }
-              creator.postTurnData(url1,
-                () => {
+              postRequest(url1, {},
+                (data: any) => {
+                  data = data.object;
+                  if (entityList[onTurn].type === "CHARACTER") {
+                    entityList[onTurn].entity.health = data.health;
+                    entityList[onTurn].entity.activeEffects = data.effects;
+                  }
+                  else if (entityList[onTurn].type === "ENEMY") {
+                    for (let i = 0; i < entityList[onTurn].entity.enemy.length; i++) {
+                      entityList[onTurn].entity.enemy[i].health = data.entities[i].health;
+                      entityList[onTurn].entity.enemy[i].activeEffects = data.entities[i].effects;
+                    }
+                  }
                   entityList = entityList;
                 },
-                (m: string) => {
-                  Notify.failure(m);
-                  checkToken(m);
+                (data: any) => {
+                  Notify.failure(data.message);
+                  checkToken(data.message);
                 }
               );
             },
-            (m: string) => {
-              Notify.failure(m);
-              checkToken(m);
+            (data: any) => {
+              Notify.failure(data.message);
+              checkToken(data.message);
             }
           );
         }
         else {
-          creator.postTurnData(url1,
-            () => {
+          postRequest(url1, {},
+            (data: any) => {
+              data = data.object;
+              if (entityList[onTurn].type === "CHARACTER") {
+                entityList[onTurn].entity.health = data.health;
+                entityList[onTurn].entity.activeEffects = data.effects;
+              }
+              else if (entityList[onTurn].type === "ENEMY") {
+                for (let i = 0; i < entityList[onTurn].entity.enemy.length; i++) {
+                  entityList[onTurn].entity.enemy[i].health = data.entities[i].health;
+                  entityList[onTurn].entity.enemy[i].activeEffects = data.entities[i].effects;
+                }
+              }
               entityList = entityList;
             },
-            (m: string) => {
-              Notify.failure(m);
-              checkToken(m);
+            (data: any) => {
+              Notify.failure(data.message);
+              checkToken(data.message);
             }
           );
         }
       },
-      (m: string) => {
-        Notify.failure(m);
-        checkToken(m);
+      (data: any) => {
+        Notify.failure(data.message);
+        checkToken(data.message);
       }
     );
   }
@@ -140,51 +142,57 @@
       let damage = event.relatedTarget.querySelector('input').value;
 
       if (entityType === "CHARACTER") {
-        creator.postInteractionData(`${api}/encounter/${encounterId}/interaction/character/${entityId}?token=${token}`, parseInt(damage), selectedEffects,
+        postRequest(`${api}/encounter/${encounterId}/interaction/character/${entityId}?token=${token}`, { damage: parseInt(damage), effects: selectedEffects },
           (data: any) => {
-            const entity = entityList.find((entity) => entity.id == entityId && entity.type == entityType);
+            data = data.object;
+            const entity = entityList.find((entity: any) => entity.id == entityId && entity.type == entityType);
             if (entity) {
               entity.entity.health = data.health;
+              entity.entity.activeEffects = data.effects;
               if (data.status === "DEAD") {
                 if (entityId == entityList[onTurn].id && entityType === entityList[onTurn].type) {
-                  console.log(`I am dead: ${entityId}`);
                   onTurn++;
-                  creator.postTurnData(`${api}/encounter/${encounterId}/turn/character/${entityList[onTurn].id}/start?token=${token}`,
+
+                  postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[onTurn].id}/start?token=${token}`, {},
                     () => {
-                      entityList = entityList.filter((entity) => entity.id != entityId || entity.type != entityType);
+                      entityList = entityList.filter((entity: any) => entity.id != entityId || entity.type != entityType);
                     },
-                    (m: string) => {
-                      Notify.failure(m);
-                      checkToken(m);
+                    (data: any) => {
+                      Notify.failure(data.message);
+                      checkToken(data.message);
                     }
                   );
                 }
                 else {
-                  entityList = entityList.filter((entity) => entity.id != entityId || entity.type != entityType);
+                  entityList = entityList.filter((entity: any) => entity.id != entityId || entity.type != entityType);
                 }
               }
             }
 
             entityList = entityList;
-            
+
             Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId}, with damage: ${damage}.`);
           },
-          (m: string) => {
-            Notify.failure(m);
-            checkToken(m);
+          (data: any) => {
+            Notify.failure(data.message);
+            checkToken(data.message);
           }
         );
       } else if (entityType === "ENEMY") {
         let selectedEnemy = target.querySelector('.enemies-menu').value;
-        creator.postInteractionData(`${api}/encounter/${encounterId}/interaction/enemy/${entityId}/${selectedEnemy}?token=${token}`, parseInt(damage), selectedEffects,
+
+        postRequest(`${api}/encounter/${encounterId}/interaction/enemy/${entityId}/${selectedEnemy}?token=${token}`, { damage: parseInt(damage), effects: selectedEffects },
           (data: any) => {
-            const entity = entityList.find((entity) => entity.id == entityId && entity.type == entityType);
+            data = data.object;
+            const entity = entityList.find((entity: any) => entity.id == entityId && entity.type == entityType);
             if (entity) {
-              entity.entity.enemy.find((enemy) => enemy.id == selectedEnemy).health = data.health;
+              let enemy = entity.entity.enemy.find((enemy: any) => enemy.id == selectedEnemy);
+              enemy.health = data.health;
+              enemy.activeEffects= data.effects;
               if (data.status === "DEAD") {
-                entity.entity.enemy = entity.entity.enemy.filter((enemy) => enemy.id != selectedEnemy);
+                entity.entity.enemy = entity.entity.enemy.filter((enemy: any) => enemy.id != selectedEnemy);
                 if (entity.entity.enemy.length === 0) {
-                  entityList = entityList.filter((entity) => entity.id != entityId || entity.type != entityType);
+                  entityList = entityList.filter((entity: any) => entity.id != entityId || entity.type != entityType);
                 }
               }
             }
@@ -193,9 +201,9 @@
 
             Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId} and enemy ID: ${selectedEnemy}, with damage: ${damage}.`);
           },
-          (m: string) => {
-            Notify.failure(m);
-            checkToken(m);
+          (data: any) => {
+            Notify.failure(data.message);
+            checkToken(data.message);
           }
         );
       }
