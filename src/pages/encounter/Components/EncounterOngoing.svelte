@@ -24,106 +24,95 @@
   const urlParams = new URLSearchParams(window.location.search);
   let encounterId = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
 
-  function endTurn() {
-    let url0 = "";
-    let url1 = "";
-    let pos = 0;
-
-    if (entityList[onTurn].type === "CHARACTER") {
-      url0 = `${api}/encounter/${encounterId}/turn/character/${entityList[onTurn].id}/end?token=${token}`;
-    } else if (entityList[onTurn].type === "ENEMY") {
-      url0 = `${api}/encounter/${encounterId}/turn/enemy/${entityList[onTurn].id}/end?token=${token}`;
-    }
-
-    if (!entityList[onTurn + 1]) {
-      pos = 0;
-    }
-    else {
-      pos = onTurn + 1;
-    }
-
-    if (entityList[pos].type === "CHARACTER") {
-      url1 = `${api}/encounter/${encounterId}/turn/character/${entityList[pos].id}/start?token=${token}`;
-      isActionSliderVisible = false;
-    } else if (entityList[pos].type === "ENEMY") {
-      url1 = `${api}/encounter/${encounterId}/turn/enemy/${entityList[pos].id}/start?token=${token}`;
-      isActionSliderVisible = true;
-    }
-
-    postRequest(url0, {},
-      (data: any) => {
-        data = data.object;
+  function deadOnTurn(entityId: number, entityType: string) {
+    if (entityId == entityList[onTurn].id && entityType === entityList[onTurn].type) {
+      entityList = entityList.filter((entity: any) => entity.id != entityId || entity.type != entityType);
+      
+      if (onTurn === entityList.length) {
+        endRound();
+      }
+      else {
         if (entityList[onTurn].type === "CHARACTER") {
-          entityList[onTurn].entity.health = data.health;
-          entityList[onTurn].entity.activeEffects = data.effects;
+          startCharacterTurn();
         }
         else if (entityList[onTurn].type === "ENEMY") {
-          for (let i = 0; i < entityList[onTurn].entity.enemy.length; i++) {
-            entityList[onTurn].entity.enemy[i].health = data[i].health;
-            entityList[onTurn].entity.enemy[i].activeEffects = data[i].effects;
+          startEnemyTurn();
+        }
+      }
+    }
+    else {
+      entityList = entityList.filter((entity: any) => entity.id != entityId || entity.type != entityType);
+    }
+  }
+
+  function startCharacterTurn() {
+    postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[onTurn].id}/start?token=${token}`, {},
+      (data: any) => {
+        data = data.object;
+
+        entityList[onTurn].entity.health = data.health;
+        entityList[onTurn].entity.activeEffects = data.effects;
+
+        if (data.status === "DEAD") {
+          deadOnTurn(entityList[onTurn].id, entityList[onTurn].type);
+        }
+
+        entityList = entityList;
+      },
+      (data: any) => {
+        Notify.failure(data.message);
+        checkToken(data.message);
+      }
+    );
+  }
+
+  function startEnemyTurn() {
+    postRequest(`${api}/encounter/${encounterId}/turn/enemy/${entityList[onTurn].id}/start?token=${token}`, {},
+      (data: any) => {
+        data = data.object;
+
+        for (let i = 0; i < entityList[onTurn].entity.enemy.length; i++) {
+          entityList[onTurn].entity.enemy[i].health = data.entities[i].health;
+          entityList[onTurn].entity.enemy[i].activeEffects = data.entities[i].effects;
+
+          if (data.entities[i].status === "DEAD") {
+            entityList[onTurn].entity.enemy = entityList[onTurn].entity.enemy.filter((enemy: any) => enemy.id != entityList[onTurn].entity.enemy[i].id);
+          }
+
+          if (entityList[onTurn].entity.enemy.length === 0) {
+            deadOnTurn(entityList[onTurn].id, entityList[onTurn].type);
           }
         }
 
-        onTurn++;
-        if (onTurn === entityList.length) {
-          onTurn = 0;
-          postRequest(`${api}/encounter/${encounterId}/endRound?token=${token}`, {},
-            (data: any) => {
-              data = data.object;
-              if (data.unlockedParts.length > 0) {
-                Notify.success("New room has been unlocked.");
-                Loading.dots('Loading...');
+        entityList = entityList;
+      },
+      (data: any) => {
+        Notify.failure(data.message);
+        checkToken(data.message);
+      }
+    );
+  }
 
-                openDoor(data);
-              }
-              postRequest(url1, {},
-                (data: any) => {
-                  data = data.object;
-                  if (entityList[onTurn].type === "CHARACTER") {
-                    entityList[onTurn].entity.health = data.health;
-                    entityList[onTurn].entity.activeEffects = data.effects;
-                  }
-                  else if (entityList[onTurn].type === "ENEMY") {
-                    for (let i = 0; i < entityList[onTurn].entity.enemy.length; i++) {
-                      entityList[onTurn].entity.enemy[i].health = data.entities[i].health;
-                      entityList[onTurn].entity.enemy[i].activeEffects = data.entities[i].effects;
-                    }
-                  }
-                  entityList = entityList;
-                },
-                (data: any) => {
-                  Notify.failure(data.message);
-                  checkToken(data.message);
-                }
-              );
-            },
-            (data: any) => {
-              Notify.failure(data.message);
-              checkToken(data.message);
-            }
-          );
+  function endCharacterTurn() {
+    postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[onTurn].id}/end?token=${token}`, {},
+      (data: any) => {
+        data = data.object;
+
+        entityList[onTurn].entity.health = data.health;
+        entityList[onTurn].entity.activeEffects = data.effects;
+        
+        onTurn++;
+
+        if (onTurn === entityList.length) {
+          endRound();
         }
         else {
-          postRequest(url1, {},
-            (data: any) => {
-              data = data.object;
-              if (entityList[onTurn].type === "CHARACTER") {
-                entityList[onTurn].entity.health = data.health;
-                entityList[onTurn].entity.activeEffects = data.effects;
-              }
-              else if (entityList[onTurn].type === "ENEMY") {
-                for (let i = 0; i < entityList[onTurn].entity.enemy.length; i++) {
-                  entityList[onTurn].entity.enemy[i].health = data.entities[i].health;
-                  entityList[onTurn].entity.enemy[i].activeEffects = data.entities[i].effects;
-                }
-              }
-              entityList = entityList;
-            },
-            (data: any) => {
-              Notify.failure(data.message);
-              checkToken(data.message);
-            }
-          );
+          if (entityList[onTurn].type === "CHARACTER") {
+            startCharacterTurn();
+          }
+          else if (entityList[onTurn].type === "ENEMY") {
+            startEnemyTurn();
+          }
         }
       },
       (data: any) => {
@@ -131,6 +120,72 @@
         checkToken(data.message);
       }
     );
+  }
+
+  function endEnemyTurn() {
+    postRequest(`${api}/encounter/${encounterId}/turn/enemy/${entityList[onTurn].id}/end?token=${token}`, {},
+      (data: any) => {
+        data = data.object;
+
+        for (let i = 0; i < entityList[onTurn].entity.enemy.length; i++) {
+          entityList[onTurn].entity.enemy[i].health = data[i].health;
+          entityList[onTurn].entity.enemy[i].activeEffects = data[i].effects;
+        }
+
+        onTurn++;
+
+        if (onTurn === entityList.length) {
+          endRound();
+        }
+        else {
+          if (entityList[onTurn].type === "CHARACTER") {
+            startCharacterTurn();
+          }
+          else if (entityList[onTurn].type === "ENEMY") {
+            startEnemyTurn();
+          }
+        }
+      },
+      (data: any) => {
+        Notify.failure(data.message);
+        checkToken(data.message);
+      }
+    );
+  }
+
+  function endRound() {
+    onTurn = 0;
+
+    postRequest(`${api}/encounter/${encounterId}/endRound?token=${token}`, {},
+      (data: any) => {
+        data = data.object;
+        if (data.unlockedParts.length > 0) {
+          Notify.success("New room has been unlocked.");
+          Loading.dots('Loading...');
+
+          openDoor(data);
+        }
+        if (entityList[onTurn].type === "CHARACTER") {
+          startCharacterTurn();
+        }
+        else if (entityList[onTurn].type === "ENEMY") {
+          startEnemyTurn();
+        }
+      },
+      (data: any) => {
+        Notify.failure(data.message);
+        checkToken(data.message);
+      }
+    );
+  }
+
+  function endTurn() {
+    if (entityList[onTurn].type === "CHARACTER") {
+      endCharacterTurn();
+    }
+    else if (entityList[onTurn].type === "ENEMY") {
+      endEnemyTurn();
+    }
   }
 
   interact('.entity-card').dropzone({
@@ -144,32 +199,15 @@
         postRequest(`${api}/encounter/${encounterId}/interaction/character/${entityId}?token=${token}`, { damage: parseInt(damage), effects: selectedEffects },
           (data: any) => {
             data = data.object;
+
             const entity = entityList.find((entity: any) => entity.id == entityId && entity.type == entityType);
+
             if (entity) {
               entity.entity.health = data.health;
               entity.entity.activeEffects = data.effects;
+
               if (data.status === "DEAD") {
-                if (entityId == entityList[onTurn].id && entityType === entityList[onTurn].type) {
-                  let pos = 0;
-                  if (!entityList[onTurn + 1]) {
-                    onTurn = 0;
-                  }
-                  else {
-                    pos = onTurn + 1;
-                  }
-                  postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[pos].id}/start?token=${token}`, {},
-                    () => {
-                      entityList = entityList.filter((entity: any) => entity.id != entityId || entity.type != entityType);
-                    },
-                    (data: any) => {
-                      Notify.failure(data.message);
-                      checkToken(data.message);
-                    }
-                  );
-                }
-                else {
-                  entityList = entityList.filter((entity: any) => entity.id != entityId || entity.type != entityType);
-                }
+                deadOnTurn(entityId, entityType);
               }
             }
 
@@ -188,15 +226,20 @@
         postRequest(`${api}/encounter/${encounterId}/interaction/enemy/${entityId}/${selectedEnemy}?token=${token}`, { damage: parseInt(damage), effects: selectedEffects },
           (data: any) => {
             data = data.object;
+
             const entity = entityList.find((entity: any) => entity.id == entityId && entity.type == entityType);
+
             if (entity) {
               let enemy = entity.entity.enemy.find((enemy: any) => enemy.id == selectedEnemy);
+
               enemy.health = data.health;
               enemy.activeEffects= data.effects;
+
               if (data.status === "DEAD") {
                 entity.entity.enemy = entity.entity.enemy.filter((enemy: any) => enemy.id != selectedEnemy);
+                
                 if (entity.entity.enemy.length === 0) {
-                  entityList = entityList.filter((entity: any) => entity.id != entityId || entity.type != entityType);
+                  deadOnTurn(entityId, entityType);
                 }
               }
             }
