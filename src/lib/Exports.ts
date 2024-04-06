@@ -33,16 +33,6 @@ export class Character {
     ) {}
 }
 
-export class LazyCharacter {
-    constructor(
-        public idClass: number = 0,
-        public idRace: number = 0,
-        public idAdventure: number = 0,
-        public title: string = '',
-        public playerName: string | null = null,
-    ) {}
-}
-
 export class Enemy {
     constructor(
         public id: number,
@@ -104,6 +94,27 @@ export class Location {
         public tag: string | null,
         public type: string,
         public description: string | null,
+    ) {}
+}
+
+export class Effect {
+    constructor(
+        public type: string,
+        public strength: number,
+        public duration: number,
+        public description: string | null,
+    ) {}
+}
+
+export class EffectType {
+    constructor(
+        public title: string,
+        public displayTitle: string,
+        public description: string,
+        public hasDuration: boolean,
+        public hasStrength: boolean,
+        public isResistance: boolean,
+        public url: string,
     ) {}
 }
 

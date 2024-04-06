@@ -17,7 +17,7 @@
 
   Loading.dots('Loading...');
 
-  let idLicense = sessionStorage.getItem('idLicense') ? parseInt(sessionStorage.getItem('idLicense') as string) : 0;
+  let idLicense = sessionStorage.getItem('licenseId') ? parseInt(sessionStorage.getItem('licenseId') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
   
   if (idLicense === 0 || token === '') {
