@@ -33,6 +33,23 @@
   let onTurn: number = 0;
   let playing = false;
 
+  let action: any;
+
+  function setBaseAction() {
+    action = {
+      id: null,
+      title: `It's ${entityList[onTurn].entity.title}'s turn.`,
+      description: "Pick your card and play!",
+      discard: null,
+      levelReq: null,
+      movement: null,
+      skill: null,
+      attack: null,
+      restoreCards: null,
+      summonActions: []
+    }
+  }
+
   type effect = { type: string, strength: number, duration: number, description: string };
 
   type baseCharacter = { id: number, title: string, playerName: string, health: number, defence: number, baseInitiative: number, activeEffects: effect[], url:string };
@@ -277,6 +294,8 @@
                 for (let i = 0; i < entityList.length; i++) {
                   if (entityList[i].id === data.active.id && entityList[i].type === data.active.type) {
                     onTurn = i;
+
+                    setBaseAction();
                     break;
                   }
                 }
@@ -285,17 +304,22 @@
                 for (let i = 0; i < entityList.length; i++) {
                   if (entityList[i].id === data.active.id && entityList[i].type === data.active.type) {
                     onTurn = i;
+
+                    action = data.active.action;
                     break;
                   }
                 }
               }
             }
+            //TODO
             else if (data.next)
             {
               if (data.next.type === "CHARACTER") {
                 for (let i = 0; i < entityList.length; i++) {
                   if (entityList[i].id === data.next.id && entityList[i].type === data.next.type) {
                     onTurn = i;
+
+                    setBaseAction();
                     break;
                   }
                 }
@@ -304,6 +328,8 @@
                 for (let i = 0; i < entityList.length; i++) {
                   if (entityList[i].id === data.next.id && entityList[i].type === data.next.type) {
                     onTurn = i;
+
+                    action = data.next.action;
                     break;
                   }
                 }
@@ -344,9 +370,9 @@
 <main>
   <div class="container-fluid">
     {#if !playing}
-      <EncounterStart bind:characterList={characterList} bind:entityList={entityList} bind:playing={playing} receiveInitiative={receiveInitiative} />
+      <EncounterStart bind:characterList={characterList} bind:entityList={entityList} bind:playing={playing} bind:action={action} receiveInitiative={receiveInitiative} setBaseAction={setBaseAction} />
     {:else}
-      <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:selectedEnemies={selectedEnemies} openDoor={openDoor} />
+      <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:selectedEnemies={selectedEnemies} openDoor={openDoor} bind:action={action} setBaseAction={setBaseAction} />
     {/if}
   </div>
 </main>

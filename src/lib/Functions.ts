@@ -5,7 +5,6 @@ export function getRequest(url: string, successCallback: Function, failureCallba
 
     if (request.readyState === 4) {
       if (request.status === 200) {
-        console.log('Data received');
         const response = JSON.parse(request.responseText);
         successCallback(response);
       }
@@ -32,7 +31,6 @@ export function postRequest(url: string, data: any, successCallback: Function, f
         console.log('Data sent');
         if (request.responseText) {
           const response = JSON.parse(request.responseText);
-          console.log(response);
           successCallback(response);
         }
         else {
@@ -64,7 +62,6 @@ export function putRequest(url: string, data: any, successCallback: Function, fa
         console.log('Data sent');
         if (request.responseText) {
           const response = JSON.parse(request.responseText);
-          console.log(response);
           successCallback(response);
         }
         else {

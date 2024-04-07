@@ -13,12 +13,13 @@
   export let selectedEnemies: any;
   export let onTurn: number;
   export let openDoor: Function;
+  export let action: any;
+  export let setBaseAction: Function;
 
   type effect = { type: string, strength: number, duration: number, description: string };
 
   let isActionSliderVisible = false;
   let selectedEffects: effect[] = [];
-  let action: any;
 
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
 
@@ -60,6 +61,7 @@
 
         entityList = entityList;
 
+        setBaseAction();
         isActionSliderVisible = false;
       },
       (data: any) => {
@@ -90,6 +92,7 @@
         entityList = entityList;
         
         action = data.action;
+        console.log(action);
         isActionSliderVisible = true;
       },
       (data: any) => {

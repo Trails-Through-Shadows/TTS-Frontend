@@ -8,7 +8,9 @@
   export let characterList: any;
   export let entityList: any;
   export let playing: boolean;
+  export let action: any;
   export let receiveInitiative: Function;
+  export let setBaseAction: Function;
 
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
 
@@ -39,7 +41,9 @@
             entityList = data.entityList;
             if (entityList[0].type === "CHARACTER") {
               postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[0].id}/start?token=${token}`, {},
-                () => {},
+                () => {
+                  setBaseAction();
+                },
                 (data: any) => {
                   Notify.failure(data.message);
                   checkToken(data.message);
@@ -48,7 +52,9 @@
             }
             else if (entityList[0].type === "ENEMY") {
               postRequest(`${api}/encounter/${encounterId}/turn/enemy/${entityList[0].id}/start?token=${token}`, {},
-                () => {},
+                (data: any) => {
+                  action = data.object.action;
+                },
                 (data: any) => {
                   Notify.failure(data.message);
                   checkToken(data.message);

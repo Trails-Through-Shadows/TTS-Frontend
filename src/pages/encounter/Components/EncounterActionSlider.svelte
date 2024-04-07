@@ -14,7 +14,91 @@
   </button>
   <button class="btn card-header d-flex justify-content-center p-0" on:click={toggleActionSlider}>Enemy Actions</button>
   <div class="card-body">
-    
+    <div class="row card-text">
+      {#if action}
+        <h3>{action.title}</h3>
+        <p>{action.description}</p>
+        {#if action.movement}
+          <div class="col sub-action">
+            <p><b>Movement</b><br>
+            type: {action.movement.type}<br>
+            range:{action.movement.range}</p>
+            {#if action.movement.effects.length > 0}
+              effects:<br>
+                {#each action.movement.effects as effect}
+                  <div class="effects">
+                    <p>type: {effect.effect.type}<br>
+                    target: {effect.effect.target}<br>
+                    {#if effect.effect.strength > 0}
+                      strength: {effect.effect.strength}<br>
+                    {/if}
+                    {#if effect.effect.duration > 0}
+                      duration: {effect.effect.duration}
+                    {/if}
+                    </p>
+                  </div>
+                {/each}
+            {/if}
+          </div>
+        {/if}
+        {#if action.skill}
+          <div class="col sub-action">
+            <p><b>Skill:</b><br>
+            range: {action.skill.range}<br>
+            {#if action.skill.area > 0}
+              area: {action.skill.area}<br>
+            {/if}
+            target: {action.skill.target}<br>
+            {#if action.skill.effects.length > 0}
+              effects:<br>
+              {#each action.skill.effects as effect}
+                <div class="effects">
+                  <p>type: {effect.effect.type}<br>
+                  target: {effect.effect.target}<br>
+                  {#if effect.effect.strength > 0}
+                    strength: {effect.effect.strength}<br>
+                  {/if}
+                  {#if effect.effect.duration > 0}
+                    duration: {effect.effect.duration}
+                  {/if}
+                  </p>
+                </div>
+              {/each}
+            {/if}
+          </div>
+        {/if}
+        {#if action.attack}
+          <div class="col sub-action">
+            <p><b>Attack:</b><br>
+            range: {action.attack.range}<br>
+            damage: {action.attack.damage}<br>
+            {#if action.attack.area > 0}
+              area: {action.attack.area}<br>
+            {/if}
+            target: {action.attack.target}<br>
+            {#if action.attack.numAttacks > 1}
+              numAttacks: {action.attack.numAttacks}<br>
+            {/if}
+            {#if action.attack.effects.length > 0}
+              effects:<br>
+              {#each action.attack.effects as effect}
+                <div class="effects">
+                  <p>type: {effect.effect.type}<br>
+                  target: {effect.effect.target}<br>
+                  {#if effect.effect.strength > 0}
+                    strength: {effect.effect.strength}<br>
+                  {/if}
+                  {#if effect.effect.duration > 0}
+                    duration: {effect.effect.duration}
+                  {/if}
+                  </p>
+                </div>
+              {/each}
+            {/if}
+          </div>
+        {/if}
+      {/if}
+    </div>
   </div>
 </div>
 
@@ -74,6 +158,29 @@
 
   .card-body {
     background-color: #222;
+    color: #bababa;
     border-radius: 0 0 5px 5px;
+  }
+
+  .card-text {
+    padding: 8px;
+  }
+
+  .sub-action {
+    padding: 8px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    margin: 8px 0;
+  }
+
+  .effects {
+    padding: 8px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    margin: 8px 0;
+  }
+
+  .effects p {
+    margin: 0;
   }
 </style>
