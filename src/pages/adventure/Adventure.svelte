@@ -5,12 +5,13 @@
 
   import Navbar from "../../lib/Components/Navbar.svelte";
   import AdventureCharacetrCard from "./Components/AdventureCharacterCard.svelte";
-    
+  
 
   Notify.init({
     clickToClose: true
   });
 
+  
   let licenseId = sessionStorage.getItem('licenseId') ? parseInt(sessionStorage.getItem('licenseId') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
   
@@ -23,6 +24,8 @@
 
   const urlParams = new URLSearchParams(window.location.search);
   let adventureId = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
+
+  sessionStorage.setItem('adventureId', adventureId.toString());
 
   if (adventureId === 0) {
     Notify.failure('Something went wrong.');

@@ -7,7 +7,7 @@
 
   export let characterList: any;
   export let entityList: any;
-  export let playing: boolean;
+  export let status: string;
   export let action: any;
   export let receiveInitiative: Function;
   export let setBaseAction: Function;
@@ -63,7 +63,8 @@
             }
           }
         );
-        playing = true;
+
+        status = "ONGOING";
       },
       (data: any) => {
         Notify.failure(data.message);

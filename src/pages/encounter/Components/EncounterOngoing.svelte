@@ -12,8 +12,9 @@
   export let entityList: any;
   export let selectedEnemies: any;
   export let onTurn: number;
-  export let openDoor: Function;
   export let action: any;
+  export let status: string;
+  export let openDoor: Function;
   export let setBaseAction: Function;
 
   type effect = { type: string, strength: number, duration: number, description: string };
@@ -33,12 +34,10 @@
         console.log(data);
 
         if (data === "COMPLETED") {
-          Notify.success("Encounter has been completed.");
-          Loading.dots('Loading...');
+          status = "COMPLETED";
         }
         else if (data === "FAILED") {
-          Notify.failure("Encounter has been failed.");
-          Loading.dots('Loading...');
+          status = "FAILED";
         }
         else {
           if (callback) {

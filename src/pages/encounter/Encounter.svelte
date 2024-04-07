@@ -12,6 +12,8 @@
   import EncounterMap from './Components/EncounterMap.svelte';
   import EncounterStart from './Components/EncounterStart.svelte';
   import EncounterOngoing from './Components/EncounterOngoing.svelte';
+  import EncounterFailed from './Components/EncounterFailed.svelte';
+  import EncounterCompleted from './Components/EncounterCompleted.svelte';
 
   Notify.init({
     clickToClose: true
@@ -31,7 +33,7 @@
   let encounterId = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
 
   let onTurn: number = 0;
-  let playing = false;
+  let status: string = "NEW";
 
   let action: any;
 
@@ -286,7 +288,8 @@
       }
 
       if (data.state === "ONGOING") {
-        playing = true;
+        status = "ONGOING";
+
         receiveInitiative(
           (data: any) => {
             if (data.active) {
@@ -338,6 +341,12 @@
           }
         );
       }
+      else if (data.state === "COMPLETED") {
+        status = "COMPLETED";
+      }
+      else if (data.state === "FAILED") {
+        status = "FAILED";
+      }
       
       Loading.remove();
     },
@@ -369,10 +378,14 @@
 
 <main>
   <div class="container-fluid">
-    {#if !playing}
-      <EncounterStart bind:characterList={characterList} bind:entityList={entityList} bind:playing={playing} bind:action={action} receiveInitiative={receiveInitiative} setBaseAction={setBaseAction} />
-    {:else}
-      <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:selectedEnemies={selectedEnemies} openDoor={openDoor} bind:action={action} setBaseAction={setBaseAction} />
+    {#if status === "NEW"}
+      <EncounterStart bind:characterList={characterList} bind:entityList={entityList} bind:status={status} bind:action={action} receiveInitiative={receiveInitiative} setBaseAction={setBaseAction} />
+    {:else if status === "ONGOING"}
+      <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:selectedEnemies={selectedEnemies} bind:action={action} bind:status={status} openDoor={openDoor} setBaseAction={setBaseAction} />
+    {:else if status === "COMPLETED"}
+      <EncounterCompleted />
+    {:else if status === "FAILED"}
+      <EncounterFailed />
     {/if}
   </div>
 </main>
