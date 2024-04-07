@@ -67,10 +67,10 @@
   let currentMap: number = 0;
 
   const textureImage = new Image();
-  textureImage.src = '/assets/map-texture-new-smol.png';
+  textureImage.src = '/assets/tile-texture.png';
 
   const borderImage = new Image();
-  borderImage.src = '/assets/map-texture-new-smol-dark.png';
+  borderImage.src = '/assets/tile-border.png';
 
   let characterList: baseCharacter[] = [];
   let enemyList: baseEnemy[] = [];
