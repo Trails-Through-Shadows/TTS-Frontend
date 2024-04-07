@@ -5,6 +5,11 @@
 	export let showConfirmModal: boolean = false;
 
 	export let onConfirm: () => void;
+
+  function confirm() {
+    showConfirmModal = false;
+    onConfirm();
+  }
 </script>
 
 
@@ -20,7 +25,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-success" on:click={() => showConfirmModal = false}>Cancel</button>
-          <button type="button" class="btn btn-danger" on:click={onConfirm}>{buttonText}</button>
+          <button type="button" class="btn btn-danger" on:click={confirm}>{buttonText}</button>
         </div>
       </div>
     </div>

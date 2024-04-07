@@ -58,6 +58,8 @@
         }
 
         entityList = entityList;
+
+        isActionSliderVisible = false;
       },
       (data: any) => {
         Notify.failure(data.message);
@@ -85,6 +87,8 @@
         }
 
         entityList = entityList;
+
+        isActionSliderVisible = true;
       },
       (data: any) => {
         Notify.failure(data.message);
@@ -292,5 +296,6 @@
     <button class="btn btn-success" on:click={endTurn}>Next turn</button>
   </div>
 </div>
-<EncounterInteractionSlider bind:selectedEffects={selectedEffects} />
+
 <EncounterActionSlider bind:isActionSliderVisible={isActionSliderVisible} />
+<EncounterInteractionSlider bind:selectedEffects={selectedEffects} />
