@@ -1,5 +1,6 @@
 <script lang="ts">
   export let isActionSliderVisible: boolean;
+  export let action: any;
 
   function toggleActionSlider() {
     isActionSliderVisible = !isActionSliderVisible;
@@ -13,7 +14,7 @@
   </button>
   <button class="btn card-header d-flex justify-content-center p-0" on:click={toggleActionSlider}>Enemy Actions</button>
   <div class="card-body">
-    <!--TODO-->
+    
   </div>
 </div>
 
@@ -23,7 +24,6 @@
     position: fixed;
     bottom: calc(-40% + 43px);
     height: calc(40% + 30px);
-    transform: translateX(-50%);
     transition: bottom 0.5s ease;
     z-index: 998;
     border: 0;
@@ -57,8 +57,10 @@
   }
 
   .action-slider {
-    left: 50%;
+    right: 50%;
+    transform: translateX(50%);
     width: 500px;
+    max-width: 100%;
   }
 
   .card-body {

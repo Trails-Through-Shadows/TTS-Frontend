@@ -18,6 +18,7 @@
 
   let isActionSliderVisible = false;
   let selectedEffects: effect[] = [];
+  let action: any;
 
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
 
@@ -87,7 +88,8 @@
         }
 
         entityList = entityList;
-
+        
+        action = data.action;
         isActionSliderVisible = true;
       },
       (data: any) => {
@@ -297,5 +299,5 @@
   </div>
 </div>
 
-<EncounterActionSlider bind:isActionSliderVisible={isActionSliderVisible} />
+<EncounterActionSlider bind:isActionSliderVisible={isActionSliderVisible} bind:action={action} />
 <EncounterInteractionSlider bind:selectedEffects={selectedEffects} />

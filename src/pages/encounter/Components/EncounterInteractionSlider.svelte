@@ -194,7 +194,6 @@
     position: fixed;
     bottom: calc(-40% + 43px);
     height: calc(40% + 30px);
-    transform: translateX(-50%);
     transition: bottom 0.5s ease;
     z-index: 998;
     border: 0;
@@ -228,8 +227,9 @@
   }
 
   .interaction-slider {
-    left: 90%;
+    right: 5%;
     width: 250px;
+    max-width: 100%;
   }
 
   .draggable {

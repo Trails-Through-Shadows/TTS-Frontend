@@ -49,7 +49,7 @@
             <div class="position-relative">
               <img class="stat-image" src="assets/shield.png" alt="Defence" />
               <div class="stat-container">
-                <h1>{charList[index].clazz.baseDefence + charList[index].race.baseInitiative}</h1>
+                <h1>{charList[index].clazz.baseDefence}</h1>
                 <div class="stat-text">Defence</div>
               </div>
             </div>
@@ -57,7 +57,7 @@
           <div class="position-absolute bottom-0 start-50 translate-middle-x">
             <img class="stat-image" src="assets/speed.png" alt="Initiative" />
             <div class="stat-container">
-              <h1>{charList[index].clazz.baseInitiative}</h1>
+              <h1>{charList[index].clazz.baseInitiative + charList[index].race.baseInitiative}</h1>
               <div class="stat-text">Initiative</div>
             </div>
           </div>
