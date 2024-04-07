@@ -1,7 +1,7 @@
 <script lang="ts">
   import { api } from "../../../lib/Exports";
   import { Notify, Loading } from "notiflix";
-  import { postRequest, checkToken } from "../../../lib/Functions";
+  import { postRequest, checkToken, getRequest } from "../../../lib/Functions";
   import interact from 'interactjs';
 
   import EncounterCharacter from './EncounterCharacter.svelte';
@@ -26,6 +26,33 @@
   const urlParams = new URLSearchParams(window.location.search);
   let encounterId = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
 
+  function getStatus(callback?: Function) {
+    getRequest(`${api}/encounter/${encounterId}/status?token=${token}`,
+      (data: any) => {
+        data = data.object;
+        console.log(data);
+
+        if (data === "COMPLETED") {
+          Notify.success("Encounter has been completed.");
+          Loading.dots('Loading...');
+        }
+        else if (data === "FAILED") {
+          Notify.failure("Encounter has been failed.");
+          Loading.dots('Loading...');
+        }
+        else {
+          if (callback) {
+            callback();
+          }
+        }
+      },
+      (data: any) => {
+        Notify.failure(data.message);
+        checkToken(data.message);
+      }
+    );
+  }
+
   function deadOnTurn(entityId: number, entityType: string) {
     if (entityId == entityList[onTurn].id && entityType === entityList[onTurn].type) {
       entityList = entityList.filter((entity: any) => entity.id != entityId || entity.type != entityType);
@@ -48,58 +75,64 @@
   }
 
   function startCharacterTurn() {
-    postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[onTurn].id}/start?token=${token}`, {},
-      (data: any) => {
-        data = data.object;
+    getStatus(() => {
+      postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[onTurn].id}/start?token=${token}`, {},
+        (data: any) => {
 
-        entityList[onTurn].entity.health = data.health;
-        entityList[onTurn].entity.activeEffects = data.effects;
+          data = data.object;
 
-        if (data.status === "DEAD") {
-          deadOnTurn(entityList[onTurn].id, entityList[onTurn].type);
+          entityList[onTurn].entity.health = data.health;
+          entityList[onTurn].entity.activeEffects = data.effects;
+
+          if (data.status === "DEAD") {
+            deadOnTurn(entityList[onTurn].id, entityList[onTurn].type);
+          }
+
+          entityList = entityList;
+
+          setBaseAction();
+          isActionSliderVisible = false;
+        },
+        (data: any) => {
+          Notify.failure(data.message);
+          checkToken(data.message);
         }
-
-        entityList = entityList;
-
-        setBaseAction();
-        isActionSliderVisible = false;
-      },
-      (data: any) => {
-        Notify.failure(data.message);
-        checkToken(data.message);
-      }
-    );
+      );
+    });
   }
 
   function startEnemyTurn() {
-    postRequest(`${api}/encounter/${encounterId}/turn/enemy/${entityList[onTurn].id}/start?token=${token}`, {},
-      (data: any) => {
-        data = data.object;
+    getStatus(() => {
+      postRequest(`${api}/encounter/${encounterId}/turn/enemy/${entityList[onTurn].id}/start?token=${token}`, {},
+        (data: any) => {
 
-        for (let i = 0; i < entityList[onTurn].entity.enemy.length; i++) {
-          entityList[onTurn].entity.enemy[i].health = data.entities[i].health;
-          entityList[onTurn].entity.enemy[i].activeEffects = data.entities[i].effects;
+          data = data.object;
 
-          if (data.entities[i].status === "DEAD") {
-            entityList[onTurn].entity.enemy = entityList[onTurn].entity.enemy.filter((enemy: any) => enemy.id != entityList[onTurn].entity.enemy[i].id);
+          for (let i = 0; i < entityList[onTurn].entity.enemy.length; i++) {
+            entityList[onTurn].entity.enemy[i].health = data.entities[i].health;
+            entityList[onTurn].entity.enemy[i].activeEffects = data.entities[i].effects;
+
+            if (data.entities[i].status === "DEAD") {
+              entityList[onTurn].entity.enemy = entityList[onTurn].entity.enemy.filter((enemy: any) => enemy.id != entityList[onTurn].entity.enemy[i].id);
+            }
+
+            if (entityList[onTurn].entity.enemy.length === 0) {
+              deadOnTurn(entityList[onTurn].id, entityList[onTurn].type);
+            }
           }
 
-          if (entityList[onTurn].entity.enemy.length === 0) {
-            deadOnTurn(entityList[onTurn].id, entityList[onTurn].type);
-          }
+          entityList = entityList;
+          
+          action = data.action;
+          console.log(action);
+          isActionSliderVisible = true;
+        },
+        (data: any) => {
+          Notify.failure(data.message);
+          checkToken(data.message);
         }
-
-        entityList = entityList;
-        
-        action = data.action;
-        console.log(action);
-        isActionSliderVisible = true;
-      },
-      (data: any) => {
-        Notify.failure(data.message);
-        checkToken(data.message);
-      }
-    );
+      );
+    });
   }
 
   function endCharacterTurn() {
@@ -163,29 +196,31 @@
   }
 
   function endRound() {
-    onTurn = 0;
+    getStatus(() => {
+      onTurn = 0;
 
-    postRequest(`${api}/encounter/${encounterId}/endRound?token=${token}`, {},
-      (data: any) => {
-        data = data.object;
-        if (data.unlockedParts.length > 0) {
-          Notify.success("New room has been unlocked.");
-          Loading.dots('Loading...');
+      postRequest(`${api}/encounter/${encounterId}/endRound?token=${token}`, {},
+        (data: any) => {
+          data = data.object;
+          if (data.unlockedParts.length > 0) {
+            Notify.success("New room has been unlocked.");
+            Loading.dots('Loading...');
 
-          openDoor(data);
+            openDoor(data);
+          }
+          if (entityList[onTurn].type === "CHARACTER") {
+            startCharacterTurn();
+          }
+          else if (entityList[onTurn].type === "ENEMY") {
+            startEnemyTurn();
+          }
+        },
+        (data: any) => {
+          Notify.failure(data.message);
+          checkToken(data.message);
         }
-        if (entityList[onTurn].type === "CHARACTER") {
-          startCharacterTurn();
-        }
-        else if (entityList[onTurn].type === "ENEMY") {
-          startEnemyTurn();
-        }
-      },
-      (data: any) => {
-        Notify.failure(data.message);
-        checkToken(data.message);
-      }
-    );
+      );
+    });
   }
 
   function endTurn() {
@@ -207,22 +242,24 @@
       if (entityType === "CHARACTER") {
         postRequest(`${api}/encounter/${encounterId}/interaction/character/${entityId}?token=${token}`, { damage: parseInt(damage), effects: selectedEffects },
           (data: any) => {
-            data = data.object;
+            getStatus(() => {
+              data = data.object;
 
-            const entity = entityList.find((entity: any) => entity.id == entityId && entity.type == entityType);
+              const entity = entityList.find((entity: any) => entity.id == entityId && entity.type == entityType);
 
-            if (entity) {
-              entity.entity.health = data.health;
-              entity.entity.activeEffects = data.effects;
+              if (entity) {
+                entity.entity.health = data.health;
+                entity.entity.activeEffects = data.effects;
 
-              if (data.status === "DEAD") {
-                deadOnTurn(entityId, entityType);
+                if (data.status === "DEAD") {
+                  deadOnTurn(entityId, entityType);
+                }
               }
-            }
 
-            entityList = entityList;
+              entityList = entityList;
 
-            Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId}, with damage: ${damage}.`);
+              Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId}, with damage: ${damage}.`);
+            });
           },
           (data: any) => {
             Notify.failure(data.message);
@@ -234,28 +271,30 @@
 
         postRequest(`${api}/encounter/${encounterId}/interaction/enemy/${entityId}/${selectedEnemy}?token=${token}`, { damage: parseInt(damage), effects: selectedEffects },
           (data: any) => {
-            data = data.object;
+            getStatus(() => {
+              data = data.object;
 
-            const entity = entityList.find((entity: any) => entity.id == entityId && entity.type == entityType);
+              const entity = entityList.find((entity: any) => entity.id == entityId && entity.type == entityType);
 
-            if (entity) {
-              let enemy = entity.entity.enemy.find((enemy: any) => enemy.id == selectedEnemy);
+              if (entity) {
+                let enemy = entity.entity.enemy.find((enemy: any) => enemy.id == selectedEnemy);
 
-              enemy.health = data.health;
-              enemy.activeEffects= data.effects;
+                enemy.health = data.health;
+                enemy.activeEffects= data.effects;
 
-              if (data.status === "DEAD") {
-                entity.entity.enemy = entity.entity.enemy.filter((enemy: any) => enemy.id != selectedEnemy);
-                
-                if (entity.entity.enemy.length === 0) {
-                  deadOnTurn(entityId, entityType);
+                if (data.status === "DEAD") {
+                  entity.entity.enemy = entity.entity.enemy.filter((enemy: any) => enemy.id != selectedEnemy);
+                  
+                  if (entity.entity.enemy.length === 0) {
+                    deadOnTurn(entityId, entityType);
+                  }
                 }
               }
-            }
 
-            entityList = entityList;
+              entityList = entityList;
 
-            Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId} and enemy ID: ${selectedEnemy}, with damage: ${damage}.`);
+              Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId} and enemy ID: ${selectedEnemy}, with damage: ${damage}.`);
+            });
           },
           (data: any) => {
             Notify.failure(data.message);
