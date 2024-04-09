@@ -18,11 +18,11 @@
 </script>
 
 {#if !loggedIn}
-<Navbar title="Login" />
+  <Navbar title="Login" />
 {:else}
-<Navbar title="Adventures">
-  <LogoutButton />
-</Navbar>
+  <Navbar title="Adventures">
+    <LogoutButton />
+  </Navbar>
 {/if}
 
 <main>
