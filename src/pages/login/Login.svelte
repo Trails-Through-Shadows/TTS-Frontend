@@ -17,9 +17,13 @@
   let campaignList: Campaign[] = [];
 </script>
 
-<Navbar title={loggedIn ? 'Adventures' : 'Login'}>
+{#if !loggedIn}
+<Navbar title="Login" />
+{:else}
+<Navbar title="Adventures">
   <LogoutButton />
 </Navbar>
+{/if}
 
 <main>
   {#if !loggedIn}
