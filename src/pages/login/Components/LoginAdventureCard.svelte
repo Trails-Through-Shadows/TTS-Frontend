@@ -114,7 +114,7 @@
       </div>
       <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-danger" data-bs-dismiss="modal" on:click={() => showModal()}>Delete</button>
-        <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click={() => handleDeleteAdventure()}>Save</button>
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click={() => handleEditAdventure()}>Save</button>
       </div>
     </div>
   </div>

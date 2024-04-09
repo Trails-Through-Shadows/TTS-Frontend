@@ -107,7 +107,7 @@
   .bottom-slider {
     position: fixed;
     bottom: calc(-40% + 43px);
-    height: calc(40% + 30px);
+    min-height: calc(40% + 30px);
     transition: bottom 0.5s ease;
     z-index: 998;
     border: 0;
@@ -116,7 +116,7 @@
 
   .bottom-slider .btn-toggle {
     margin: 0 auto;
-    height: 30px;
+    min-height: 30px;
     width: 50px;
     border-radius: 5px 5px 0 0;
     border-bottom: 0;
