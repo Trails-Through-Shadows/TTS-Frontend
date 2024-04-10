@@ -25,7 +25,7 @@ import { CubeCoordinate } from "./Coordinate";
             public readonly idPart: number,
             public readonly id: number,
             public readonly coords: CubeCoordinate,
-            public readonly hexSize: number = 50,
+            public readonly hexSize: number = 55,
             public neighbors: Hex[] = [],
         ) {
             this.vertices = this.calculateVertices(this.hexSize);
@@ -135,7 +135,7 @@ import { CubeCoordinate } from "./Coordinate";
         drawEntity(ctx: CanvasRenderingContext2D, entityImage: HTMLImageElement, offset: Offset): void {
             const {x, y} = this.coords.to2D(this.hexSize);
 
-            const enemyHeight = this.hexSize * 1.2;
+            const enemyHeight = this.hexSize * 1.5;
             const enemyWidth = (entityImage.height / entityImage.width) * enemyHeight;
 
             ctx.drawImage(entityImage, offset.x + x - enemyWidth / 2, offset.y + y - enemyHeight / 2, enemyWidth, enemyHeight);

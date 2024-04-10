@@ -35,7 +35,7 @@
     top: -100%;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 75px);
     background: url('/assets/map.png');
     background-size: cover;
     color: #fff;
@@ -46,7 +46,7 @@
   }
 
   .map-slider.visible {
-    top: 0;
+    top: 75px;
   }
 
   .canvas-container {
@@ -54,7 +54,6 @@
   }
 
   .map-button-container {
-    padding-top: 75px;
     display: flex;
     flex-direction: column;
   }

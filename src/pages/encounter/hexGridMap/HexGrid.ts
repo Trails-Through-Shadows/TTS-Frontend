@@ -30,7 +30,7 @@ export class HexGrid {
         private hexes: Hex[] = [],
         private textureImage: any,
         private borderImage: any,
-        private hexSize: number = 50,
+        private hexSize: number = 55,
     ) {
         this.doorImage.src = 'assets/door.png';
     }
@@ -91,17 +91,15 @@ export class HexGrid {
     }
 
     getImages(): void {
-        // get all unique enemy names
         const entityTitles = this.entities.map(entity => entity.title);
 
         let loaded = 0;
 
-        // for each unique enemy name, get the image
         entityTitles.forEach(title => {
             const entity = this.entities.filter(entity => entity.title === title);
             if (entity) {
                 const image = new Image();
-                image.src = entity[0].url;
+                image.src = entity[0].url + '?token=true';
                 image.onload = () => {
                     entity.forEach(e => e.image = image);
                     loaded++;
