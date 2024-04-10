@@ -185,10 +185,18 @@
   select.stat-input {
     border: 1px solid #4fc780;
     color: #4fc780;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  select.stat-input:hover {
+    background-color: #4fc780;
+    color: #333;
   }
 
   select.stat-input option {
     font-size: 1rem;
+    background-color: #333;
+    color: #bababa;
   }
   
   select.stat-input.small-font {

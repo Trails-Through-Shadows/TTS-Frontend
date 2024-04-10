@@ -25,7 +25,7 @@ import { CubeCoordinate } from "./Coordinate";
             public readonly idPart: number,
             public readonly id: number,
             public readonly coords: CubeCoordinate,
-            public readonly hexSize: number = 55,
+            public readonly hexSize: number = 60,
             public neighbors: Hex[] = [],
         ) {
             this.vertices = this.calculateVertices(this.hexSize);
