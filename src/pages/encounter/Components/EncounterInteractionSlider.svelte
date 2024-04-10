@@ -149,14 +149,6 @@
             {/each}
           </select>
         </div>
-        <div class="form-group mb-3">
-          <label for="effectTarget">Target</label>
-          <select class="form-select" id="effectTarget">
-            {#each effectTargets as target}
-              <option value="{target}">{target}</option>
-            {/each}
-          </select>
-        </div>
         <div class="row">
           <div class="col">
             <div class="form-group">
