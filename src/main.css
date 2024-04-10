@@ -27,7 +27,7 @@ main {
   color: #bababa;
 }
 
-.btn-success:hover, .btn-success:active {
+.btn-success:hover {
   border-color: #4fc780;
   background-color: #4fc780;
   color: #222;
@@ -38,7 +38,7 @@ main {
   color: #bababa;
 }
 
-.btn-danger:hover, .btn-danger:active {
+.btn-danger:hover {
   border-color: #c23737;
   background-color: #c23737;
   color: #222;

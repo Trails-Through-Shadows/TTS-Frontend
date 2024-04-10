@@ -96,7 +96,7 @@
                   <select class="form-control stat-input {selectedOptions[index] === 'CRIT' || selectedOptions[index] === 'MISS' ? 'small-font' : ''}" on:change={(e) => handleSelectChange(e, index)}>
                     <option value="" selected disabled hidden>?</option>
                     {#each ["CRIT", "+5", "+4", "+3", "+2", "+1", "+0", "-1", "-2", "-3", "MISS"] as value}
-                    <option value={value}>{value}</option>
+                      <option value={value}>{value}</option>
                     {/each}
                   </select>
                 </div>
