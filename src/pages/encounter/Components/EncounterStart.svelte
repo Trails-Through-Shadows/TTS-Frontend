@@ -196,7 +196,7 @@
   select.stat-input option {
     font-size: 1rem;
     background-color: #333;
-    color: #bababa;
+    color: #4fc780;
   }
   
   select.stat-input.small-font {
