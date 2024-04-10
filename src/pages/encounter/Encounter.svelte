@@ -116,8 +116,6 @@
           hexGrid.addStartHex(new CubeCoordinate(startingHex.q, startingHex.r, startingHex.s));
         }
 
-        console.log(data.startingHexes);
-
         hexGrid.getImages();
 
         hexGridList.push(hexGrid);
