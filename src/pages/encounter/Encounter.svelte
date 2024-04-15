@@ -102,6 +102,18 @@
           }
         }
 
+        for (let obstacles of data.obstacles) {
+          if (obstacles.hex.key.idPart === data.id) {
+            console.log(obstacles);
+            hexGrid.addEntity({
+              title: obstacles.title,
+              coords: new CubeCoordinate(obstacles.hex.q, obstacles.hex.r, obstacles.hex.s),
+              url: obstacles.url,
+              image: new Image()
+            });
+          }
+        }
+
         if (data.doors) {
           let doors: Hex[] = [];
           for (let door of data.doors) {
