@@ -40,7 +40,7 @@
   function setBaseAction() {
     action = {
       id: null,
-      title: `It's ${entityList[onTurn].entity.title}'s turn.`,
+      title: `It's ${(entityList[onTurn].entity as baseCharacter).title}'s turn.`,
       description: "Pick your card and play!",
       discard: null,
       levelReq: null,
