@@ -22,7 +22,7 @@
   function logIn() {
     Loading.dots('Loading...')
 
-    getRequest(`${api}/adventures/?token=${token}`, token,
+    getRequest(`${api}/adventures`, token,
       (data: any) => {
         adventureList = data.entries.map((adventure: any) => new Adventure(adventure.id, adventure.title, adventure.description, adventure.reputation, adventure.experience, adventure.gold, adventure.idCampaign));
         loggedIn = true;
