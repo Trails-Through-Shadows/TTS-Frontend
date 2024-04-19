@@ -24,7 +24,7 @@
 
   let characterList: Character[] = [];
 
-  getRequest(`${api}/session/hello?token=${token}`,
+  getRequest(`${api}/session/hello`, token,
   (data: any) => {},
   (data: any) => {
     Notify.failure(data.message);
@@ -55,7 +55,7 @@
         playerName: character.playerName,
       };
 
-      postRequest(`${api}/adventures/${adventureId}/characters?token=${token}`, char,
+      postRequest(`${api}/adventures/${adventureId}/characters`, token, char,
         (data: any) => {
           Loading.remove();
           window.location.href = `/adventure`;

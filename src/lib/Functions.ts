@@ -1,4 +1,4 @@
-export function getRequest(url: string, successCallback: Function, failureCallback: Function): void {
+export function getRequest(url: string, token: string | null, successCallback: Function, failureCallback: Function): void {
   const request = new XMLHttpRequest();
 
   console.log(`GET | ${url}`);
@@ -18,10 +18,13 @@ export function getRequest(url: string, successCallback: Function, failureCallba
   }
 
   request.open('GET', url, true);
+  if (token) {
+    request.setRequestHeader('Authorization', `Basic ${token}`);
+  }
   request.send();
 }
 
-export function postRequest(url: string, data: any, successCallback: Function, failureCallback: Function): void {
+export function postRequest(url: string, token: string | null, data: any, successCallback: Function, failureCallback: Function): void {
   const request = new XMLHttpRequest();
 
   console.log(`POST | ${url}`);
@@ -49,10 +52,13 @@ export function postRequest(url: string, data: any, successCallback: Function, f
   request.open('POST', url, true);
   request.setRequestHeader('Content-Type', 'application/json');
   request.setRequestHeader('Accept', 'application/json');
+  if (token) {
+    request.setRequestHeader('Authorization', `Basic ${token}`);
+  }
   request.send(JSON.stringify(data));
 }
 
-export function putRequest(url: string, data: any, successCallback: Function, failureCallback: Function): void {
+export function putRequest(url: string, token: string | null, data: any, successCallback: Function, failureCallback: Function): void {
   const request = new XMLHttpRequest();
 
   console.log(`PUT | ${url}`);
@@ -80,10 +86,13 @@ export function putRequest(url: string, data: any, successCallback: Function, fa
   request.open('PUT', url, true);
   request.setRequestHeader('Content-Type', 'application/json');
   request.setRequestHeader('Accept', 'application/json');
+  if (token) {
+    request.setRequestHeader('Authorization', `Basic ${token}`);
+  }
   request.send(JSON.stringify(data));
 }
 
-export function deleteRequest(url: string, successCallback: Function, failureCallback: Function): void {
+export function deleteRequest(url: string, token: string | null, successCallback: Function, failureCallback: Function): void {
   const request = new XMLHttpRequest();
 
   console.log(`DELETE | ${url}`);
@@ -103,6 +112,9 @@ export function deleteRequest(url: string, successCallback: Function, failureCal
   }
 
   request.open('DELETE', url, true);
+  if (token) {
+    request.setRequestHeader('Authorization', `Basic ${token}`);
+  }
   request.send();
 }
 

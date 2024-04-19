@@ -28,7 +28,7 @@
     adventureCopy.title = title.value;
     adventureCopy.description = description.value;
 
-    putRequest(`${api}/adventures/${adventureCopy.id}?token=${token}`, adventureCopy,
+    putRequest(`${api}/adventures/${adventureCopy.id}`, token, adventureCopy,
       () => {
         adventureList[index] = adventureCopy;
         Loading.remove();
@@ -44,7 +44,7 @@
   function handleDeleteAdventure() {
     Loading.dots('Loading...')
 
-    deleteRequest(`${api}/adventures/${adventureList[index].id}?token=${token}`,
+    deleteRequest(`${api}/adventures/${adventureList[index].id}}`, token,
       () => {
         adventureList.splice(index, 1);
         adventureList = [...adventureList];

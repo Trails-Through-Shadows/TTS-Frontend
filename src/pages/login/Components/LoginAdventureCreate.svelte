@@ -24,7 +24,7 @@
 
     const newAdventure = new Adventure(null, title.value, description.value, 0, 0, 0, selectedCampaign.id);
 
-    postRequest(`${api}/adventures/${licenseId}?token=${token}`, newAdventure,
+    postRequest(`${api}/adventures/${licenseId}`, token, newAdventure,
       (data: any) => {
         adventureList = [...adventureList, new Adventure(data.id, data.title, data.description, data.reputation, data.experience, data.gold, data.idCampaign)];
         Loading.remove();

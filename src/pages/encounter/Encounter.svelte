@@ -81,7 +81,7 @@
   let isMapSliderVisible = false;
 
   function receiveParts(part: number) {
-    getRequest(`${api}/locations/${locationId}/parts/${part}`,
+    getRequest(`${api}/locations/${locationId}/parts/${part}`, token,
       (data: any) => {
         let hexGrid = new HexGrid(
           data.id,
@@ -155,7 +155,7 @@
               r: hex.coords.r,
               s: hex.coords.s
             };
-            postRequest(`${api}/encounters/${encounterId}/openDoor?token=${token}`, door,
+            postRequest(`${api}/encounters/${encounterId}/openDoor`, token, door,
               () => {
                 Notify.success("The door will open at the end of the round.");
               },
@@ -175,7 +175,7 @@
   }
 
   function receiveInitiative(callback: Function = (data: any) => {}) {
-    getRequest(`${api}/encounters/${encounterId}/initiative?token=${token}`,
+    getRequest(`${api}/encounters/${encounterId}/initiative`, token,
       (data: any) => {
         data = data.object;
         let initiativeList: { id: number, initiative: number, type: string }[] = data.initiatives;
@@ -220,7 +220,7 @@
       receiveParts(part);
     }
 
-    getRequest(`${api}/encounters/${encounterId}?token=${token}`,
+    getRequest(`${api}/encounters/${encounterId}`, token,
       (data: any) => {
         data = data.object;
 
@@ -258,7 +258,7 @@
     );
   }
 
-  getRequest(`${api}/encounters/${encounterId}?token=${token}`,
+  getRequest(`${api}/encounters/${encounterId}`, token,
     (data: any) => {
       data = data.object;
       locationId = data.idLocation;

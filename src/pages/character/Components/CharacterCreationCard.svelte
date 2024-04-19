@@ -17,7 +17,7 @@
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
   }
 
-  getRequest(`${api}/races`,
+  getRequest(`${api}/races`, null,
     (data: any) => {
       races = data.entries.map((race: any) => new Race(race.id, race.title, race.tag, race.description, race.baseInitiative));
     },
@@ -26,7 +26,7 @@
     }
   );
 
-  getRequest(`${api}/classes`,
+  getRequest(`${api}/classes`, null,
     (data: any) => {
       classes = data.entries.map((clazz: any) => new Clazz(clazz.id, clazz.title, clazz.tag, clazz.description, clazz.baseHealth, clazz.baseDefence, clazz.baseInitiative));
     },

@@ -22,7 +22,7 @@
   function logIn() {
     Loading.dots('Loading...')
 
-    getRequest(`${api}/adventures/?token=${token}`,
+    getRequest(`${api}/adventures/?token=${token}`, token,
       (data: any) => {
         adventureList = data.entries.map((adventure: any) => new Adventure(adventure.id, adventure.title, adventure.description, adventure.reputation, adventure.experience, adventure.gold, adventure.idCampaign));
         loggedIn = true;
@@ -38,7 +38,7 @@
       }
     );
 
-		getRequest(`${api}/campaigns/?token=${token}`,
+		getRequest(`${api}/campaigns`, token,
 			(data: any) => {
 				campaignList = data.entries.map((campaign: any) => new Campaign(campaign.id, campaign.title, campaign.description));
 			},
@@ -55,7 +55,7 @@
 	function handleLogin() {
 		Loading.dots('Loading...')
 
-		postRequest(`${api}/session/login`, {key: licenseNumber, password: password},
+		postRequest(`${api}/session/login`, null, {key: licenseNumber, password: password},
 			(data: any) => {
 				licenseId = data.licenseId;
 				token = data.token;

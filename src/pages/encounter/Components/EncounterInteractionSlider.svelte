@@ -14,7 +14,7 @@
   let isInteractionSliderVisible = true;
   let selectedEffect: effectType = { title: "", displayTitle: "", description: "", hasDuration: false, hasStrength: false, isResistance: false, url: "" };
 
-  getRequest(`${api}/enum/effectType`,
+  getRequest(`${api}/enum/effectType`, null,
     (data: any) => {
       effectList = data;
     },
@@ -23,7 +23,7 @@
     }
   );
 
-  getRequest(`${api}/enum/effectTarget`,
+  getRequest(`${api}/enum/effectTarget`, null,
     (data: any) => {
       effectTargets = data;
     },

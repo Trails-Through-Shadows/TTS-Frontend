@@ -37,7 +37,7 @@
   let locationId = (document.getElementById('startEncounterSelect') as HTMLSelectElement).value;
 
   if ((document.getElementById('startTab') as HTMLSelectElement).classList.contains('active')) {
-    postRequest(`${api}/encounters/${adventureId}?token=${token}&idLocation=${locationId}`, {},
+    postRequest(`${api}/encounters/${adventureId}?idLocation=${locationId}`, token, {},
       (data: any) => {
         Loading.remove();
         window.location.href = `/encounter?id=${data.id}`;
@@ -55,7 +55,7 @@
   }
 }
   
-  getRequest(`${api}/adventures/${adventureId}?token=${token}&lazy=false`,
+  getRequest(`${api}/adventures/${adventureId}?lazy=false`, token,
     (data: any) => {
       characterList = data.characters.map((character: any) => new Character(character.id, character.clazz, character.race, character.title, character.playerName, character.url));
       locationList = data.campaign.locations.map((location: any) => new Location(location.location.id, location.location.title, location.location.tag, location.location.type, location.location.description));
@@ -66,7 +66,7 @@
         window.location.href = `/characters`;
       }
 
-      getRequest(`${api}/encounters?token=${token}`,
+      getRequest(`${api}/encounters`, token,
         (data: any) => {
           data = data.object;
           
