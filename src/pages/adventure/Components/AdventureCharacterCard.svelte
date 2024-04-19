@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Character } from "../../../lib/Exports";
 
-  export let charList: Character[];
+  export let characterList: Character[];
   export let index: number;
 </script>
 
@@ -9,7 +9,7 @@
   <div class="d-flex justify-content-center">
     <div class="card secondary-card border-0 mt-3">
       <div class="card-header text-center">
-        <h5 id="card-name" class="m-0">{charList[index].race.title}-{charList[index].clazz.title} </h5>
+        <h5 id="card-name" class="m-0">{characterList[index].race.title}-{characterList[index].clazz.title} </h5>
       </div>
     </div>
   </div>
@@ -32,7 +32,7 @@
         </div>
         <div class="col-7">
           <div class="class-image-container d-flex justify-content-center">
-            <img class="class-image" src="{charList[index].url}" alt="{charList[index].clazz.title}" />
+            <img class="class-image" src="{characterList[index].url}" alt="{characterList[index].clazz.title}" />
           </div>
         </div>
         <div class="col-1 position-relative">
@@ -40,7 +40,7 @@
             <div class="position-relative">
               <img class="stat-image" src="assets/heart.png" alt="Health" />
               <div class="stat-container">
-                <h1>{charList[index].clazz.baseHealth}</h1>
+                <h1>{characterList[index].clazz.baseHealth}</h1>
                 <div class="stat-text">Health</div>
               </div>
             </div>
@@ -49,7 +49,7 @@
             <div class="position-relative">
               <img class="stat-image" src="assets/shield.png" alt="Defence" />
               <div class="stat-container">
-                <h1>{charList[index].clazz.baseDefence}</h1>
+                <h1>{characterList[index].clazz.baseDefence}</h1>
                 <div class="stat-text">Defence</div>
               </div>
             </div>
@@ -57,7 +57,7 @@
           <div class="position-absolute bottom-0 start-50 translate-middle-x">
             <img class="stat-image" src="assets/speed.png" alt="Initiative" />
             <div class="stat-container">
-              <h1>{charList[index].clazz.baseInitiative + charList[index].race.baseInitiative}</h1>
+              <h1>{characterList[index].clazz.baseInitiative + characterList[index].race.baseInitiative}</h1>
               <div class="stat-text">Initiative</div>
             </div>
           </div>
@@ -82,7 +82,7 @@
   <div class="d-flex justify-content-center">
     <div class="card secondary-card border-0">
       <div class="card-footer text-center p-0">
-        <h2>{charList[index].title}</h2>
+        <h2>{characterList[index].title}</h2>
       </div>
     </div>
   </div>

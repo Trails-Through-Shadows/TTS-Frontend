@@ -15,14 +15,12 @@
 
   let licenseId = sessionStorage.getItem('licenseId') ? parseInt(sessionStorage.getItem('licenseId') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
+  let adventureId = sessionStorage.getItem('adventureId') ? parseInt(sessionStorage.getItem('adventureId') as string) : 0;
   
   if (licenseId === 0 || token === '') {
     sessionStorage.clear();
     window.location.href = "/";
   }
-
-  const urlParams = new URLSearchParams(window.location.search);
-  let idAdventure = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
 
   let characterList: Character[] = [];
 
@@ -52,15 +50,15 @@
       let char = {
         idClass: character.clazz.id,
         idRace: character.race.id,
-        idAdventure: idAdventure,
+        idAdventure: adventureId,
         title: character.title,
         playerName: character.playerName,
       };
 
-      postRequest(`${api}/adventures/${idAdventure}/characters?token=${token}`, char,
+      postRequest(`${api}/adventures/${adventureId}/characters?token=${token}`, char,
         (data: any) => {
           Loading.remove();
-          window.location.href = `/adventure?id=${idAdventure}`;
+          window.location.href = `/adventure`;
         },
         (data: any) => {
           Loading.remove();

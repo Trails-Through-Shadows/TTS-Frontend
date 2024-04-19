@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { api, Character } from "../../lib/Exports";
+  import { api, Character, Location } from "../../lib/Exports";
   import { Notify, Loading } from "notiflix";
   import { getRequest, postRequest, checkToken } from "../../lib/Functions";
 
   import Navbar from "../../lib/Components/Navbar.svelte";
-  import AdventureCharacetrCard from "./Components/AdventureCharacterCard.svelte";
+  import AdventureCharacterCard from "./Components/AdventureCharacterCard.svelte";
   
 
   Notify.init({
@@ -14,6 +14,7 @@
   
   let licenseId = sessionStorage.getItem('licenseId') ? parseInt(sessionStorage.getItem('licenseId') as string) : 0;
   let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
+  let adventureId = sessionStorage.getItem('adventureId') ? parseInt(sessionStorage.getItem('adventureId') as string) : 0;
   
   if (licenseId === 0 || token === '') {
     sessionStorage.clear();
@@ -22,37 +23,26 @@
 
   Loading.dots('Loading characters...');
 
-  const urlParams = new URLSearchParams(window.location.search);
-  let adventureId = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
-
-  sessionStorage.setItem('adventureId', adventureId.toString());
-
   if (adventureId === 0) {
     Notify.failure('Something went wrong.');
   }
 
   let locationId = 1;
 
-  let charList: Character[] = [];
-  
-  getRequest(`${api}/adventures/${adventureId}/characters?token=${token}&lazy=false`,
-    (data: any) => {
-      charList = data.entries.map((character: any) => new Character(character.id, character.clazz, character.race, character.title, character.playerName, character.url));
-      Loading.remove();
-      if (charList.length === 0) {
-        Notify.failure('No characters found.');
-        window.location.href = `/characters?id=${adventureId}`;
-      }
-    },
-    (data: any) => {
-      Notify.failure(data.message);
-      Loading.remove();
-      checkToken(data.message);
-    }
-  );
+  let characterList: Character[] = [];
+  let locationList: Location[] = [];
 
-  function handleContinue() {
+  function handleStartEncounter() {
     Loading.dots('Creating encounter...');
+
+    let locationId = (document.getElementById('encounterSelect') as HTMLSelectElement).value;
+
+    if (locationId === '') {
+      Loading.remove();
+      Notify.failure('Please select a location.');
+      return;
+    }
+
     postRequest(`${api}/encounter/${adventureId}?token=${token}&idLocation=${locationId}`, {},
       (data: any) => {
         Loading.remove();
@@ -65,24 +55,61 @@
       }
     );
   }
+  
+  getRequest(`${api}/adventures/${adventureId}?token=${token}&lazy=false`,
+    (data: any) => {
+      characterList = data.characters.map((character: any) => new Character(character.id, character.clazz, character.race, character.title, character.playerName, character.url));
+      locationList = data.campaign.locations.map((location: any) => new Location(location.location.id, location.location.title, location.location.tag, location.location.type, location.location.description));
+      Loading.remove();
+
+      if (characterList.length === 0) {
+        Notify.failure('No characters found.');
+        window.location.href = `/characters`;
+      }
+    },
+    (data: any) => {
+      Notify.failure(data.message);
+      Loading.remove();
+      checkToken(data.message);
+    }
+  );
 </script>
 
 
 <Navbar title="Adventure" />
 
 
-<main>
-  <div class="container-fluid" data-simplebar>
-    <div class="row">
-      {#each charList as character, index}
-        <AdventureCharacetrCard bind:charList={charList} index={index} />
-      {/each}
-      <div class="col-xl-12">
-        <button class="btn btn-success" on:click="{handleContinue}">Start encounter</button>
+<div class="container-fluid" data-simplebar>
+  <div class="row">
+    {#each characterList as character, index}
+      <AdventureCharacterCard bind:characterList={characterList} index={index} />
+    {/each}
+    <div class="col-xl-12">
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#encounterModal">Start encounter</button>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="encounterModal" tabindex="-1" aria-labelledby="encounterModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="encounterModalLabel">Encounter</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <select class="form-select" id="encounterSelect">
+          {#each locationList as location}
+            <option value="{location.id}">{location.title}</option>
+          {/each}
+        </select>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click={() => handleStartEncounter()}>Start</button>
       </div>
     </div>
   </div>
-</main>
+</div>
 
 <!--
 The Forgotten Doll
@@ -94,3 +121,20 @@ Intrigued, Sarah brushed off the cobwebs and held the doll in her hands. That ni
 Continuation 2
 Desperate for escape, they tried to flee, but the forest seemed to stretch on endlessly, trapping them within its grasp. In the end, Sarah and David became just another chapter in the town's dark history, their fate sealed by the cursed doll they had dared to disturb. And as the years passed, the house faded into legend once more, its secrets buried beneath layers of forgotten time. But deep within its walls, the doll still waits, patiently biding its time for the next unsuspecting soul to wander into its grasp.
 -->
+
+<style>
+  .modal-content{
+    color: #bababa;
+    background-color: #222;
+  }
+
+  .modal-content > div {
+    border-color: #1c1c1c;
+  }
+
+  .form-select {
+    background-color: #333;
+    color: #bababa;
+    border: none;
+  }
+</style>

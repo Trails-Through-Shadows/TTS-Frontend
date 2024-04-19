@@ -2,6 +2,7 @@
   import { api, Character, Race, Clazz } from "../../../lib/Exports";
   import { Notify } from "notiflix";
   import { getRequest } from "../../../lib/Functions";
+  //import bootstrap from "bootstrap";
 
   export let characterList: Character[];
   export let index: number;

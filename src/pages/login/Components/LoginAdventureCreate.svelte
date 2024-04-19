@@ -8,8 +8,8 @@
 
   let selectedCampaign: Campaign | null = null;
 
-  let licenseId = parseInt(sessionStorage.getItem('licenseId') || '0');
-  let token = sessionStorage.getItem('token') || '';
+  let licenseId = sessionStorage.getItem('licenseId') ? parseInt(sessionStorage.getItem('licenseId') as string) : 0;
+  let token = sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '';
 
   function handleCreateAdventure() {
     if (!selectedCampaign) {
@@ -28,8 +28,9 @@
       (data: any) => {
         adventureList = [...adventureList, new Adventure(data.id, data.title, data.description, data.reputation, data.experience, data.gold, data.idCampaign)];
         Loading.remove();
+        sessionStorage.setItem('adventureId', data.id.toString());
         Notify.success('Adventure created successfully');
-        window.location.href = `/characters?id=${data.id}`;
+        window.location.href = `/characters`;
       },
       (data: any) => {
         Loading.remove();

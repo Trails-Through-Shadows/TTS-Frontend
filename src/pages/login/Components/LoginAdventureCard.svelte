@@ -91,7 +91,7 @@
       </div>
     </div>
     <div class="card-footer">
-      <a class="btn btn-xl w-100 continue-button" href="/adventure?id={adventureList[index].id}">Continue</a>
+      <a class="btn btn-xl w-100 continue-button" href="/adventure" on:click={() => { sessionStorage.setItem('adventureId', adventureList[index].id.toString()) }}>Continue</a>
     </div>
   </div>
 </div>
