@@ -1,8 +1,9 @@
 export function getRequest(url: string, successCallback: Function, failureCallback: Function): void {
   const request = new XMLHttpRequest();
-  request.onreadystatechange = () => {
-    console.log(`GET | ${url}`);
 
+  console.log(`GET | ${url}`);
+
+  request.onreadystatechange = () => {
     if (request.readyState === 4) {
       if (request.status === 200) {
         const response = JSON.parse(request.responseText);
@@ -22,10 +23,10 @@ export function getRequest(url: string, successCallback: Function, failureCallba
 
 export function postRequest(url: string, data: any, successCallback: Function, failureCallback: Function): void {
   const request = new XMLHttpRequest();
+
+  console.log(`POST | ${url}`);
+
   request.onreadystatechange = () => {
-
-    console.log(`POST | ${url}`);
-
     if (request.readyState === 4) {
       if (request.status === 200) {
         console.log('Data sent');
@@ -53,10 +54,10 @@ export function postRequest(url: string, data: any, successCallback: Function, f
 
 export function putRequest(url: string, data: any, successCallback: Function, failureCallback: Function): void {
   const request = new XMLHttpRequest();
+
+  console.log(`PUT | ${url}`);
+
   request.onreadystatechange = () => {
-
-    console.log(`PUT | ${url}`);
-
     if (request.readyState === 4) {
       if (request.status === 200) {
         console.log('Data sent');
@@ -84,9 +85,10 @@ export function putRequest(url: string, data: any, successCallback: Function, fa
 
 export function deleteRequest(url: string, successCallback: Function, failureCallback: Function): void {
   const request = new XMLHttpRequest();
-  request.onreadystatechange = () => {
-    console.log(`DELETE | ${url}`);
 
+  console.log(`DELETE | ${url}`);
+  
+  request.onreadystatechange = () => {
     if (request.readyState === 4) {
       if (request.status === 200) {
         console.log('Data deleted');
