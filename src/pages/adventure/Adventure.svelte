@@ -27,8 +27,6 @@
     Notify.failure('Something went wrong.');
   }
 
-  let locationId = 1;
-
   let characterList: Character[] = [];
   let locationList: Location[] = [];
 
