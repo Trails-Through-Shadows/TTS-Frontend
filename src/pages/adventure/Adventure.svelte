@@ -29,18 +29,14 @@
 
   let characterList: Character[] = [];
   let locationList: Location[] = [];
+  let encounterList: { id: number, idLocation: number, title: string }[] = [];
 
   function handleStartEncounter() {
-    Loading.dots('Creating encounter...');
+  Loading.dots('Loading encounter...');
 
-    let locationId = (document.getElementById('encounterSelect') as HTMLSelectElement).value;
+  let locationId = (document.getElementById('startEncounterSelect') as HTMLSelectElement).value;
 
-    if (locationId === '') {
-      Loading.remove();
-      Notify.failure('Please select a location.');
-      return;
-    }
-
+  if ((document.getElementById('startTab') as HTMLSelectElement).classList.contains('active')) {
     postRequest(`${api}/encounters/${adventureId}?token=${token}&idLocation=${locationId}`, {},
       (data: any) => {
         Loading.remove();
@@ -52,18 +48,41 @@
         checkToken(data.message);
       }
     );
+  } else if ((document.getElementById('continueTab') as HTMLSelectElement).classList.contains('active')) {
+    let encounterId = (document.getElementById('continueEncounterSelect') as HTMLSelectElement).value;
+
+    window.location.href = `/encounter?id=${encounterId}`;
   }
+}
   
   getRequest(`${api}/adventures/${adventureId}?token=${token}&lazy=false`,
     (data: any) => {
       characterList = data.characters.map((character: any) => new Character(character.id, character.clazz, character.race, character.title, character.playerName, character.url));
       locationList = data.campaign.locations.map((location: any) => new Location(location.location.id, location.location.title, location.location.tag, location.location.type, location.location.description));
-      Loading.remove();
 
       if (characterList.length === 0) {
+        Loading.remove();
         Notify.failure('No characters found.');
         window.location.href = `/characters`;
       }
+
+      getRequest(`${api}/encounters?token=${token}`,
+        (data: any) => {
+          data = data.object;
+          
+          encounterList = data.map((encounter: any) => ({ id: encounter.id, idLocation: encounter.idLocation }));
+
+          for (let i = 0; i < encounterList.length; i++) {
+            encounterList[i].title = locationList.find(location => location.id === encounterList[i].idLocation)?.title as string;
+          }
+
+          Loading.remove();
+        },
+        (data: any) => {
+          Notify.failure(data.message);
+          checkToken(data.message);
+        }
+      );
     },
     (data: any) => {
       Notify.failure(data.message);
@@ -71,6 +90,8 @@
       checkToken(data.message);
     }
   );
+
+  
 </script>
 
 
@@ -91,15 +112,44 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="encounterModalLabel">Encounter</h5>
+        <h5 class="modal-title" id="encounterModalLabel">Encounters</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <select class="form-select" id="encounterSelect">
-          {#each locationList as location}
-            <option value="{location.id}">{location.title}</option>
-          {/each}
-        </select>
+        <ul class="nav nav-tabs" id="encounterTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="startTab" data-bs-toggle="tab" data-bs-target="#startEncounter" type="button" role="tab" aria-controls="startEncounter" aria-selected="true">Start New Encounter</button>
+          </li>
+          {#if encounterList.length !== 0}
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="continueTab" data-bs-toggle="tab" data-bs-target="#continueEncounter" type="button" role="tab" aria-controls="continueEncounter" aria-selected="false">Continue Encounter</button>
+            </li>
+          {:else}
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="continueTab" data-bs-toggle="tab" data-bs-target="#continueEncounter" type="button" role="tab" aria-controls="continueEncounter" aria-selected="false" disabled>Continue Encounter</button>
+            </li>
+          {/if}
+        </ul>
+        <div class="tab-content" id="encounterTabContent">
+          <div class="tab-pane fade show active" id="startEncounter" role="tabpanel" aria-labelledby="startTab">
+            <h5>Start a new encounter</h5>
+            <select class="form-select" id="startEncounterSelect">
+              {#each locationList as location}
+                <option value="{location.id}">{location.title}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="tab-pane fade" id="continueEncounter" role="tabpanel" aria-labelledby="continueTab">
+            {#if encounterList.length !== 0}
+              <h5>Continue an encounter</h5>
+              <select class="form-select" id="continueEncounterSelect">
+                {#each encounterList as location}
+                  <option value="{location.id}">{location.title}</option>
+                {/each}
+              </select>
+            {/if}
+          </div>
+        </div>
       </div>
       <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
@@ -134,5 +184,26 @@ Desperate for escape, they tried to flee, but the forest seemed to stretch on en
     background-color: #333;
     color: #bababa;
     border: none;
+  }
+
+  .nav-link {
+    border-color: #4fc780;
+    color: #bababa;
+  }
+
+  .nav-link:hover {
+    border-color: #4fc780;
+    background-color: #4fc780;
+    color: #222;
+  }
+
+  .nav-link:disabled {
+    border-color: #333;
+    color: #555;
+  }
+
+  .nav-link.active {
+    background-color: #4fc780;
+    color: #222;
   }
 </style>
