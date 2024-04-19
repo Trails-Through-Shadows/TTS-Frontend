@@ -41,7 +41,7 @@
       return;
     }
 
-    postRequest(`${api}/encounter/${adventureId}?token=${token}&idLocation=${locationId}`, {},
+    postRequest(`${api}/encounters/${adventureId}?token=${token}&idLocation=${locationId}`, {},
       (data: any) => {
         Loading.remove();
         window.location.href = `/encounter?id=${data.id}`;

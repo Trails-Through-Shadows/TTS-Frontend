@@ -28,7 +28,7 @@
   let encounterId = urlParams.get('id') ? parseInt(urlParams.get('id') as string) : 0;
 
   function getStatus(callback?: Function) {
-    getRequest(`${api}/encounter/${encounterId}/status?token=${token}`,
+    getRequest(`${api}/encounters/${encounterId}/status?token=${token}`,
       (data: any) => {
         data = data.object;
         console.log(data);
@@ -75,7 +75,7 @@
 
   function startCharacterTurn() {
     getStatus(() => {
-      postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[onTurn].id}/start?token=${token}`, {},
+      postRequest(`${api}/encounters/${encounterId}/turn/character/${entityList[onTurn].id}/start?token=${token}`, {},
         (data: any) => {
 
           data = data.object;
@@ -102,7 +102,7 @@
 
   function startEnemyTurn() {
     getStatus(() => {
-      postRequest(`${api}/encounter/${encounterId}/turn/enemy/${entityList[onTurn].id}/start?token=${token}`, {},
+      postRequest(`${api}/encounters/${encounterId}/turn/enemy/${entityList[onTurn].id}/start?token=${token}`, {},
         (data: any) => {
 
           data = data.object;
@@ -135,7 +135,7 @@
   }
 
   function endCharacterTurn() {
-    postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[onTurn].id}/end?token=${token}`, {},
+    postRequest(`${api}/encounters/${encounterId}/turn/character/${entityList[onTurn].id}/end?token=${token}`, {},
       (data: any) => {
         data = data.object;
 
@@ -164,7 +164,7 @@
   }
 
   function endEnemyTurn() {
-    postRequest(`${api}/encounter/${encounterId}/turn/enemy/${entityList[onTurn].id}/end?token=${token}`, {},
+    postRequest(`${api}/encounters/${encounterId}/turn/enemy/${entityList[onTurn].id}/end?token=${token}`, {},
       (data: any) => {
         data = data.object;
 
@@ -198,7 +198,7 @@
     getStatus(() => {
       onTurn = 0;
 
-      postRequest(`${api}/encounter/${encounterId}/endRound?token=${token}`, {},
+      postRequest(`${api}/encounters/${encounterId}/endRound?token=${token}`, {},
         (data: any) => {
           data = data.object;
           if (data.unlockedParts.length > 0) {
@@ -239,7 +239,7 @@
       let damage = event.relatedTarget.querySelector('input').value;
 
       if (entityType === "CHARACTER") {
-        postRequest(`${api}/encounter/${encounterId}/interaction/character/${entityId}?token=${token}`, { damage: parseInt(damage), effects: selectedEffects },
+        postRequest(`${api}/encounters/${encounterId}/interaction/character/${entityId}?token=${token}`, { damage: parseInt(damage), effects: selectedEffects },
           (data: any) => {
             getStatus(() => {
               data = data.object;
@@ -268,7 +268,7 @@
       } else if (entityType === "ENEMY") {
         let selectedEnemy = target.querySelector('.enemies-menu').value;
 
-        postRequest(`${api}/encounter/${encounterId}/interaction/enemy/${entityId}/${selectedEnemy}?token=${token}`, { damage: parseInt(damage), effects: selectedEffects },
+        postRequest(`${api}/encounters/${encounterId}/interaction/enemy/${entityId}/${selectedEnemy}?token=${token}`, { damage: parseInt(damage), effects: selectedEffects },
           (data: any) => {
             getStatus(() => {
               data = data.object;

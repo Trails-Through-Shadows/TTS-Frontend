@@ -34,13 +34,13 @@
       charInitiative.push({ id: characterList[i].id, initiative: selectedOptions[i] === "CRIT" ? 10 : selectedOptions[i] === "MISS" ? -10 : parseInt(selectedOptions[i]) });
     }
 
-    postRequest(`${api}/encounter/${encounterId}/initiative?token=${token}`, charInitiative,
+    postRequest(`${api}/encounters/${encounterId}/initiative?token=${token}`, charInitiative,
       () => {
         receiveInitiative(
           (data: any) => {
             entityList = data.entityList;
             if (entityList[0].type === "CHARACTER") {
-              postRequest(`${api}/encounter/${encounterId}/turn/character/${entityList[0].id}/start?token=${token}`, {},
+              postRequest(`${api}/encounters/${encounterId}/turn/character/${entityList[0].id}/start?token=${token}`, {},
                 () => {
                   setBaseAction();
                 },
@@ -51,7 +51,7 @@
               );
             }
             else if (entityList[0].type === "ENEMY") {
-              postRequest(`${api}/encounter/${encounterId}/turn/enemy/${entityList[0].id}/start?token=${token}`, {},
+              postRequest(`${api}/encounters/${encounterId}/turn/enemy/${entityList[0].id}/start?token=${token}`, {},
                 (data: any) => {
                   action = data.object.action;
                 },
