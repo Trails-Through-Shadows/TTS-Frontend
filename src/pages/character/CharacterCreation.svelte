@@ -8,6 +8,7 @@
   import LogoutButton from '../../lib/Components/LogoutButton.svelte';
   import CharacterCreationCard from './Components/CharacterCreationCard.svelte';
   import CharacterCreationAdd from './Components/CharacterCreationAdd.svelte';
+  import Bottombar from '../../lib/Components/Bottombar.svelte';
 
   Notify.init({
     clickToClose: true
@@ -85,9 +86,11 @@
       {#if characterList.length < 6}
         <CharacterCreationAdd bind:characterList={characterList} />
       {/if}
-      <div class="col-xl-12">
-        <button class="btn btn-success" on:click={handleConfirm}>Confirm</button>
-      </div>
     </div>
   </div>
 </main>
+
+
+<Bottombar>
+  <button class="btn btn-success" on:click={handleConfirm}>Confirm</button>
+</Bottombar>
