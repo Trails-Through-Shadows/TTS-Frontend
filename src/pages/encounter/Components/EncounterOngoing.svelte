@@ -8,7 +8,7 @@
   import EncounterEnemy from './EncounterEnemy.svelte';
   import EncounterInteractionSlider from './EncounterInteractionSlider.svelte';
   import EncounterActionSlider from './EncounterActionSlider.svelte';
-    import Bottombar from "../../../lib/Components/Bottombar.svelte";
+  import Bottombar from "../../../lib/Components/Bottombar.svelte";
 
   export let entityList: any;
   export let selectedEnemies: any;

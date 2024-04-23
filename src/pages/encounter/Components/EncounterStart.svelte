@@ -4,7 +4,7 @@
   import { postRequest, checkToken } from "../../../lib/Functions";
 
   import ScrollingText from "../../../lib/Components/ScrollingText.svelte";
-    import Bottombar from "../../../lib/Components/Bottombar.svelte";
+  import Bottombar from "../../../lib/Components/Bottombar.svelte";
 
   export let characterList: any;
   export let entityList: any;
