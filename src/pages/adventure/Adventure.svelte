@@ -4,8 +4,10 @@
   import { getRequest, postRequest, checkToken } from "../../lib/Functions";
 
   import Navbar from "../../lib/Components/Navbar.svelte";
+  import LogoutButton from "../../lib/Components/LogoutButton.svelte";
   import AdventureCharacterCard from "./Components/AdventureCharacterCard.svelte";
-  
+  import Bottombar from "../../lib/Components/Bottombar.svelte";
+
 
   Notify.init({
     clickToClose: true
@@ -95,7 +97,13 @@
 </script>
 
 
-<Navbar title="Adventure" />
+<Navbar title="Adventure">
+  <LogoutButton />
+</Navbar>
+
+<Bottombar>
+  <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#encounterModal">Start encounter</button>
+</Bottombar>
 
 
 <div class="container-fluid" data-simplebar>
@@ -103,9 +111,6 @@
     {#each characterList as character, index}
       <AdventureCharacterCard bind:characterList={characterList} index={index} />
     {/each}
-    <div class="col-xl-12">
-      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#encounterModal">Start encounter</button>
-    </div>
   </div>
 </div>
 <div class="modal fade" id="encounterModal" tabindex="-1" aria-labelledby="encounterModalLabel" aria-hidden="true">
@@ -158,6 +163,7 @@
     </div>
   </div>
 </div>
+
 
 <!--
 The Forgotten Doll

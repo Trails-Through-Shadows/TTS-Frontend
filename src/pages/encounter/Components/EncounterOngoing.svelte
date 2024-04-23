@@ -8,6 +8,7 @@
   import EncounterEnemy from './EncounterEnemy.svelte';
   import EncounterInteractionSlider from './EncounterInteractionSlider.svelte';
   import EncounterActionSlider from './EncounterActionSlider.svelte';
+    import Bottombar from "../../../lib/Components/Bottombar.svelte";
 
   export let entityList: any;
   export let selectedEnemies: any;
@@ -335,10 +336,11 @@
       <EncounterEnemy bind:entity={entity} index={index} onTurn={onTurn} bind:selectedEnemies={selectedEnemies} />
     {/if}
   {/each}
-  <div class="col-xl-12">
-    <button class="btn btn-success" on:click={endTurn}>Next turn</button>
-  </div>
 </div>
 
 <EncounterActionSlider bind:isActionSliderVisible={isActionSliderVisible} bind:action={action} />
 <EncounterInteractionSlider bind:selectedEffects={selectedEffects} />
+
+<Bottombar>
+  <button class="btn btn-success" on:click={endTurn}>Next turn</button>
+</Bottombar>

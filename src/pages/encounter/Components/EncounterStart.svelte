@@ -4,6 +4,7 @@
   import { postRequest, checkToken } from "../../../lib/Functions";
 
   import ScrollingText from "../../../lib/Components/ScrollingText.svelte";
+    import Bottombar from "../../../lib/Components/Bottombar.svelte";
 
   export let characterList: any;
   export let entityList: any;
@@ -107,10 +108,11 @@
       </div>
     </div>
   {/each}
-  <div class="col-xl-12">
-    <button class="btn btn-success" on:click={startEncounter}>Start encounter</button>
-  </div>
 </div>
+
+<Bottombar>
+  <button class="btn btn-success" on:click={startEncounter}>Start encounter</button>
+</Bottombar>
 
 
 <style>
