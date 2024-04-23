@@ -44,7 +44,7 @@
   function handleDeleteAdventure() {
     Loading.dots('Loading...')
 
-    deleteRequest(`${api}/adventures/${adventureList[index].id}}`, token,
+    deleteRequest(`${api}/adventures/${adventureList[index].id}`, token,
       () => {
         adventureList.splice(index, 1);
         adventureList = [...adventureList];
