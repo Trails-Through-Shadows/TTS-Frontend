@@ -9,8 +9,6 @@
   export let adventureList: any;
   export let index: number;
 
-  sessionStorage.setItem('adventureId', '0');
-
 	let token = sessionStorage.getItem('token') || '';
 
   let showConfirmModal = false;

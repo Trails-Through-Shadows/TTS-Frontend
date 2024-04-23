@@ -15,6 +15,8 @@
   let loggedIn = false;
   let adventureList: Adventure[] = [];
   let campaignList: Campaign[] = [];
+
+  sessionStorage.setItem('adventureId', '0');
 </script>
 
 {#if !loggedIn}

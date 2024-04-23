@@ -27,8 +27,8 @@
     postRequest(`${api}/adventures/${licenseId}`, token, newAdventure,
       (data: any) => {
         adventureList = [...adventureList, new Adventure(data.id, data.title, data.description, data.reputation, data.experience, data.gold, data.idCampaign)];
-        Loading.remove();
         sessionStorage.setItem('adventureId', data.id.toString());
+        Loading.remove();
         Notify.success('Adventure created successfully');
         window.location.href = `/characters`;
       },
