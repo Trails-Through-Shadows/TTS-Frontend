@@ -15,7 +15,7 @@
   export let onTurn: number;
   export let action: any;
   export let status: string;
-  export let openDoor: Function;
+  export let revealRoom: Function;
   export let setBaseAction: Function;
 
   type effect = { type: string, strength: number, duration: number, description: string };
@@ -206,7 +206,7 @@
             Notify.success("New room has been unlocked.");
             Loading.dots('Loading...');
 
-            openDoor(data);
+            revealRoom(data);
           }
           if (entityList[onTurn].type === "CHARACTER") {
             startCharacterTurn();

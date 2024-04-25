@@ -32,7 +32,6 @@ export function postRequest(url: string, token: string | null, data: any, succes
   request.onreadystatechange = () => {
     if (request.readyState === 4) {
       if (request.status === 200) {
-        console.log('Data sent');
         if (request.responseText) {
           const response = JSON.parse(request.responseText);
           successCallback(response);
@@ -66,7 +65,6 @@ export function putRequest(url: string, token: string | null, data: any, success
   request.onreadystatechange = () => {
     if (request.readyState === 4) {
       if (request.status === 200) {
-        console.log('Data sent');
         if (request.responseText) {
           const response = JSON.parse(request.responseText);
           successCallback(response);
@@ -100,7 +98,6 @@ export function deleteRequest(url: string, token: string | null, successCallback
   request.onreadystatechange = () => {
     if (request.readyState === 4) {
       if (request.status === 200) {
-        console.log('Data deleted');
         successCallback();
       }
       else {

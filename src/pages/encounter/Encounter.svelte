@@ -229,6 +229,8 @@
   }
 
   function revealRoom(data: any) {
+    isMapSliderVisible = true;
+
     for (let part of data.unlockedParts) {
       receiveParts(part);
     }
@@ -408,7 +410,7 @@
     {#if status === "NEW"}
       <EncounterStart bind:characterList={characterList} bind:entityList={entityList} bind:status={status} bind:action={action} receiveInitiative={receiveInitiative} setBaseAction={setBaseAction} />
     {:else if status === "ONGOING"}
-      <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:selectedEnemies={selectedEnemies} bind:action={action} bind:status={status} openDoor={revealRoom} setBaseAction={setBaseAction} />
+      <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:selectedEnemies={selectedEnemies} bind:action={action} bind:status={status} revealRoom={revealRoom} setBaseAction={setBaseAction} />
     {:else if status === "COMPLETED"}
       <EncounterCompleted />
     {:else if status === "FAILED"}
