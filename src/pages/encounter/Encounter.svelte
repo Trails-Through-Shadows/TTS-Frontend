@@ -9,6 +9,7 @@
 
   import Navbar from '../../lib/Components/Navbar.svelte';
   import LogoutButton from '../../lib/Components/LogoutButton.svelte';
+  import ConfirmModal from '../../lib/Components/ConfirmModal.svelte';
   import EncounterMap from './Components/EncounterMap.svelte';
   import EncounterStart from './Components/EncounterStart.svelte';
   import EncounterOngoing from './Components/EncounterOngoing.svelte';
@@ -79,6 +80,12 @@
   let selectedEnemies: number[] = [];
 
   let isMapSliderVisible = false;
+
+  let showConfirmModal = false;
+
+  type door = { key: { idPartFrom: number, idPartTo: number }, q: number, r: number, s: number };
+
+  let openedDoor: door;
 
   function receiveParts(part: number) {
     getRequest(`${api}/locations/${locationId}/parts/${part}`, token,
@@ -155,17 +162,23 @@
               r: hex.coords.r,
               s: hex.coords.s
             };
-            postRequest(`${api}/encounters/${encounterId}/openDoor`, token, door,
-              () => {
-                Notify.success("The door will open at the end of the round.");
-              },
-              (data: any) => {
-                Notify.failure(data.message);
-                checkToken(data.message);
-              }
-            );
+
+            openedDoor = door;
+            showConfirmModal = true;
           });
         });
+      },
+      (data: any) => {
+        Notify.failure(data.message);
+        checkToken(data.message);
+      }
+    );
+  }
+
+  function openDoor() {
+    postRequest(`${api}/encounters/${encounterId}/openDoor`, token, openedDoor,
+      () => {
+        Notify.success("The door will open at the end of the round.");
       },
       (data: any) => {
         Notify.failure(data.message);
@@ -215,7 +228,7 @@
     );
   }
 
-  function openDoor(data: any) {
+  function revealRoom(data: any) {
     for (let part of data.unlockedParts) {
       receiveParts(part);
     }
@@ -386,14 +399,16 @@
   <LogoutButton />
 </Navbar>
 
+
 <EncounterMap bind:isMapSliderVisible={isMapSliderVisible} bind:hexGridList={hexGridList} bind:currentMap={currentMap} bind:canvasRoot={canvasRoot} />
+
 
 <main>
   <div class="container-fluid">
     {#if status === "NEW"}
       <EncounterStart bind:characterList={characterList} bind:entityList={entityList} bind:status={status} bind:action={action} receiveInitiative={receiveInitiative} setBaseAction={setBaseAction} />
     {:else if status === "ONGOING"}
-      <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:selectedEnemies={selectedEnemies} bind:action={action} bind:status={status} openDoor={openDoor} setBaseAction={setBaseAction} />
+      <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:selectedEnemies={selectedEnemies} bind:action={action} bind:status={status} openDoor={revealRoom} setBaseAction={setBaseAction} />
     {:else if status === "COMPLETED"}
       <EncounterCompleted />
     {:else if status === "FAILED"}
@@ -401,3 +416,6 @@
     {/if}
   </div>
 </main>
+
+
+<ConfirmModal title="Open door" body="Are you sure you want to open the door?" buttonText="Open" onConfirm={openDoor} bind:showConfirmModal={showConfirmModal} />

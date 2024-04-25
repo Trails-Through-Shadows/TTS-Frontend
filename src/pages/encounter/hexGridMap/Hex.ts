@@ -47,7 +47,7 @@ import { CubeCoordinate } from "./Coordinate";
             return vertices;
         }
 
-        draw(ctx: CanvasRenderingContext2D, textureImage: HTMLImageElement, borderImage: HTMLImageElement, offset: Offset): void {
+        draw(ctx: CanvasRenderingContext2D, textureImage: HTMLImageElement, borderImage: HTMLImageElement, offset: Offset, hovered: boolean = false): void {
             const {x, y} = this.coords.to2D(this.hexSize);
 
             // Draw hex vertices
@@ -75,14 +75,21 @@ import { CubeCoordinate } from "./Coordinate";
             }
 
             if (this.isStart) {
-                ctx.fillStyle = 'rgba(186, 255, 140, 0.5)';
+                ctx.fillStyle = 'rgba(186, 255, 140, 0.25)';
+                ctx.fill();
             }
 
             if (this.isDoor) {
-                ctx.fillStyle = 'rgba(123, 90, 163, 0.5)';
+                ctx.fillStyle = 'rgba(123, 90, 163, 0.25)';
+                ctx.fill();
+            }
+            
+            if (hovered) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
             }
 
             ctx.fill();
+
             ctx.stroke();
 
             if (this.isDoor) {

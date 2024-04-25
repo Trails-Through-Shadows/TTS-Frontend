@@ -33,6 +33,28 @@ export class HexGrid {
         private hexSize: number = 60,
     ) {
         this.doorImage.src = 'assets/door.png';
+
+        this.canvas.addOnMouseHoverListener((x: number, y: number) => {
+            if (this.canvas.isLoading()) {
+                return;
+            }
+
+            const offset: Offset = this.getOffset();
+            const coords = CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexSize);
+            const hex = this.getHexAt(coords);
+
+            if (this.hoveredHex === hex) {
+                return;
+            }
+
+            if (hex) {
+                this.hoveredHex = hex;
+            } else {
+                this.hoveredHex = null;
+            }
+
+            this.redraw();
+        });
     }
 
     onClick(x: number, y: number, successCallback: Function): void {
@@ -45,9 +67,7 @@ export class HexGrid {
         const hex = this.getHexAt(coords);
 
         if (hex) {
-            console.log("Clicked hex:", hex);
             if (hex.isDoor) {
-                console.log("Clicked hex is a door");
                 successCallback(hex);
             }
         }
@@ -148,10 +168,10 @@ export class HexGrid {
 
         this.hexes.forEach(hex => {
             if (this.hoveredHex && this.hoveredHex.coords.equals(hex.coords)) {
-                console.log('HexGrid | Hovered hex at', hex.coords);
+                hex.draw(this.canvas.getContext(), this.textureImage, this.borderImage, offset, true);
+            } else {
+                hex.draw(this.canvas.getContext(), this.textureImage, this.borderImage, offset);
             }
-
-            hex.draw(this.canvas.getContext(), this.textureImage, this.borderImage, offset);
         });
 
         // this.drawBoundingBox(boundingBox, offset, hexSize);

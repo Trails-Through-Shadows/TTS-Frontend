@@ -35,7 +35,7 @@
     top: -100%;
     left: 0;
     width: 100%;
-    height: calc(100vh - 75px);
+    height: calc(100vh - 75px - 63px);
     background: url('/assets/map.png');
     background-size: cover;
     color: #fff;
