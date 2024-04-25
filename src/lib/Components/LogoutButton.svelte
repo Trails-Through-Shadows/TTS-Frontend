@@ -1,23 +1,22 @@
 <script lang="ts">
   import { api } from "../Exports";
+  import { deleteRequest } from "../Functions";
   import ConfirmModal from "./ConfirmModal.svelte";
-  
-  function confirmLogout() {
-    const request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-      if (request.readyState === 4) {
-        if (request.status === 200) {
-          sessionStorage.setItem('licenseId', '');
-          sessionStorage.setItem('token', '');
 
-          window.location.href = '/';
-        } else {
-          console.error('Error:', request.responseText);
-        }
+  import { Notify } from "notiflix";
+
+  function confirmLogout() {
+    deleteRequest(`${api}/session/logout`, sessionStorage.getItem('token'),
+      () => {
+        sessionStorage.setItem('licenseId', '');
+        sessionStorage.setItem('token', '');
+
+        window.location.href = '/';
+      },
+      (data: any) => {
+        Notify.failure(data.message)
       }
-    };
-    request.open('DELETE', `${api}/session/logout?token=${sessionStorage.getItem('token')}`);
-    request.send();
+    );
   }
 
   let showConfirmModal = false;
