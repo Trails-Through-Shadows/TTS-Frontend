@@ -29,10 +29,6 @@
     justify-content: center;
   }
 
-  .small-card-container .btn:hover img {
-    filter: invert(0%) sepia(13%) saturate(5094%) hue-rotate(358deg) brightness(85%) contrast(73%);
-  }
-
   .add-character-image {
     max-width: 120px;
     filter: invert(90%) sepia(0%) saturate(0%) hue-rotate(177deg) brightness(86%) contrast(84%);
