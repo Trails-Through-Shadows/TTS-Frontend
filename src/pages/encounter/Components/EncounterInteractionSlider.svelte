@@ -2,6 +2,7 @@
   import { api } from "../../../lib/Exports";
   import { getRequest } from "../../../lib/Functions";
   import { Notify } from "notiflix";
+  import EncounterNumpad from "./EncounterNumpad.svelte";
 
   export let selectedEffects: any;
 
@@ -13,6 +14,16 @@
 
   let isInteractionSliderVisible = true;
   let selectedEffect: effectType = { title: "", displayTitle: "", description: "", hasDuration: false, hasStrength: false, isResistance: false, url: "" };
+
+  let damage: number | null = null;
+  let strength: number | null = null;
+  let duration: number | null = null;
+
+  $: {
+    damage = damage !== null ? Math.max(0, Math.min(damage, 50)) : null;
+    strength = strength !== null ? Math.max(0, Math.min(strength, 50)) : null;
+    duration = duration !== null ? Math.max(0, Math.min(duration, 50)) : null;
+  }
 
   getRequest(`${api}/enum/effectType`, null,
     (data: any) => {
@@ -36,49 +47,28 @@
     isInteractionSliderVisible = !isInteractionSliderVisible;
   }
 
-  function numpad(number: number) {
-    let input = document.querySelector('.damage-input') as HTMLInputElement;
-    if (number == -1) {
-      input.value = input.value.slice(0, -1);
-      return;
-    }
-    else if (number == -3) {
-      input.value = "";
-      selectedEffects = [];
-      selectedEffects = selectedEffects;
-      return;
-    }
-    input.value += number;
-    input.value = input.value.slice(0, 3);
-  }
-
   function handleAddEffect() {
     if (selectedEffect.title === "") {
       Notify.failure("Please select an effect.");
       return;
     }
     if (selectedEffect.hasStrength) {
-      let strength = document.getElementById('effectStrength') as HTMLInputElement;
-      if (strength.value === "") {
+      if (strength === null) {
         Notify.failure("Please enter a strength value.");
         return;
       }
     }
     if (selectedEffect.hasDuration) {
-      let duration = document.getElementById('effectDuration') as HTMLInputElement;
-      if (duration.value === "") {
+      if (duration === null) {
         Notify.failure("Please enter a duration value.");
         return;
       }
     }
 
-    let strength = document.getElementById('effectStrength') as HTMLInputElement;
-    let duration = document.getElementById('effectDuration') as HTMLInputElement;
-
     let effect: effect = {
       type: selectedEffect.title,
-      strength: strength ? parseInt(strength.value) : 0,
-      duration: duration ? parseInt(duration.value) : 0,
+      strength: strength ? strength : 0,
+      duration: duration ? duration : 0,
       description: selectedEffect.description
     };
 
@@ -86,8 +76,8 @@
 
     selectedEffects = selectedEffects;
 
-    strength.value = "";
-    duration.value = "";
+    strength = null;
+    duration = null;
   }
 
   function handleRemoveEffect(index: number) {
@@ -104,7 +94,7 @@
   <button class="btn card-header d-flex justify-content-center p-0" on:click={toggleInteractionSlider}>Interaction</button>
   <div class="card-body">
     <div class="draggable">
-      <input type="number" class="btn btn-danger damage-input" placeholder="Damage" max="999" min="0" maxlength="3" on:input={(event) => event.target.value = event.target.value.slice(0, 3)} />
+      <input type="number" class="btn btn-danger damage-input" placeholder="Damage" max="50" min="0" maxlength="2" bind:value={damage} />
       <div class="row">
         {#each selectedEffects as effect, index}
           <div class="col">
@@ -119,14 +109,7 @@
       </div>
       <i class="bi bi-arrows-move moving-indicator"></i>
     </div>
-    <div class="num-pad">
-      {#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as number}
-        <button class="btn btn-lg btn-success" on:click={() => numpad(number)}>{number}</button>
-      {/each}
-      <button class="btn btn-lg btn-danger" on:click={() => numpad(-1)}><i class="bi bi-backspace"></i></button>
-      <button class="btn btn-lg btn-success" on:click={() => numpad(0)}>0</button>
-      <button class="btn btn-lg btn-danger" on:click={() => numpad(-3)}><i class="bi bi-arrow-repeat"></i></button>
-    </div>
+    <EncounterNumpad bind:value={damage} />
   </div>
 </div>
 <div class="modal fade" id="effectModal" tabindex="-1" aria-labelledby="effectModalLabel" aria-hidden="true">
@@ -154,7 +137,7 @@
             <div class="form-group">
               {#if selectedEffect.hasStrength}
                 <label for="effectStrength">Strength</label>
-                <input type="number" class="form-control" id="effectStrength" placeholder="Enter strength" max="999" min="0" maxlength="3" on:input={(event) => event.target.value = event.target.value.slice(0, 3)} />
+                <input type="number" class="form-control" id="effectStrength" placeholder="Enter strength" max="50" min="0" maxlength="2" bind:value={strength} />
               {:else}
                 <label for="effectStrength">Strength</label>
                 <input type="number" class="form-control" id="effectStrength" placeholder="No need" disabled />
@@ -165,7 +148,7 @@
             <div class="form-group">
               {#if selectedEffect.hasDuration}
                 <label for="effectDuration">Duration</label>
-                <input type="number" class="form-control" id="effectDuration" placeholder="Enter duration" max="999" min="0" maxlength="3" on:input={(event) => event.target.value = event.target.value.slice(0, 3)} />
+                <input type="number" class="form-control" id="effectDuration" placeholder="Enter duration" max="50" min="0" maxlength="2" bind:value={duration} />
               {:else}
                 <label for="effectDuration">Duration</label>
                 <input type="number" class="form-control" id="effectDuration" placeholder="No need" disabled />
@@ -184,8 +167,8 @@
 <style>
 .bottom-slider {
     position: fixed;
-    bottom: calc(-40% + 44px + 63px);
-    height: calc(40% + 30px);
+    bottom: calc(-40% + 44px);
+    height: calc(40% + 30px + 63px);
     transition: bottom 0.5s ease;
     z-index: 998;
     border: 0;
@@ -291,23 +274,6 @@
     right: 5px;
     color: #757575;
     font-size: 1.25rem;
-  }
-
-  .num-pad {
-    display: flex;
-    flex-wrap: wrap;
-    width: 156px;
-    margin: 0 auto;
-  }
-
-  .num-pad .btn {
-    margin: 1px;
-    width: 50px;
-    height: 50px;
-    font-size: 1.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
 
   .modal-content{

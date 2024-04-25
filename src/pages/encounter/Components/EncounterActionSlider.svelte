@@ -7,12 +7,21 @@
   }
 </script>
 
-
-<div class="card bottom-slider action-slider" class:visible={isActionSliderVisible}>
+<div
+  class="card bottom-slider action-slider"
+  class:visible={isActionSliderVisible}
+>
   <button class="btn btn-success btn-toggle" on:click={toggleActionSlider}>
-    <i class="bi" class:bi-chevron-compact-down={isActionSliderVisible} class:bi-chevron-compact-up={!isActionSliderVisible}></i>
+    <i
+      class="bi"
+      class:bi-chevron-compact-down={isActionSliderVisible}
+      class:bi-chevron-compact-up={!isActionSliderVisible}
+    ></i>
   </button>
-  <button class="btn card-header d-flex justify-content-center p-0" on:click={toggleActionSlider}>Enemy Actions</button>
+  <button
+    class="btn card-header d-flex justify-content-center p-0"
+    on:click={toggleActionSlider}>Enemy Actions</button
+  >
   <div class="card-body">
     <div class="row card-text">
       {#if action}
@@ -20,88 +29,96 @@
         <p>{action.description}</p>
         {#if action.movement}
           <div class="col sub-action">
-            <p><b>Movement</b><br>
-            type: {action.movement.type}<br>
-            range:{action.movement.range}</p>
+            <p>
+              <b>Movement</b><br />
+              type: {action.movement.type}<br />
+              range:{action.movement.range}
+            </p>
             {#if action.movement.effects.length > 0}
-              effects:<br>
-                {#each action.movement.effects as effect}
-                  <div class="effects">
-                    <p>type: {effect.effect.type}<br>
-                    target: {effect.effect.target}<br>
+              effects:<br />
+              {#each action.movement.effects as effect}
+                <div class="effects">
+                  <p>
+                    type: {effect.effect.type}<br />
+                    target: {effect.effect.target}<br />
                     {#if effect.effect.strength > 0}
-                      strength: {effect.effect.strength}<br>
+                      strength: {effect.effect.strength}<br />
                     {/if}
                     {#if effect.effect.duration > 0}
                       duration: {effect.effect.duration}
                     {/if}
-                    </p>
-                  </div>
-                {/each}
+                  </p>
+                </div>
+              {/each}
             {/if}
           </div>
         {/if}
         {#if action.skill}
           <div class="col sub-action">
-            <p><b>Skill:</b><br>
-            range: {action.skill.range}<br>
-            {#if action.skill.area > 0}
-              area: {action.skill.area}<br>
-            {/if}
-            target: {action.skill.target}<br>
-            {#if action.skill.effects.length > 0}
-              effects:<br>
-              {#each action.skill.effects as effect}
-                <div class="effects">
-                  <p>type: {effect.effect.type}<br>
-                  target: {effect.effect.target}<br>
-                  {#if effect.effect.strength > 0}
-                    strength: {effect.effect.strength}<br>
-                  {/if}
-                  {#if effect.effect.duration > 0}
-                    duration: {effect.effect.duration}
-                  {/if}
-                  </p>
-                </div>
-              {/each}
-            {/if}
+            <p>
+              <b>Skill:</b><br />
+              range: {action.skill.range}<br />
+              {#if action.skill.area > 0}
+                area: {action.skill.area}<br />
+              {/if}
+              target: {action.skill.target}<br />
+              {#if action.skill.effects.length > 0}
+                effects:<br />
+                {#each action.skill.effects as effect}
+                  <div class="effects">
+                    <p>
+                      type: {effect.effect.type}<br />
+                      target: {effect.effect.target}<br />
+                      {#if effect.effect.strength > 0}
+                        strength: {effect.effect.strength}<br />
+                      {/if}
+                      {#if effect.effect.duration > 0}
+                        duration: {effect.effect.duration}
+                      {/if}
+                    </p>
+                  </div>
+                {/each}
+              {/if}
+            </p>
           </div>
         {/if}
         {#if action.attack}
           <div class="col sub-action">
-            <p><b>Attack:</b><br>
-            range: {action.attack.range}<br>
-            damage: {action.attack.damage}<br>
-            {#if action.attack.area > 0}
-              area: {action.attack.area}<br>
-            {/if}
-            target: {action.attack.target}<br>
-            {#if action.attack.numAttacks > 1}
-              numAttacks: {action.attack.numAttacks}<br>
-            {/if}
-            {#if action.attack.effects.length > 0}
-              effects:<br>
-              {#each action.attack.effects as effect}
-                <div class="effects">
-                  <p>type: {effect.effect.type}<br>
-                  target: {effect.effect.target}<br>
-                  {#if effect.effect.strength > 0}
-                    strength: {effect.effect.strength}<br>
-                  {/if}
-                  {#if effect.effect.duration > 0}
-                    duration: {effect.effect.duration}
-                  {/if}
-                  </p>
-                </div>
-              {/each}
-            {/if}
+            <p>
+              <b>Attack:</b><br />
+              range: {action.attack.range}<br />
+              damage: {action.attack.damage}<br />
+              {#if action.attack.area > 0}
+                area: {action.attack.area}<br />
+              {/if}
+              target: {action.attack.target}<br />
+              {#if action.attack.numAttacks > 1}
+                numAttacks: {action.attack.numAttacks}<br />
+              {/if}
+              {#if action.attack.effects.length > 0}
+                effects:<br />
+                {#each action.attack.effects as effect}
+                  <div class="effects">
+                    <p>
+                      type: {effect.effect.type}<br />
+                      target: {effect.effect.target}<br />
+                      {#if effect.effect.strength > 0}
+                        strength: {effect.effect.strength}<br />
+                      {/if}
+                      {#if effect.effect.duration > 0}
+                        duration: {effect.effect.duration}
+                      {/if}
+                    </p>
+                  </div>
+                {/each}
+              {/if}
+            </p>
           </div>
         {/if}
       {/if}
     </div>
   </div>
 </div>
-
 
 <style>
   .bottom-slider {
@@ -125,7 +142,7 @@
     justify-content: center;
     align-items: center;
   }
-  
+
   .bottom-slider .card-header {
     border-radius: 5px 5px 0 0;
     color: #bababa;

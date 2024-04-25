@@ -2,7 +2,6 @@
   import { api, Character, Race, Clazz } from "../../../lib/Exports";
   import { Notify } from "notiflix";
   import { getRequest } from "../../../lib/Functions";
-  //import bootstrap from "bootstrap";
 
   export let characterList: Character[];
   export let index: number;
@@ -14,7 +13,7 @@
 
   function refreshTooltip() {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new window.bootstrap.Tooltip(tooltipTriggerEl))
   }
 
   getRequest(`${api}/races`, null,
