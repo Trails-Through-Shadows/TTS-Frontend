@@ -68,7 +68,7 @@
         window.location.href = `/characters`;
       }
 
-      getRequest(`${api}/encounters`, token,
+      getRequest(`${api}/encounters?idAdventure=${adventureId}`, token,
         (data: any) => {
           data = data.object;
           
