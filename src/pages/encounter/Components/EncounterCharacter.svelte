@@ -7,7 +7,7 @@
 </script>
 
 
-<div class="{index === onTurn ? 'col-xl-2 big-card' : 'col-xl-1'}">
+<div class="{index === onTurn ? 'col-2 big-card' : 'col-1'}">
   <div class="card entity-card border-0 m-1" data-entity-id={entity.entity.id} data-entity-type={entity.type}>
     <div class="card-header">
     <ScrollingText>
@@ -79,50 +79,50 @@
     font-size: 1.6vw;
   }
 
-  .col-xl-1 {
-    width: 16%;
+  .col-1 {
+    width: 15%;
   }
 
-  .col-xl-2 {
-    width: 20%;
+  .col-2 {
+    width: 25%;
   }
 
   @media (max-width: 1200px) {
-    .col-xl-1 {
-      width: 19.05%;
+    .col-1 {
+      width: 17.64%;
     }
 
-    .col-xl-2 {
-      width: 23.81%;
+    .col-2 {
+      width: 29.4%;
     }
   }
 
   @media (max-width: 992px) {
-    .col-xl-1 {
-      width: 23.53%;
+    .col-1 {
+      width: 21.42%;
     }
 
-    .col-xl-2 {
-      width: 29.41%;
+    .col-2 {
+      width: 35.7%;
     }
   }
 
   @media (max-width: 768px) {
-    .col-xl-1 {
-      width: 30.77%;
+    .col-1 {
+      width: 27.27%;
     }
 
-    .col-xl-2 {
-      width: 38.46%;
+    .col-2 {
+      width: 45.45%;
     }
   }
 
   @media (max-width: 576px) {
-    .col-xl-1 {
-      width: 80%;
+    .col-1 {
+      width: 60%;
     }
 
-    .col-xl-2 {
+    .col-2 {
       width: 100%;
     }
   }
