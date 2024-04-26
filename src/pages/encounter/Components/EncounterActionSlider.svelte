@@ -123,8 +123,8 @@
 <style>
   .bottom-slider {
     position: fixed;
-    bottom: calc(-40% + 44px + 63px);
-    height: calc(40% + 30px);
+    bottom: -333px;
+    height: 470px;
     transition: bottom 0.5s ease;
     z-index: 998;
     border: 0;

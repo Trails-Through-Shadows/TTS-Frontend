@@ -30,7 +30,7 @@ export class HexGrid {
         private hexes: Hex[] = [],
         private textureImage: any,
         private borderImage: any,
-        private hexSize: number = 60,
+        private hexSize: number,
     ) {
         this.doorImage.src = 'assets/door.png';
 
@@ -266,5 +266,13 @@ export class HexGrid {
 
     getHexSize(): number {
         return this.hexSize;
+    }
+
+    setHexSize(hexSize: number): void {
+        this.hexSize = hexSize;
+
+        this.hexes.forEach(hex => {
+            hex.setSize(this.hexSize);
+        });
     }
 }

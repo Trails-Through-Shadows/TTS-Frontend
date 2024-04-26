@@ -25,7 +25,7 @@ import { CubeCoordinate } from "./Coordinate";
             public readonly idPart: number,
             public readonly id: number,
             public readonly coords: CubeCoordinate,
-            public readonly hexSize: number = 60,
+            public hexSize: number,
             public neighbors: Hex[] = [],
         ) {
             this.vertices = this.calculateVertices(this.hexSize);
@@ -64,7 +64,6 @@ import { CubeCoordinate } from "./Coordinate";
             const texturePattern = ctx.createPattern(textureImage, 'repeat');
             const borderPattern = ctx.createPattern(borderImage, 'repeat');
 
-            
 
             ctx.lineWidth = 3;
 
@@ -97,7 +96,6 @@ import { CubeCoordinate } from "./Coordinate";
                 ctx.stroke();
             }
 
-            
 
             if (this.isDoor) {
                 this.drawDoor(ctx, offset);
@@ -161,5 +159,10 @@ import { CubeCoordinate } from "./Coordinate";
 
         getNeighbor(direction: CubeCoordinate): Hex | null {
             return this.neighbors.find(hex => hex.coords.equals(this.coords.add(direction))) || null;
+        }
+
+        setSize(size: number): void {
+            this.hexSize = size;
+            this.vertices = this.calculateVertices(size);
         }
     }

@@ -54,4 +54,13 @@
   margin-left: 100px;
 }
 
+@media (max-width: 576px) {
+  .logo-text {
+    display: none;
+  }
+
+  .navbar .title {
+    margin-left: 15px;
+  }
+}
 </style>

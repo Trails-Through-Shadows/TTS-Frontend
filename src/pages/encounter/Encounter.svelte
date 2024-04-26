@@ -38,6 +38,14 @@
 
   let action: any;
 
+  let size: number;
+
+  if (window.innerWidth < window.innerHeight) {
+    size = window.innerWidth / 15;
+  } else {
+    size = window.innerHeight / 15;
+  }
+
   function setBaseAction() {
     action = {
       id: null,
@@ -93,9 +101,10 @@
         let hexGrid = new HexGrid(
           data.id,
           canvas,
-          data.hexes.map((hex: any) => new Hex(hex.key.idPart, hex.key.id, new CubeCoordinate(hex.q, hex.r, hex.s))),
+          data.hexes.map((hex: any) => new Hex(hex.key.idPart, hex.key.id, new CubeCoordinate(hex.q, hex.r, hex.s), size)),
           textureImage,
-          borderImage
+          borderImage,
+          size
         );
 
         for (let enemy of data.enemies) {
@@ -124,7 +133,7 @@
         if (data.doors) {
           let doors: Hex[] = [];
           for (let door of data.doors) {
-            let tmpDoor = new Hex(door.key.idPartFrom, door.key.idPartTo, new CubeCoordinate(door.q, door.r, door.s));
+            let tmpDoor = new Hex(door.key.idPartFrom, door.key.idPartTo, new CubeCoordinate(door.q, door.r, door.s), size);
             tmpDoor.isDoor = true;
             doors.push(tmpDoor);
           }
@@ -145,6 +154,13 @@
           hexGrid.displayed = true;
 
           canvas.addOnSizeListener(() => {
+            if (window.innerWidth < window.innerHeight) {
+              size = window.innerWidth / 15;
+            } else {
+              size = window.innerHeight / 15;
+            }
+
+            hexGrid.setHexSize(size);
             hexGrid.redraw();
           });
         }
@@ -386,6 +402,7 @@
   );
 
   function toggleMapSlider() {
+    hexGridList[currentMap].setHexSize(size);
     hexGridList[currentMap].redraw();
     isMapSliderVisible = !isMapSliderVisible;
   }
@@ -420,3 +437,12 @@
 
 
 <ConfirmModal title="Open door" body="Are you sure you want to open the door?" buttonText="Open" onConfirm={openDoor} bind:showConfirmModal={showConfirmModal} />
+
+
+<style>
+  @media (max-width: 576px) {
+    .me-5 {
+      margin-right: 1rem !important;
+    }
+  }
+</style>
