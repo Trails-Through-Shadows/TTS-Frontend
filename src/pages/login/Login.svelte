@@ -27,17 +27,26 @@
   </Navbar>
 {/if}
 
-<main>
-  {#if !loggedIn}
-    <LoginForm bind:adventureList={adventureList} bind:campaignList={campaignList} bind:loggedIn={loggedIn} />
-  {:else}
-  <div class="row w-100">
-    {#each adventureList as adventure, index}
-      <LoginAdventureCard bind:adventureList={adventureList} index={index} />
-    {/each}
-    {#if adventureList.length < 8}
-      <LoginAdventureCreate bind:adventureList={adventureList} bind:campaignList={campaignList} />
+<main data-simplebar>
+  <div class="container-fluid">
+    {#if !loggedIn}
+      <LoginForm bind:adventureList={adventureList} bind:campaignList={campaignList} bind:loggedIn={loggedIn} />
+    {:else}
+    <div class="row w-100">
+      {#each adventureList as adventure, index}
+        <LoginAdventureCard bind:adventureList={adventureList} index={index} />
+      {/each}
+      {#if adventureList.length < 8}
+        <LoginAdventureCreate bind:adventureList={adventureList} bind:campaignList={campaignList} />
+      {/if}
+    </div>
     {/if}
   </div>
-  {/if}
 </main>
+
+<style>
+  .container-fluid {
+    display: flex;
+    height: calc(100vh - 75px - 63px);
+  }
+</style>

@@ -131,6 +131,7 @@
 
 	.login-card .card-body {
 		background-color: #222;
+		border-radius: 0 0 5px 5px;
 	}
 
 	.login-card .btn {

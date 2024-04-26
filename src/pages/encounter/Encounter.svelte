@@ -421,7 +421,7 @@
 <EncounterMap bind:isMapSliderVisible={isMapSliderVisible} bind:hexGridList={hexGridList} bind:currentMap={currentMap} bind:canvasRoot={canvasRoot} />
 
 
-<main>
+<main data-simplebar>
   <div class="container-fluid">
     {#if status === "NEW"}
       <EncounterStart bind:characterList={characterList} bind:entityList={entityList} bind:status={status} bind:action={action} receiveInitiative={receiveInitiative} setBaseAction={setBaseAction} />
