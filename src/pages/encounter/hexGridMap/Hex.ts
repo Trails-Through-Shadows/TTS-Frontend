@@ -64,6 +64,8 @@ import { CubeCoordinate } from "./Coordinate";
             const texturePattern = ctx.createPattern(textureImage, 'repeat');
             const borderPattern = ctx.createPattern(borderImage, 'repeat');
 
+            
+
             ctx.lineWidth = 3;
 
             if (texturePattern) {
@@ -74,23 +76,28 @@ import { CubeCoordinate } from "./Coordinate";
                 ctx.strokeStyle = borderPattern;
             }
 
+            ctx.fill();
+            ctx.stroke();
+
             if (this.isStart) {
-                ctx.fillStyle = 'rgba(186, 255, 140, 0.25)';
+                ctx.fillStyle = 'rgba(186, 255, 140, 0.5)';
                 ctx.fill();
+                ctx.stroke();
             }
 
             if (this.isDoor) {
-                ctx.fillStyle = 'rgba(123, 90, 163, 0.25)';
+                ctx.fillStyle = 'rgba(123, 90, 163, 0.5)';
                 ctx.fill();
+                ctx.stroke();
             }
             
             if (hovered) {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+                ctx.fill();
+                ctx.stroke();
             }
 
-            ctx.fill();
-
-            ctx.stroke();
+            
 
             if (this.isDoor) {
                 this.drawDoor(ctx, offset);

@@ -341,7 +341,6 @@
                 }
               }
             }
-            //TODO
             else if (data.next)
             {
               if (data.next.type === "CHARACTER") {
