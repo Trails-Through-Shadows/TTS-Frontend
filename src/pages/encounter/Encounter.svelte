@@ -79,7 +79,6 @@
   let enemyList: baseEnemy[] = [];
   let enemyGroupList: baseEnemyGroup[] = [];
   let entityList: { id:number, initiative: number, type: string, entity: (baseCharacter | baseEnemyGroup) }[] = [];
-  let selectedEnemies: number[] = [];
 
   let isMapSliderVisible = false;
 
@@ -244,8 +243,6 @@
         }
 
         entityList = entityList;
-
-        selectedEnemies = Array(entityList.length).fill(0);
 
         data.entityList = entityList;
 
@@ -439,7 +436,7 @@
   {#if status === "NEW"}
     <EncounterStart bind:characterList={characterList} bind:entityList={entityList} bind:status={status} bind:action={action} receiveInitiative={receiveInitiative} setBaseAction={setBaseAction} />
   {:else if status === "ONGOING"}
-    <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:selectedEnemies={selectedEnemies} bind:action={action} bind:status={status} revealRoom={revealRoom} setBaseAction={setBaseAction} />
+    <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:action={action} bind:status={status} revealRoom={revealRoom} setBaseAction={setBaseAction} />
   {:else if status === "COMPLETED"}
     <EncounterCompleted />
   {:else if status === "FAILED"}

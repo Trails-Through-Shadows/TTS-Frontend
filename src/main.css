@@ -51,3 +51,12 @@ main {
   background-color: #c23737;
   color: #222;
 }
+
+.drag-active {
+  background-color: #c23737 !important;
+  transition: background-color 0.2s !important;
+}
+
+.moving {
+  opacity: 0.75;
+}

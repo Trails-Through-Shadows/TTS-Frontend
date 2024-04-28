@@ -11,12 +11,13 @@
   import Bottombar from "../../../lib/Components/Bottombar.svelte";
 
   export let entityList: any;
-  export let selectedEnemies: any;
   export let onTurn: number;
   export let action: any;
   export let status: string;
   export let revealRoom: Function;
   export let setBaseAction: Function;
+
+  let dragging = false;
 
   type effect = { type: string, strength: number, duration: number, description: string };
 
@@ -218,6 +219,13 @@
         (data: any) => {
           Notify.failure(data.message);
           checkToken(data.message);
+
+          if (entityList[onTurn].type === "CHARACTER") {
+            startCharacterTurn();
+          }
+          else if (entityList[onTurn].type === "ENEMY") {
+            startEnemyTurn();
+          }
         }
       );
     });
@@ -232,12 +240,30 @@
     }
   }
 
-  interact('.entity-card').dropzone({
+  interact('.dropzone').dropzone({
+    ondropactivate(event) {
+      event.relatedTarget.classList.add('moving');
+      dragging = true;
+    },
+    ondropdeactivate(event) {
+      event.relatedTarget.classList.remove('moving');
+      dragging = false;
+    },
+    ondragenter(event) {
+      event.target.classList.add('drag-active');
+    },
+    ondragleave(event) {
+      event.target.classList.remove('drag-active');
+    },
     ondrop(event) {
+      event.target.classList.remove('drag-active');
+
       let target = event.target;
       let entityId = target.dataset.entityId;
       let entityType = target.dataset.entityType;
       let damage = event.relatedTarget.querySelector('input').value;
+
+      console.log(entityId, entityType, damage);
 
       if (entityType === "CHARACTER") {
         postRequest(`${api}/encounters/${encounterId}/interaction/character/${entityId}`, token, { damage: parseInt(damage), effects: selectedEffects },
@@ -267,9 +293,9 @@
           }
         );
       } else if (entityType === "ENEMY") {
-        let selectedEnemy = target.querySelector('.enemies-menu').value;
-
-        postRequest(`${api}/encounters/${encounterId}/interaction/enemy/${entityId}/${selectedEnemy}`, token, { damage: parseInt(damage), effects: selectedEffects },
+        let enemyId = target.dataset.enemyId;
+        
+        postRequest(`${api}/encounters/${encounterId}/interaction/enemy/${entityId}/${enemyId}`, token, { damage: parseInt(damage), effects: selectedEffects },
           (data: any) => {
             getStatus(() => {
               data = data.object;
@@ -277,13 +303,13 @@
               const entity = entityList.find((entity: any) => entity.id == entityId && entity.type == entityType);
 
               if (entity) {
-                let enemy = entity.entity.enemy.find((enemy: any) => enemy.id == selectedEnemy);
+                let enemy = entity.entity.enemy.find((enemy: any) => enemy.id == enemyId);
 
                 enemy.health = data.health;
                 enemy.activeEffects= data.effects;
 
                 if (data.status === "DEAD") {
-                  entity.entity.enemy = entity.entity.enemy.filter((enemy: any) => enemy.id != selectedEnemy);
+                  entity.entity.enemy = entity.entity.enemy.filter((enemy: any) => enemy.id != enemyId);
                   
                   if (entity.entity.enemy.length === 0) {
                     deadOnTurn(entityId, entityType);
@@ -293,7 +319,7 @@
 
               entityList = entityList;
 
-              Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId} and enemy ID: ${selectedEnemy}, with damage: ${damage}.`);
+              Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId} and enemy ID: ${enemyId}, with damage: ${damage}.`);
             });
           },
           (data: any) => {
@@ -324,25 +350,27 @@
       }
     }
   });
-
 </script>
+
 
 <div class="container-fluid content" data-simplebar>
   <div class="container-fluid content">
     <div class="row">
       {#each entityList as entity, index}
         {#if entity.type === 'CHARACTER'}
-          <EncounterCharacter bind:entity={entity} index={index} onTurn={onTurn} />
+          <EncounterCharacter bind:entity={entity} index={index} onTurn={onTurn} bind:dragging={dragging} />
         {:else if entity.type === 'ENEMY'}
-          <EncounterEnemy bind:entity={entity} index={index} onTurn={onTurn} bind:selectedEnemies={selectedEnemies} />
+          <EncounterEnemy bind:entity={entity} index={index} onTurn={onTurn} bind:dragging={dragging} />
         {/if}
       {/each}
     </div>
   </div>
 </div>
 
+
 <EncounterActionSlider bind:isActionSliderVisible={isActionSliderVisible} bind:action={action} />
 <EncounterInteractionSlider bind:selectedEffects={selectedEffects} />
+
 
 <Bottombar>
   <button class="btn btn-success" on:click={endTurn}>Next turn</button>
