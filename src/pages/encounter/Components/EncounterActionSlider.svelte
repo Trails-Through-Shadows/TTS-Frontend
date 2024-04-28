@@ -80,7 +80,7 @@
   }
 
   .card-body {
-    background-color: #222;
+    background-color: #333;
     color: #bababa;
     border-radius: 0 0 5px 5px;
     padding: 8px;

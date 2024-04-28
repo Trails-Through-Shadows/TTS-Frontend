@@ -1,4 +1,5 @@
 import { SVG, Svg, Color } from "@svgdotjs/svg.js";
+import { api } from "../../../lib/Exports";
 
 function drawEffect(draw: Svg, effect: { url: any; duration: string | null; strength: string | null; }, x: number, y: number) {
     let iconPath = effect.url;
@@ -53,8 +54,8 @@ function drawEffects(draw: Svg, effects: string | any[], y: number, backgroundCo
     return 80;
 }
 
-function drawIcon(draw: Svg, apiUrl: string, icon: string, name: string, value: string, x: number, y: number) {
-    let iconPath = apiUrl + "/images/svg/cards/" + icon + ".svg";
+function drawIcon(draw: Svg, icon: string, name: string, value: string, x: number, y: number) {
+    let iconPath = api + "/images/svg/cards/" + icon + ".svg";
     let black = '#000';
 
     draw.image(iconPath).move(x, y).size(50, 50);
@@ -78,25 +79,11 @@ function drawIcon(draw: Svg, apiUrl: string, icon: string, name: string, value: 
     return 50 + biggerLength + 30;
 }
 
-export async function generateEffect(apiUrl: string, effectId: number, parentId: string) {
+export async function generateEffect(effect: any, parentId: string) {
     // remove previous card
     let card = document.getElementById(parentId);
     while (card && card.firstChild) {
         card.removeChild(card.firstChild);
-    }
-
-    const response = await fetch(apiUrl + "/effects/" + effectId, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    });
-
-    // check if status is 200
-    const effect = await response.json();
-    if (effect.status === "BAD_REQUEST" || effect.status === "NOT_FOUND") {
-        console.log("Error: ", effect.message);
-        return;
     }
 
     console.log("Effect: ", effect);
@@ -134,14 +121,14 @@ export async function generateEffect(apiUrl: string, effectId: number, parentId:
 }
 
 // @ts-ignore
-export async function generateCard(apiUrl: srtring, actionId: number, parentId: string): Promise<void> {
+export async function generateCard(actionId: number, parentId: string): Promise<void> {
     // remove previous card
-    let card = document.getElementById(parentId);/*
-    while (card.firstChild) {
+    let card = document.getElementById(parentId);
+    while (card && card.firstChild) {
         card.removeChild(card.firstChild);
-    }*/
+    }
 
-    const response = await fetch(apiUrl + "/actions/" + actionId + "/card", {
+    const response = await fetch(api + "/actions/" + actionId + "/card", {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -170,15 +157,15 @@ export async function generateCard(apiUrl: srtring, actionId: number, parentId: 
     draw.rect(width - 5, height - 5).radius(18).attr({fill: color}).move(2.5, 2.5);
     draw.rect(width - 10, height - 10).radius(16).attr({fill: lightColor}).move(5, 5);
     // background
-    draw.image(apiUrl + '/images/cards/background.png').size(width, height).opacity(0.3);
+    draw.image(api + '/images/cards/background.png').size(width, height).opacity(0.3);
 
     let iconSize = 110;
     if (action.icon == null) {
         if (action.source === "ENEMY") {
-            action.icon = apiUrl + "/images/svg/cards/enemy.svg";
+            action.icon = api + "/images/svg/cards/enemy.svg";
             draw.image(action.icon).size(iconSize, iconSize).move(width - iconSize + 20, 10);
         } else {
-            action.icon = apiUrl + "/images/svg/cards/unknown.svg";
+            action.icon = api + "/images/svg/cards/unknown.svg";
             draw.image(action.icon).size(iconSize, iconSize).move(width - iconSize, 10);
         }
     } else {
@@ -253,8 +240,8 @@ export async function generateCard(apiUrl: srtring, actionId: number, parentId: 
         draw.text("Movement").font({fill: black, size: 40, family: 'Helvetica'}).move(20, currentHeightOffset);
         currentHeightOffset += 60;
 
-        currentWidthOffset += drawIcon(draw, apiUrl, "range", "Range", action.movement.range, currentWidthOffset, currentHeightOffset);
-        currentWidthOffset += drawIcon(draw, apiUrl, "tag", "Type", action.movement.type, currentWidthOffset, currentHeightOffset);
+        currentWidthOffset += drawIcon(draw, "range", "Range", action.movement.range, currentWidthOffset, currentHeightOffset);
+        currentWidthOffset += drawIcon(draw, "tag", "Type", action.movement.type, currentWidthOffset, currentHeightOffset);
 
         currentHeightOffset += drawEffects(draw, action.movement.effects, currentHeightOffset, lightColor);
 
@@ -268,8 +255,8 @@ export async function generateCard(apiUrl: srtring, actionId: number, parentId: 
         currentHeightOffset += 60;
 
         // not null
-        currentWidthOffset += drawIcon(draw, apiUrl, "strength", "Damage", action.attack.damage, currentWidthOffset, currentHeightOffset);
-        currentWidthOffset += drawIcon(draw, apiUrl, "range", "Range", action.attack.range, currentWidthOffset, currentHeightOffset);
+        currentWidthOffset += drawIcon(draw, "strength", "Damage", action.attack.damage, currentWidthOffset, currentHeightOffset);
+        currentWidthOffset += drawIcon(draw, "range", "Range", action.attack.range, currentWidthOffset, currentHeightOffset);
 
         let hasArea = action.attack.area != null && action.attack.area != "1" && action.attack.area != "0";
         let hasNumber = action.attack.numberOfAttacks != null && action.attack.numberOfAttacks != "1";
@@ -278,16 +265,16 @@ export async function generateCard(apiUrl: srtring, actionId: number, parentId: 
             currentHeightOffset += 80;
             currentWidthOffset = 20;
         }
-        currentWidthOffset += drawIcon(draw, apiUrl, "target", "Target", action.attack.target, currentWidthOffset, currentHeightOffset);
+        currentWidthOffset += drawIcon(draw, "target", "Target", action.attack.target, currentWidthOffset, currentHeightOffset);
 
         // nullable
 
         if (hasArea || hasNumber) {
             if (hasArea) {
-                currentWidthOffset += drawIcon(draw, apiUrl, "area", "Area", action.attack.area, currentWidthOffset, currentHeightOffset);
+                currentWidthOffset += drawIcon(draw, "area", "Area", action.attack.area, currentWidthOffset, currentHeightOffset);
             }
             if (hasNumber) {
-                currentWidthOffset += drawIcon(draw, apiUrl, "attackCount", "Count", action.attack.numberOfAttacks, currentWidthOffset, currentHeightOffset);
+                currentWidthOffset += drawIcon(draw, "attackCount", "Count", action.attack.numberOfAttacks, currentWidthOffset, currentHeightOffset);
             }
         }
 
@@ -303,12 +290,12 @@ export async function generateCard(apiUrl: srtring, actionId: number, parentId: 
         currentHeightOffset += 60;
 
         // not null
-        currentWidthOffset += drawIcon(draw, apiUrl, "range", "Range", action.skill.range, currentWidthOffset, currentHeightOffset);
-        currentWidthOffset += drawIcon(draw, apiUrl, "target", "Target", action.skill.target, currentWidthOffset, currentHeightOffset);
+        currentWidthOffset += drawIcon(draw, "range", "Range", action.skill.range, currentWidthOffset, currentHeightOffset);
+        currentWidthOffset += drawIcon(draw, "target", "Target", action.skill.target, currentWidthOffset, currentHeightOffset);
 
         // nullable
         if (action.skill.area != null && action.skill.area != "1" && action.skill.area != "0") {
-            currentWidthOffset += drawIcon(draw, apiUrl, "area", "Area", action.skill.area, currentWidthOffset, currentHeightOffset);
+            currentWidthOffset += drawIcon(draw, "area", "Area", action.skill.area, currentWidthOffset, currentHeightOffset);
         }
 
         currentHeightOffset += drawEffects(draw, action.skill.effects, currentHeightOffset, lightColor);
@@ -327,12 +314,12 @@ export async function generateCard(apiUrl: srtring, actionId: number, parentId: 
         currentHeightOffset += 60;
 
         // not null
-        currentWidthOffset += drawIcon(draw, apiUrl, "cardsCount", "Count", action.restoreCards.numCards, currentWidthOffset, currentHeightOffset);
-        currentWidthOffset += drawIcon(draw, apiUrl, "target", "Target", action.restoreCards.target, currentWidthOffset, currentHeightOffset);
+        currentWidthOffset += drawIcon(draw, "cardsCount", "Count", action.restoreCards.numCards, currentWidthOffset, currentHeightOffset);
+        currentWidthOffset += drawIcon(draw, "target", "Target", action.restoreCards.target, currentWidthOffset, currentHeightOffset);
 
         // nullable
         if (action.restoreCards.random === true) {
-            currentWidthOffset += drawIcon(draw, apiUrl, "random", "Random", action.restoreCards.random, currentWidthOffset, currentHeightOffset);
+            currentWidthOffset += drawIcon(draw, "random", "Random", action.restoreCards.random, currentWidthOffset, currentHeightOffset);
         }
 
         currentHeightOffset += 100;
@@ -340,7 +327,7 @@ export async function generateCard(apiUrl: srtring, actionId: number, parentId: 
 
     // discard at right bottom corner
     if (action.discard !== "NEVER") {
-        let discardIcon = apiUrl + "/images/svg/cards/discard.svg";
+        let discardIcon = api + "/images/svg/cards/discard.svg";
         draw.image(discardIcon).move(width - 110, height - 110).size(80, 80);
     }
 

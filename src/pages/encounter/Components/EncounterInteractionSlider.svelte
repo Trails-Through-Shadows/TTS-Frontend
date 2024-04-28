@@ -3,13 +3,14 @@
   import { getRequest } from "../../../lib/Functions";
   import { Notify } from "notiflix";
   import EncounterNumpad from "./EncounterNumpad.svelte";
+  import { generateEffect } from "../Cards/Card";
 
   export let selectedEffects: any;
 
   let effectList: effectType[] = [];
   let effectTargets: any = [];
 
-  type effect = { type: string, strength: number, duration: number, description: string };
+  type effect = { type: string, strength: number, duration: number, description: string, url: string };
   type effectType = { title: string, displayTitle: string, description: string, hasDuration: boolean, hasStrength: boolean, isResistance: boolean, url: string };
 
   let isInteractionSliderVisible = true;
@@ -69,12 +70,15 @@
       type: selectedEffect.title,
       strength: strength ? strength : 0,
       duration: duration ? duration : 0,
-      description: selectedEffect.description
+      description: selectedEffect.description,
+      url: selectedEffect.url
     };
 
     selectedEffects.push(effect);
 
     selectedEffects = selectedEffects;
+
+    generateEffect(effect, `interactionEffectHolder${selectedEffects.length - 1}`);
 
     strength = null;
     duration = null;
@@ -98,7 +102,7 @@
       <div class="row">
         {#each selectedEffects as effect, index}
           <div class="col">
-            <button class="btn btn-danger" on:click={() => handleRemoveEffect(index)}>{index}</button>
+            <button class="btn btn-danger" on:click={() => handleRemoveEffect(index)}><div class="effect-holder" id="interactionEffectHolder{index}" /></button>
           </div>
         {/each}
         {#if selectedEffects.length < 5}
@@ -199,6 +203,7 @@
 
   .bottom-slider .card-body {
     border-radius: 0;
+    background-color: #333;
   }
 
   .interaction-slider {
@@ -212,7 +217,7 @@
     cursor: grab !important;
     border: 2px solid #c23737;
     border-radius: 5px;
-    background-color: #333;
+    background-color: #444;
     margin: 5px;
     display: flex;
     flex-direction: column;
@@ -236,12 +241,12 @@
   .draggable input {
     width: 100%;
     height: 50px;
-    background-color: #333;
+    background-color: #444;
     color: #bababa;
     text-align: center;
     justify-content: center;
     border: none;
-    border-bottom: #222 1px solid;
+    border-bottom: #333 1px solid;
     border-radius: 5px 5px 0 0;
     font-size: 1.5rem;
     padding: 0;

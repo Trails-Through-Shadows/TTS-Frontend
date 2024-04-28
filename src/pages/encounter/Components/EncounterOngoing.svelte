@@ -129,7 +129,7 @@
           entityList = entityList;
           
           action = data.action;
-          generateCard(api, action.id, "cardHolder");
+          generateCard(action.id, "cardHolder");
           console.log(action);
           isActionSliderVisible = true;
         },

@@ -398,7 +398,7 @@
 
                     action = data.active.action;
                     console.log(action);
-                    generateCard(api, action.id, "cardHolder");
+                    generateCard(action.id, "cardHolder");
                     break;
                   }
                 }
