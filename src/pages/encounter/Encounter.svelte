@@ -158,6 +158,8 @@
 
           hexGrid.draw();
           hexGrid.displayed = true;
+
+          currentMap = hexGridList.length - 1;
         }
 
         canvas.addOnSizeListener(() => {
