@@ -40,12 +40,6 @@
 
   let size: number;
 
-  if (window.innerWidth < window.innerHeight) {
-    size = window.innerWidth / 15;
-  } else {
-    size = window.innerHeight / 15;
-  }
-
   function setBaseAction() {
     action = {
       id: null,
@@ -150,20 +144,38 @@
 
         if (hexGridList.length === partsId.length) {
           canvas.setLoading(false);
+
+          let height = canvas.getHeight();
+          let width = canvas.getWidth();
+
+          if (width < height) {
+            size = canvas.getWidth() / 15;
+          } else {
+            size = canvas.getHeight() / 15;
+          }
+
+          hexGrid.setHexSize(size);
+
           hexGrid.draw();
           hexGrid.displayed = true;
-
-          canvas.addOnSizeListener(() => {
-            if (window.innerWidth < window.innerHeight) {
-              size = window.innerWidth / 15;
-            } else {
-              size = window.innerHeight / 15;
-            }
-
-            hexGrid.setHexSize(size);
-            hexGrid.redraw();
-          });
         }
+
+        canvas.addOnSizeListener(() => {
+          let height = canvas.getHeight();
+          let width = canvas.getWidth();
+
+          if (width < height) {
+            size = canvas.getWidth() / 15;
+          } else {
+            size = canvas.getHeight() / 15;
+          }
+
+          hexGrid.setHexSize(size);
+
+          if (hexGrid.displayed === true) {
+            hexGrid.redraw();
+          }
+        });
 
         hexGridList = hexGridList;
 

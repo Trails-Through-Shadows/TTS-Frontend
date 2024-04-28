@@ -1,7 +1,7 @@
 <script lang="ts">
   import { api, Character, Location } from "../../lib/Exports";
   import { Notify, Loading } from "notiflix";
-  import { getRequest, postRequest, checkToken } from "../../lib/Functions";
+  import { getRequest, checkToken } from "../../lib/Functions";
 
   import Navbar from "../../lib/Components/Navbar.svelte";
   import LogoutButton from "../../lib/Components/LogoutButton.svelte";

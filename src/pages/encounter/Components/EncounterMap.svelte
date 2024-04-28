@@ -1,15 +1,17 @@
 <script lang="ts">
+  import type { HexGrid } from "../hexGridMap/HexGrid";
+
   export let isMapSliderVisible: boolean;
-  export let hexGridList: any;
+  export let hexGridList: HexGrid[] = [];
   export let currentMap: number;
   export let canvasRoot: HTMLCanvasElement;
 
-  function draw(id: number) {
-    for (let hexGrid of hexGridList) {
-      hexGrid.displayed = false;
-    }
+  function display(id: number) {
+    hexGridList[currentMap].setDisplayed(false);
+
     currentMap = id;
-    hexGridList[id].displayed = true;
+
+    hexGridList[id].setDisplayed(true);
     hexGridList[id].redraw();
   }
 </script>
@@ -21,7 +23,7 @@
   </div>
   <div class="map-button-container">
     {#each hexGridList as hexGrid}
-      <button class="btn btn-success" on:click={() => draw(hexGridList.indexOf(hexGrid))}>
+      <button class="btn btn-success" on:click={() => display(hexGridList.indexOf(hexGrid))}>
         {hexGrid.id}
       </button>
     {/each}

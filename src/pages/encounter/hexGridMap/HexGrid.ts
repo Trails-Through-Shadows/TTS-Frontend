@@ -35,7 +35,7 @@ export class HexGrid {
         this.doorImage.src = 'assets/door.png';
 
         this.canvas.addOnMouseHoverListener((x: number, y: number) => {
-            if (this.canvas.isLoading()) {
+            if (this.canvas.isLoading() || !this.displayed) {
                 return;
             }
 
@@ -274,5 +274,9 @@ export class HexGrid {
         this.hexes.forEach(hex => {
             hex.setSize(this.hexSize);
         });
+    }
+
+    setDisplayed(displayed: boolean): void {
+        this.displayed = displayed;
     }
 }
