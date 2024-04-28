@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { HexGrid } from "../hexGridMap/HexGrid";
+  import type { HexGrid } from "../HexGridMap/HexGrid";
 
   export let isMapSliderVisible: boolean;
   export let hexGridList: HexGrid[] = [];

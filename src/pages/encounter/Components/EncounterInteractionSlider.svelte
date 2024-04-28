@@ -202,7 +202,8 @@
   }
 
   .interaction-slider {
-    right: 5%;
+    left: 71%;
+    transform: translateX(-50%);
     width: 250px;
     max-width: 100%;
   }

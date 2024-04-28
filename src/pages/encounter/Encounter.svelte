@@ -1,9 +1,9 @@
 <script lang="ts">
   import { api } from '../../lib/Exports';
-  import { Canvas } from './hexGridMap/Canvas';
-  import { HexGrid } from './hexGridMap/HexGrid';
-  import { Hex } from './hexGridMap/Hex';
-  import { CubeCoordinate } from './hexGridMap/Coordinate';
+  import { Canvas } from './HexGridMap/Canvas';
+  import { HexGrid } from './HexGridMap/HexGrid';
+  import { Hex } from './HexGridMap/Hex';
+  import { CubeCoordinate } from './HexGridMap/Coordinate';
   import { getRequest, postRequest, checkToken } from '../../lib/Functions';
   import { Notify, Loading } from "notiflix";
 
@@ -16,6 +16,7 @@
   import EncounterFailed from './Components/EncounterFailed.svelte';
   import EncounterCompleted from './Components/EncounterCompleted.svelte';
   import EncounterStory from './Components/EncounterStory.svelte';
+    import { generateCard } from './Cards/Card';
 
   Notify.init({
     clickToClose: true
@@ -322,16 +323,18 @@
       locationId = data.idLocation;
       partsId = data.idParts;
 
-      if (data.state === "NEW")
-      {
+      if (data.state === "NEW") {
         getStory();
         isStoryVisible = true;
-      } else if (data.state === "ONGOING") {
+      }
+      else if (data.state === "ONGOING") {
         status = "ONGOING";
-      } else if (data.state === "COMPLETED") {
+      }
+      else if (data.state === "COMPLETED") {
         getStory();
         status = "COMPLETED";
-      } else if (data.state === "FAILED") {
+      }
+      else if (data.state === "FAILED") {
         getStory();
         status = "FAILED";
       }
@@ -394,6 +397,8 @@
                     onTurn = i;
 
                     action = data.active.action;
+                    console.log(action);
+                    generateCard(api, action.id, "cardHolder");
                     break;
                   }
                 }

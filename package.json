@@ -21,12 +21,14 @@
     "vite": "^5.0.8"
   },
   "dependencies": {
+    "@svgdotjs/svg.js": "^3.2.0",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "interactjs": "^1.10.26",
     "jquery": "^3.7.1",
     "notiflix": "^3.2.7",
     "simplebar": "^6.2.5",
+    "snapsvg": "^0.5.1",
     "svelte-routing": "^2.11.0"
   }
 }

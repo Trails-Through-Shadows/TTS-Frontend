@@ -2,6 +2,7 @@
   import { api } from "../../../lib/Exports";
   import { Notify, Loading } from "notiflix";
   import { postRequest, checkToken, getRequest } from "../../../lib/Functions";
+  import { generateCard } from "../Cards/Card";
   import interact from 'interactjs';
 
   import EncounterCharacter from './EncounterCharacter.svelte';
@@ -128,6 +129,7 @@
           entityList = entityList;
           
           action = data.action;
+          generateCard(api, action.id, "cardHolder");
           console.log(action);
           isActionSliderVisible = true;
         },
