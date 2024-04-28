@@ -3,7 +3,7 @@
 </script>
 
 
-<div class="container-fluid">
+<div class="container-fluid content come-down">
   <div class="card">
     <div class="card-body d-flex flex-column justify-content-center align-items-center">
       <h1 class="card-title">Congratulations!</h1>
@@ -15,11 +15,9 @@
 
 
 <style>
-  .container-fluid {
-    display: flex;
+  .come-down {
     justify-content: center;
     align-items: center;
-    height: 100%;
     animation: come-down 1s ease-out;
   }
 

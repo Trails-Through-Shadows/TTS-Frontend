@@ -327,15 +327,18 @@
 
 </script>
 
-
-<div class="row">
-  {#each entityList as entity, index}
-    {#if entity.type === 'CHARACTER'}
-      <EncounterCharacter bind:entity={entity} index={index} onTurn={onTurn} />
-    {:else if entity.type === 'ENEMY'}
-      <EncounterEnemy bind:entity={entity} index={index} onTurn={onTurn} bind:selectedEnemies={selectedEnemies} />
-    {/if}
-  {/each}
+<div class="container-fluid content" data-simplebar>
+  <div class="container-fluid content">
+    <div class="row">
+      {#each entityList as entity, index}
+        {#if entity.type === 'CHARACTER'}
+          <EncounterCharacter bind:entity={entity} index={index} onTurn={onTurn} />
+        {:else if entity.type === 'ENEMY'}
+          <EncounterEnemy bind:entity={entity} index={index} onTurn={onTurn} bind:selectedEnemies={selectedEnemies} />
+        {/if}
+      {/each}
+    </div>
+  </div>
 </div>
 
 <EncounterActionSlider bind:isActionSliderVisible={isActionSliderVisible} bind:action={action} />

@@ -421,18 +421,16 @@
 <EncounterMap bind:isMapSliderVisible={isMapSliderVisible} bind:hexGridList={hexGridList} bind:currentMap={currentMap} bind:canvasRoot={canvasRoot} />
 
 
-<main data-simplebar>
-  <div class="container-fluid">
-    {#if status === "NEW"}
-      <EncounterStart bind:characterList={characterList} bind:entityList={entityList} bind:status={status} bind:action={action} receiveInitiative={receiveInitiative} setBaseAction={setBaseAction} />
-    {:else if status === "ONGOING"}
-      <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:selectedEnemies={selectedEnemies} bind:action={action} bind:status={status} revealRoom={revealRoom} setBaseAction={setBaseAction} />
-    {:else if status === "COMPLETED"}
-      <EncounterCompleted />
-    {:else if status === "FAILED"}
-      <EncounterFailed />
-    {/if}
-  </div>
+<main>
+  {#if status === "NEW"}
+    <EncounterStart bind:characterList={characterList} bind:entityList={entityList} bind:status={status} bind:action={action} receiveInitiative={receiveInitiative} setBaseAction={setBaseAction} />
+  {:else if status === "ONGOING"}
+    <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:selectedEnemies={selectedEnemies} bind:action={action} bind:status={status} revealRoom={revealRoom} setBaseAction={setBaseAction} />
+  {:else if status === "COMPLETED"}
+    <EncounterCompleted />
+  {:else if status === "FAILED"}
+    <EncounterFailed />
+  {/if}
 </main>
 
 

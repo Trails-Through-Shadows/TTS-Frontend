@@ -1,16 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Almendra:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
 body {
   background-image: url('/assets/background.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  font-family: "Times New Roman", Times, serif;
-  overflow-x: hidden;
+  font-family: "Almendra", serif;
+  overflow: hidden;
 }
 
 main {
   display: flex;
   height: calc(100vh - 75px - 63px);
+}
+
+.container-fluid .content{
+  display: flex;
+  height: calc(100vh - 75px - 63px);
+  padding: 0;
 }
 
 .btn {

@@ -75,40 +75,46 @@
   }
 </script>
 
-<div class="row">
-  {#each characterList as character, index}
-    <div class="col-xl-2 big-card">
-      <div class="card border-0 m-1">
-        <div class="card-header">
-          <ScrollingText>
-            <h5 id="card-name" class="m-0">{characterList[index].title}</h5>
-          </ScrollingText>
-          <ScrollingText>
-            <p class="m-0">{characterList[index].playerName}</p>
-          </ScrollingText>
-        </div>
-        <div class="card-body">
-          <div class="position-relative">
-            <img class="class-image" src="{characterList[index].url}" alt="{characterList[index].title}" />
-            <div class="position-absolute bottom-0 end-0">
+
+<div class="container-fluid content" data-simplebar>
+  <div class="container-fluid content">
+    <div class="row">
+      {#each characterList as character, index}
+        <div class="col-xl-2 big-card">
+          <div class="card border-0 m-1">
+            <div class="card-header">
+              <ScrollingText>
+                <h5 id="card-name" class="m-0">{characterList[index].title}</h5>
+              </ScrollingText>
+              <ScrollingText>
+                <p class="m-0">{characterList[index].playerName}</p>
+              </ScrollingText>
+            </div>
+            <div class="card-body">
               <div class="position-relative">
-                <div class="d-flex align-items-end">
-                  <input type="text" class="form-control form-control-sm stat-input" value={characterList[index].baseInitiative} disabled />
-                  <select class="form-control stat-input {selectedOptions[index] === 'CRIT' || selectedOptions[index] === 'MISS' ? 'small-font' : ''}" on:change={(e) => handleSelectChange(e, index)}>
-                    <option value="" selected disabled hidden>?</option>
-                    {#each ["CRIT", "+5", "+4", "+3", "+2", "+1", "+0", "-1", "-2", "-3", "MISS"] as value}
-                      <option value={value}>{value}</option>
-                    {/each}
-                  </select>
+                <img class="class-image" src="{characterList[index].url}" alt="{characterList[index].title}" />
+                <div class="position-absolute bottom-0 end-0">
+                  <div class="position-relative">
+                    <div class="d-flex align-items-end">
+                      <input type="text" class="form-control form-control-sm stat-input" value={characterList[index].baseInitiative} disabled />
+                      <select class="form-control stat-input {selectedOptions[index] === 'CRIT' || selectedOptions[index] === 'MISS' ? 'small-font' : ''}" on:change={(e) => handleSelectChange(e, index)}>
+                        <option value="" selected disabled hidden>?</option>
+                        {#each ["CRIT", "+5", "+4", "+3", "+2", "+1", "+0", "-1", "-2", "-3", "MISS"] as value}
+                          <option value={value}>{value}</option>
+                        {/each}
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      {/each}
     </div>
-  {/each}
+  </div>
 </div>
+
 
 <Bottombar>
   <button class="btn btn-success" on:click={startEncounter}>Start encounter</button>

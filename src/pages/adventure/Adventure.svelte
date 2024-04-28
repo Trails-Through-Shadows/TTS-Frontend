@@ -108,57 +108,58 @@
       {/each}
     </div>
   </div>
-  <div class="modal fade" id="encounterModal" tabindex="-1" aria-labelledby="encounterModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="encounterModalLabel">Encounters</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <ul class="nav nav-tabs" id="encounterTabs" role="tablist">
+</main>
+
+<div class="modal fade" id="encounterModal" tabindex="-1" aria-labelledby="encounterModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="encounterModalLabel">Encounters</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs" id="encounterTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="startTab" data-bs-toggle="tab" data-bs-target="#startEncounter" type="button" role="tab" aria-controls="startEncounter" aria-selected="true">Start New Encounter</button>
+          </li>
+          {#if encounterList.length !== 0}
             <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="startTab" data-bs-toggle="tab" data-bs-target="#startEncounter" type="button" role="tab" aria-controls="startEncounter" aria-selected="true">Start New Encounter</button>
+              <button class="nav-link" id="continueTab" data-bs-toggle="tab" data-bs-target="#continueEncounter" type="button" role="tab" aria-controls="continueEncounter" aria-selected="false">Continue Encounter</button>
             </li>
+          {:else}
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="continueTab" data-bs-toggle="tab" data-bs-target="#continueEncounter" type="button" role="tab" aria-controls="continueEncounter" aria-selected="false" disabled>Continue Encounter</button>
+            </li>
+          {/if}
+        </ul>
+        <div class="tab-content" id="encounterTabContent">
+          <div class="tab-pane fade show active" id="startEncounter" role="tabpanel" aria-labelledby="startTab">
+            <h5>Start a new encounter</h5>
+            <select class="form-select" id="startEncounterSelect">
+              {#each locationList as location}
+                <option value="{location.id}">{location.title}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="tab-pane fade" id="continueEncounter" role="tabpanel" aria-labelledby="continueTab">
             {#if encounterList.length !== 0}
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="continueTab" data-bs-toggle="tab" data-bs-target="#continueEncounter" type="button" role="tab" aria-controls="continueEncounter" aria-selected="false">Continue Encounter</button>
-              </li>
-            {:else}
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="continueTab" data-bs-toggle="tab" data-bs-target="#continueEncounter" type="button" role="tab" aria-controls="continueEncounter" aria-selected="false" disabled>Continue Encounter</button>
-              </li>
-            {/if}
-          </ul>
-          <div class="tab-content" id="encounterTabContent">
-            <div class="tab-pane fade show active" id="startEncounter" role="tabpanel" aria-labelledby="startTab">
-              <h5>Start a new encounter</h5>
-              <select class="form-select" id="startEncounterSelect">
-                {#each locationList as location}
+              <h5>Continue an encounter</h5>
+              <select class="form-select" id="continueEncounterSelect">
+                {#each encounterList as location}
                   <option value="{location.id}">{location.title}</option>
                 {/each}
               </select>
-            </div>
-            <div class="tab-pane fade" id="continueEncounter" role="tabpanel" aria-labelledby="continueTab">
-              {#if encounterList.length !== 0}
-                <h5>Continue an encounter</h5>
-                <select class="form-select" id="continueEncounterSelect">
-                  {#each encounterList as location}
-                    <option value="{location.id}">{location.title}</option>
-                  {/each}
-                </select>
-              {/if}
-            </div>
+            {/if}
           </div>
         </div>
-        <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click={() => handleStartEncounter()}>Start</button>
-        </div>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal" on:click={() => handleStartEncounter()}>Start</button>
       </div>
     </div>
   </div>
-</main>
+</div>
 
 
 <Bottombar>

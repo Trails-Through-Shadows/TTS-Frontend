@@ -91,7 +91,7 @@
             <option value="{selectedCampaign}" selected disabled hidden>Select campaign</option>
           </select>
         </div>
-        <div class="container-fluid">
+        <div class="container">
           {#if selectedCampaign}
             <p>{selectedCampaign.description}</p>
           {/if}

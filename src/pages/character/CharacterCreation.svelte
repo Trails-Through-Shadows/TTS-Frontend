@@ -78,7 +78,7 @@
 
 
 <main data-simplebar>
-  <div class="container-fluid">
+  <div class="container-fluid content">
     <div class="row">
       {#each characterList as character, index}
         <CharacterCreationCard bind:characterList={characterList} index={index} />

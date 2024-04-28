@@ -81,7 +81,7 @@
             </div>
           </div>
         </div>
-        <div class="container-fluid">
+        <div class="container w-100">
           <div class="row background-container">
             <div class="col-6 bordered-right">
               <select class="form-control character-input mb-1" bind:value={characterList[index].race} on:change={refreshTooltip}>

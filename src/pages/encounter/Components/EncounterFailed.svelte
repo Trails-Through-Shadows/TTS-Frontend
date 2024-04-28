@@ -3,7 +3,7 @@
 </script>
 
 
-<div class="container-fluid">
+<div class="container-fluid content come-up">
   <div class="card">
     <div class="card-body d-flex flex-column justify-content-center align-items-center">
       <h1 class="card-title">You Failed</h1>
@@ -15,11 +15,10 @@
 
 
 <style>
-  .container-fluid {
+  .come-up {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
     animation: come-up 1s ease-out;
   }
 

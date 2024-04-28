@@ -79,24 +79,27 @@
   }
 </script>
 
-
-<div class="container d-flex align-items-center justify-content-center">
-	<div class="card login-card">
-		<div class="card-header text-center border-0">
-			<h5 class="card-title"><b>Login</b></h5>
-		</div>
-		<div class="card-body">
-			<form>
-				<div class="form-group">
-					<label for="licenseNumber">License Number</label>
-					<input type="text" class="form-control" id="licenseNumber" placeholder="ABCD-0123-EFGH-4567" bind:value="{licenseNumber}" on:keypress="{handleKeyPress}">
+<div class="container-fluid content" data-simplebar>
+	<div class="container-fluid content">
+		<div class="container d-flex align-items-center justify-content-center">
+			<div class="card login-card">
+				<div class="card-header text-center border-0">
+					<h5 class="card-title"><b>Login</b></h5>
 				</div>
-				<div class="form-group">
-					<label for="password">Password</label>
-					<input type="password" class="form-control" id="password" placeholder="password" bind:value="{password}" on:keypress="{handleKeyPress}">
+				<div class="card-body">
+					<form>
+						<div class="form-group">
+							<label for="licenseNumber">License Number</label>
+							<input type="text" class="form-control" id="licenseNumber" placeholder="ABCD-0123-EFGH-4567" bind:value="{licenseNumber}" on:keypress="{handleKeyPress}">
+						</div>
+						<div class="form-group">
+							<label for="password">Password</label>
+							<input type="password" class="form-control" id="password" placeholder="password" bind:value="{password}" on:keypress="{handleKeyPress}">
+						</div>
+						<button type="button" class="btn btn-sm col-12 mt-3" on:click="{handleLogin}">Login</button>
+					</form>
 				</div>
-				<button type="button" class="btn btn-sm col-12 mt-3" on:click="{handleLogin}">Login</button>
-			</form>
+			</div>
 		</div>
 	</div>
 </div>
