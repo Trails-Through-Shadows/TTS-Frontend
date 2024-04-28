@@ -15,6 +15,7 @@
   import EncounterOngoing from './Components/EncounterOngoing.svelte';
   import EncounterFailed from './Components/EncounterFailed.svelte';
   import EncounterCompleted from './Components/EncounterCompleted.svelte';
+  import EncounterStory from './Components/EncounterStory.svelte';
 
   Notify.init({
     clickToClose: true
@@ -81,12 +82,15 @@
   let entityList: { id:number, initiative: number, type: string, entity: (baseCharacter | baseEnemyGroup) }[] = [];
 
   let isMapSliderVisible = false;
+  let isStoryVisible = false;
 
   let showConfirmModal = false;
 
   type door = { key: { idPartFrom: number, idPartTo: number }, q: number, r: number, s: number };
 
   let openedDoor: door;
+
+  let story: string = "";
 
   function receiveParts(part: number) {
     getRequest(`${api}/locations/${locationId}/parts/${part}`, token,
@@ -300,11 +304,37 @@
     );
   }
 
+  function getStory() {
+    getRequest(`${api}/encounters/${encounterId}/story`, token,
+      (data: any) => {
+        story = data.object.story;
+      },
+      (data: any) => {
+        Notify.failure(data.message);
+        checkToken(data.message);
+      }
+    );
+  }
+  
   getRequest(`${api}/encounters/${encounterId}`, token,
     (data: any) => {
       data = data.object;
       locationId = data.idLocation;
       partsId = data.idParts;
+
+      if (data.state === "NEW")
+      {
+        getStory();
+        isStoryVisible = true;
+      } else if (data.state === "ONGOING") {
+        status = "ONGOING";
+      } else if (data.state === "COMPLETED") {
+        getStory();
+        status = "COMPLETED";
+      } else if (data.state === "FAILED") {
+        getStory();
+        status = "FAILED";
+      }
 
       if (!canvasRoot)
       {
@@ -342,6 +372,7 @@
       }
 
       if (data.state === "ONGOING") {
+        isStoryVisible = false;
         status = "ONGOING";
 
         receiveInitiative(
@@ -433,14 +464,18 @@
 
 
 <main>
-  {#if status === "NEW"}
-    <EncounterStart bind:characterList={characterList} bind:entityList={entityList} bind:status={status} bind:action={action} receiveInitiative={receiveInitiative} setBaseAction={setBaseAction} />
-  {:else if status === "ONGOING"}
-    <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:action={action} bind:status={status} revealRoom={revealRoom} setBaseAction={setBaseAction} />
-  {:else if status === "COMPLETED"}
-    <EncounterCompleted />
-  {:else if status === "FAILED"}
-    <EncounterFailed />
+  {#if isStoryVisible}
+    <EncounterStory {story} bind:isStoryVisible={isStoryVisible} />
+  {:else}
+    {#if status === "NEW"}
+      <EncounterStart bind:characterList={characterList} bind:entityList={entityList} bind:status={status} bind:action={action} receiveInitiative={receiveInitiative} setBaseAction={setBaseAction} />
+    {:else if status === "ONGOING"}
+      <EncounterOngoing bind:entityList={entityList} bind:onTurn={onTurn} bind:action={action} bind:status={status} revealRoom={revealRoom} setBaseAction={setBaseAction} getStory={getStory} />
+    {:else if status === "COMPLETED"}
+      <EncounterCompleted {story} />
+    {:else if status === "FAILED"}
+      <EncounterFailed {story} />
+    {/if}
   {/if}
 </main>
 

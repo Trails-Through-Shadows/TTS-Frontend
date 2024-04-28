@@ -1,5 +1,7 @@
 <script lang="ts">
   let adventureId = sessionStorage.getItem('adventureId') ? parseInt(sessionStorage.getItem('adventureId') as string) : 0;
+
+  export let story: string;
 </script>
 
 
@@ -7,8 +9,8 @@
   <div class="card">
     <div class="card-body d-flex flex-column justify-content-center align-items-center">
       <h1 class="card-title">You Failed</h1>
-      <p class="card-text">Now back where you came from!</p>
-      <a class="btn btn-danger" href="/adventure?id={adventureId}">Try Again</a>
+      <p class="card-text">{story}</p>
+      <a class="btn btn-danger" href="/adventure?id={adventureId}">Go Back</a>
     </div>
   </div>
 </div>

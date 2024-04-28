@@ -16,6 +16,7 @@
   export let status: string;
   export let revealRoom: Function;
   export let setBaseAction: Function;
+  export let getStory: Function;
 
   let dragging = false;
 
@@ -36,9 +37,11 @@
         console.log(data);
 
         if (data === "COMPLETED") {
+          getStory();
           status = "COMPLETED";
         }
         else if (data === "FAILED") {
+          getStory();
           status = "FAILED";
         }
         else {
