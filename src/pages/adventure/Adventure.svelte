@@ -31,31 +31,42 @@
 
   let characterList: Character[] = [];
   let locationList: Location[] = [];
-  let encounterList: { id: number, idLocation: number, title: string }[] = [];
+  let encounterList: { id: number, idLocation: number, title: string, state: string }[] = [];
+
+  let locationId = 0;
+  let encounterId = 0;
 
   function handleStartEncounter() {
-  Loading.dots('Loading encounter...');
+    if ((document.getElementById('startTab') as HTMLSelectElement).classList.contains('active')) {
 
-  let locationId = (document.getElementById('startEncounterSelect') as HTMLSelectElement).value;
-
-  if ((document.getElementById('startTab') as HTMLSelectElement).classList.contains('active')) {
-    postRequest(`${api}/encounters/${adventureId}?idLocation=${locationId}`, token, {},
-      (data: any) => {
-        Loading.remove();
-        window.location.href = `/encounter?id=${data.id}`;
-      },
-      (data: any) => {
-        Loading.remove();
-        Notify.failure(data.message);
-        checkToken(data.message);
+      if (locationId === 0) {
+        Notify.failure('Please select a location.');
+        return;
       }
-    );
-  } else if ((document.getElementById('continueTab') as HTMLSelectElement).classList.contains('active')) {
-    let encounterId = (document.getElementById('continueEncounterSelect') as HTMLSelectElement).value;
 
-    window.location.href = `/encounter?id=${encounterId}`;
+      Loading.dots('Loading encounter...');
+
+      postRequest(`${api}/encounters/${adventureId}?idLocation=${locationId}`, token, {},
+        (data: any) => {
+          Loading.remove();
+          window.location.href = `/encounter?id=${data.id}`;
+        },
+        (data: any) => {
+          Loading.remove();
+          Notify.failure(data.message);
+          checkToken(data.message);
+        }
+      );
+    } else if ((document.getElementById('continueTab') as HTMLSelectElement).classList.contains('active')) {
+      
+      if (encounterId === 0) {
+        Notify.failure('Please select an encounter.');
+        return;
+      }
+
+      window.location.href = `/encounter?id=${encounterId}`;
+    }
   }
-}
   
   getRequest(`${api}/adventures/${adventureId}?lazy=false`, token,
     (data: any) => {
@@ -72,7 +83,7 @@
         (data: any) => {
           data = data.object;
           
-          encounterList = data.map((encounter: any) => ({ id: encounter.id, idLocation: encounter.idLocation }));
+          encounterList = data.map((encounter: any) => ({ id: encounter.id, idLocation: encounter.idLocation, title: '', state: encounter.state }));
 
           for (let i = 0; i < encounterList.length; i++) {
             encounterList[i].title = locationList.find(location => location.id === encounterList[i].idLocation)?.title as string;
@@ -134,8 +145,9 @@
         </ul>
         <div class="tab-content" id="encounterTabContent">
           <div class="tab-pane fade show active" id="startEncounter" role="tabpanel" aria-labelledby="startTab">
-            <h5>Start a new encounter</h5>
-            <select class="form-select" id="startEncounterSelect">
+            <h5 class="mt-3">Start a new encounter</h5>
+            <select class="form-select" id="startEncounterSelect" bind:value={locationId}>
+              <option value="{0}" disabled hidden>Select a location</option>
               {#each locationList as location}
                 <option value="{location.id}">{location.title}</option>
               {/each}
@@ -143,10 +155,11 @@
           </div>
           <div class="tab-pane fade" id="continueEncounter" role="tabpanel" aria-labelledby="continueTab">
             {#if encounterList.length !== 0}
-              <h5>Continue an encounter</h5>
-              <select class="form-select" id="continueEncounterSelect">
-                {#each encounterList as location}
-                  <option value="{location.id}">{location.title}</option>
+              <h5 class="mt-3">Continue an encounter</h5>
+              <select class="form-select" id="continueEncounterSelect" bind:value={encounterId} style="color: {encounterId === 0 ? '#bababa' : encounterList.find(encounter => encounter.id === encounterId)?.state === 'FAILED' ? '#c23737' : encounterList.find(encounter => encounter.id === encounterId)?.state === 'COMPLETED' ? '#4fc780' : '#bababa'}">
+                <option value="{0}" disabled hidden>Select an encounter</option>
+                {#each encounterList as encounter}
+                  <option value="{encounter.id}" style="color: {encounter.state === 'FAILED' ? '#c23737' : encounter.state === 'COMPLETED' ? '#4fc780' : '#bababa'}">{encounter.title}</option>
                 {/each}
               </select>
             {/if}
