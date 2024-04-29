@@ -16,7 +16,7 @@
   import EncounterFailed from './Components/EncounterFailed.svelte';
   import EncounterCompleted from './Components/EncounterCompleted.svelte';
   import EncounterStory from './Components/EncounterStory.svelte';
-    import { generateCard } from './Cards/Card';
+  import { generateCard } from './Cards/Card';
 
   Notify.init({
     clickToClose: true
