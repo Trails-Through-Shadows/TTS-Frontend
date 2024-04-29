@@ -6,11 +6,11 @@
   import { generateEffect } from "../Cards/Card";
 
   export let selectedEffects: any;
-
+  
   let effectList: effectType[] = [];
   let effectTargets: any = [];
 
-  type effect = { type: string, strength: number, duration: number, description: string, url: string };
+  type effect = { type: string, strength: number | null, duration: number | null, description: string, url: string };
   type effectType = { title: string, displayTitle: string, description: string, hasDuration: boolean, hasStrength: boolean, isResistance: boolean, url: string };
 
   let isInteractionSliderVisible = true;
@@ -66,10 +66,17 @@
       }
     }
 
+    if (strength === 0) {
+      strength = null;
+    }
+    if (duration === 0) {
+      duration = null;
+    }
+
     let effect: effect = {
       type: selectedEffect.title,
-      strength: strength ? strength : 0,
-      duration: duration ? duration : 0,
+      strength: strength,
+      duration: duration,
       description: selectedEffect.description,
       url: selectedEffect.url
     };
@@ -78,7 +85,7 @@
 
     selectedEffects = selectedEffects;
 
-    //generateEffect(effect, `interactionEffectHolder${selectedEffects.length - 1}`);
+    generateEffect(effect, `interactionEffectHolder${selectedEffects.length - 1}`);
 
     strength = null;
     duration = null;
@@ -126,7 +133,7 @@
       <div class="modal-body">
         <div class="form-group mb-3">
           <label for="effectType">Type</label>
-          <select class="form-select" id="effectType" bind:value={selectedEffect}>
+          <select class="form-select" id="effectType" bind:value={selectedEffect} on:change={() => { strength = null; duration = null; }}>
             {#each effectList as effect}
               {#if effect.isResistance}
                 <option value="{effect}">{effect.displayTitle} Resistance</option>

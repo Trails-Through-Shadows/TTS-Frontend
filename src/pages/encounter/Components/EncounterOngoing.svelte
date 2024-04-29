@@ -2,7 +2,7 @@
   import { api } from "../../../lib/Exports";
   import { Notify, Loading } from "notiflix";
   import { postRequest, checkToken, getRequest } from "../../../lib/Functions";
-  import { generateCard } from "../Cards/Card";
+  import { generateCard, generateEffect } from "../Cards/Card";
   import interact from 'interactjs';
 
   import EncounterCharacter from './EncounterCharacter.svelte';
@@ -21,7 +21,7 @@
 
   let dragging = false;
 
-  type effect = { type: string, strength: number, duration: number, description: string };
+  type effect = { type: string, strength: number, duration: number, description: string, url: string };
 
   let isActionSliderVisible = false;
   let selectedEffects: effect[] = [];
@@ -96,6 +96,7 @@
           entityList = entityList;
 
           setBaseAction();
+          getCharacterEffectImage(entityList[onTurn]);
           isActionSliderVisible = false;
         },
         (data: any) => {
@@ -130,7 +131,9 @@
           
           action = data.action;
           generateCard(action.id, "cardHolder");
-          console.log(action);
+
+          getEnemyEffectImage(entityList[onTurn]);
+          
           isActionSliderVisible = true;
         },
         (data: any) => {
@@ -245,6 +248,50 @@
     }
   }
 
+  function getCharacterEffectImage(entity: any) {
+    const characterEffectHolder = document.getElementById(`characterEffectHolder${entity.entity.id}`);
+
+    if (characterEffectHolder) {
+      while (characterEffectHolder.firstChild) {
+        characterEffectHolder.removeChild(characterEffectHolder.firstChild);
+      }
+
+      for (let i = 0; i < entity.entity.activeEffects.length; i++) {
+        const effectDiv = document.createElement("div");
+        effectDiv.id = `characterEffect${entity.entity.id}-${i}`;
+        effectDiv.classList.add("effect-holder");
+        effectDiv.classList.add("col-6");
+        characterEffectHolder.appendChild(effectDiv);
+
+        generateEffect(entity.entity.activeEffects[i], `characterEffect${entity.entity.id}-${i}`);
+      }
+    } else 
+      console.error(`characterEffectHolder${entity.entity.id}`);
+  }
+
+  function getEnemyEffectImage(entity: any) {
+    for (let i = 0; i < entity.entity.enemy.length; i++) {
+      const enemyEffectHolder = document.getElementById(`enemyEffectHolder${entity.entity.id}-${i}`);
+
+      if (enemyEffectHolder) {
+        while (enemyEffectHolder.firstChild) {
+          enemyEffectHolder.removeChild(enemyEffectHolder.firstChild);
+        }
+
+        for (let j = 0; j < entity.entity.enemy[i].activeEffects.length; j++) {
+          const effectDiv = document.createElement("div");
+          effectDiv.id = `enemyEffect${entity.entity.id}-${i}-${j}`;
+          effectDiv.classList.add("effect-holder");
+          effectDiv.classList.add("col-6");
+          enemyEffectHolder.appendChild(effectDiv);
+
+          generateEffect(entity.entity.enemy[i].activeEffects[j], `enemyEffect${entity.entity.id}-${i}-${j}`);
+        }
+      } else 
+        console.error(`enemyEffectHolder${entity.entity.id}-${i}`);
+    }
+  }
+
   interact('.dropzone').dropzone({
     ondropactivate(event) {
       event.relatedTarget.classList.add('moving');
@@ -289,6 +336,8 @@
 
               entityList = entityList;
 
+              getCharacterEffectImage(entity);
+
               Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId}, with damage: ${damage}.`);
             });
           },
@@ -323,6 +372,8 @@
               }
 
               entityList = entityList;
+
+              getEnemyEffectImage(entity);
 
               Notify.success(`Attacked entity of type: ${entityType}, with ID: ${entityId} and enemy ID: ${enemyId}, with damage: ${damage}.`);
             });
@@ -363,9 +414,9 @@
     <div class="row">
       {#each entityList as entity, index}
         {#if entity.type === 'CHARACTER'}
-          <EncounterCharacter bind:entity={entity} index={index} onTurn={onTurn} bind:dragging={dragging} />
+          <EncounterCharacter bind:entity={entity} index={index} onTurn={onTurn} bind:dragging={dragging} getEffectImage={getCharacterEffectImage} />
         {:else if entity.type === 'ENEMY'}
-          <EncounterEnemy bind:entity={entity} index={index} onTurn={onTurn} bind:dragging={dragging} />
+          <EncounterEnemy bind:entity={entity} index={index} onTurn={onTurn} bind:dragging={dragging} getEffectImage={getEnemyEffectImage} />
         {/if}
       {/each}
     </div>

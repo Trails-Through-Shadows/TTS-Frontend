@@ -10,9 +10,13 @@ function drawEffect(draw: Svg, effect: { url: any; duration: string | null; stre
 
     if (effect.duration == null) {
         effect.duration = "-";
+    } else if (effect.duration == "-1") {
+        effect.duration = "∞";
     }
     if (effect.strength == null) {
         effect.strength = "-";
+    } else if (effect.strength == "-1") {
+        effect.strength = "∞";
     }
 
     let durationText = draw.text(effect.duration).font({

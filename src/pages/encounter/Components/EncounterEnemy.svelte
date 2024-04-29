@@ -1,11 +1,16 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import ScrollingText from "../../../lib/Components/ScrollingText.svelte";
 
   export let entity: any;
   export let index: number;
   export let onTurn: number;
-
   export let dragging: boolean;
+  export let getEffectImage: Function;
+
+  onMount(() => {
+    getEffectImage(entity);
+  });
 </script>
 
 
@@ -38,9 +43,7 @@
           </div>
         </div>
         <div class="{index === onTurn ? 'col-8' : 'col-7'}">
-          {#each enemy.activeEffects as effect}
-            <p>{effect.type} {effect.strength} {effect.duration}</p>
-          {/each}
+          <div class="row" id="enemyEffectHolder{entity.entity.id}-{enemy.id - 1}" />
         </div>
       </div>
     </div>

@@ -57,7 +57,7 @@
     }
   }
 
-  type effect = { type: string, strength: number, duration: number, description: string };
+  type effect = { type: string, strength: number, duration: number, description: string, url: string };
 
   type baseCharacter = { id: number, title: string, playerName: string, health: number, defence: number, baseInitiative: number, activeEffects: effect[], url:string };
   type baseEnemy = { id: number, idGroup:number, title: string, health: number, initiative: number, url: string };

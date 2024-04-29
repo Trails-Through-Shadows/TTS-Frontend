@@ -60,3 +60,15 @@ main {
 .moving {
   opacity: 0.75;
 }
+
+.effect-holder {
+  scale: .5;
+  transform-origin: 0;
+  -webkit-transform-origin-y: top;
+  -webkit-transform-origin-x: left;
+  filter: invert(1);
+}
+
+.big-card .effect-holder {
+  scale: .75
+}
