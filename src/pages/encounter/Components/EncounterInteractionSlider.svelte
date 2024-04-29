@@ -78,7 +78,7 @@
 
     selectedEffects = selectedEffects;
 
-    generateEffect(effect, `interactionEffectHolder${selectedEffects.length - 1}`);
+    //generateEffect(effect, `interactionEffectHolder${selectedEffects.length - 1}`);
 
     strength = null;
     duration = null;

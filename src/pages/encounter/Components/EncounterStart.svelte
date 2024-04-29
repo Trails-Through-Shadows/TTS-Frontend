@@ -2,6 +2,7 @@
   import { api } from "../../../lib/Exports";
   import { Notify } from "notiflix";
   import { postRequest, checkToken } from "../../../lib/Functions";
+  import { generateCard } from "../Cards/Card";
 
   import ScrollingText from "../../../lib/Components/ScrollingText.svelte";
   import Bottombar from "../../../lib/Components/Bottombar.svelte";
@@ -56,6 +57,8 @@
               postRequest(`${api}/encounters/${encounterId}/turn/enemy/${entityList[0].id}/start`, token, {},
                 (data: any) => {
                   action = data.object.action;
+                  generateCard(action.id, "cardHolder");
+                  console.log(action);
                 },
                 (data: any) => {
                   Notify.failure(data.message);

@@ -87,6 +87,7 @@ export async function generateEffect(effect: any, parentId: string) {
     }
 
     console.log("Effect: ", effect);
+    console.log("ParentId: ", parentId);
 
     let draw = SVG().addTo('#' + parentId).size(105, 72);
 
