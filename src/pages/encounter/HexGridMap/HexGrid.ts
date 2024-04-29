@@ -54,6 +54,13 @@ export class HexGrid {
             }
 
             this.redraw();
+            if (hex) {
+                const loc = hex.coords.to2D(this.hexSize);
+                const entity = this.entities.find(entity => entity.coords.equals(hex.coords));
+                if (entity) {
+                    this.canvas.tooltip(entity.title, loc.x + offset.x, loc.y + offset.y);
+                }
+            }
         });
     }
 

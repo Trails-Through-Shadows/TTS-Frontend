@@ -107,6 +107,41 @@ import type { BoundingBox } from "./HexGrid";
             }
         }
 
+        public tooltip(text: string, x: number, y: number): void {
+            // Draw tooltip box that will contain the text
+            const ctx = this.getContext();
+            ctx.fillStyle = Color.fromHEX('#222').toRGB();
+            ctx.strokeStyle = Color.fromHEX('#222').toRGB();
+            ctx.lineWidth = 1;
+            ctx.shadowBlur = 2;
+
+            const padding = 10;
+            const width = ctx.measureText(text).width + padding * 2;
+            const height = 5 + padding * 2;
+            const posX = x - width / 2;
+            const posY = y - height - 38;
+
+            ctx.beginPath();
+            ctx.moveTo(posX, posY);
+            ctx.lineTo(posX + width, posY);
+            ctx.lineTo(posX + width, posY + height);
+            ctx.lineTo(posX, posY + height);
+            ctx.closePath();
+
+            ctx.fill();
+            ctx.stroke();
+
+            // Reset shadow
+            ctx.shadowBlur = 0;
+
+            // Draw text
+            ctx.fillStyle = Color.fromHEX('#bababa').toRGB();
+            ctx.font = '1em Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y - 50);
+        }
+
         public clear(): void {
             const ctx = this.getContext();
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

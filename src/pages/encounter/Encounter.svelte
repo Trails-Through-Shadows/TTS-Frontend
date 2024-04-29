@@ -138,8 +138,10 @@
           hexGrid.addHexes(doors);
         }
 
-        for (let startingHex of data.startingHexes) {
-          hexGrid.addStartHex(new CubeCoordinate(startingHex.q, startingHex.r, startingHex.s));
+        if (data.startingHexes) {
+          for (let startingHex of data.startingHexes) {
+            hexGrid.addStartHex(new CubeCoordinate(startingHex.q, startingHex.r, startingHex.s));
+          }
         }
 
         hexGrid.getImages();
