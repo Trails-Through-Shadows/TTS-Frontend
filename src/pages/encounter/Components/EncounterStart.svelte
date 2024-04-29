@@ -28,10 +28,11 @@
     let charInitiative: { id: number, initiative: number }[] = [];
 
     for (let i = 0; i < characterList.length; i++) {
-      if (isNaN(selectedOptions[i]) && selectedOptions[i] !== "CRIT" && selectedOptions[i] !== "MISS") {
+      if (selectedOptions[i] == "" || (isNaN(selectedOptions[i]) && selectedOptions[i] !== "CRIT" && selectedOptions[i] !== "MISS")) {
         Notify.failure("All characters must have an initiative value.");
         return;
       }
+
       charInitiative.push({ id: characterList[i].id, initiative: selectedOptions[i] === "CRIT" ? 10 : selectedOptions[i] === "MISS" ? -10 : parseInt(selectedOptions[i]) });
     }
 
@@ -98,7 +99,7 @@
                     <div class="d-flex align-items-end">
                       <input type="text" class="form-control form-control-sm stat-input" value={characterList[index].baseInitiative} disabled />
                       <select class="form-control stat-input {selectedOptions[index] === 'CRIT' || selectedOptions[index] === 'MISS' ? 'small-font' : ''}" on:change={(e) => handleSelectChange(e, index)}>
-                        <option value="" selected disabled hidden>?</option>
+                        <option value="?" selected disabled hidden>?</option>
                         {#each ["CRIT", "+5", "+4", "+3", "+2", "+1", "+0", "-1", "-2", "-3", "MISS"] as value}
                           <option value={value}>{value}</option>
                         {/each}
