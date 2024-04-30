@@ -6,6 +6,7 @@
   import { CubeCoordinate } from './HexGridMap/Coordinate';
   import { getRequest, postRequest, checkToken } from '../../lib/Functions';
   import { Notify, Loading } from "notiflix";
+  import { generateCard } from './Cards/Card';
 
   import Navbar from '../../lib/Components/Navbar.svelte';
   import LogoutButton from '../../lib/Components/LogoutButton.svelte';
@@ -16,7 +17,6 @@
   import EncounterFailed from './Components/EncounterFailed.svelte';
   import EncounterCompleted from './Components/EncounterCompleted.svelte';
   import EncounterStory from './Components/EncounterStory.svelte';
-  import { generateCard } from './Cards/Card';
 
   Notify.init({
     clickToClose: true

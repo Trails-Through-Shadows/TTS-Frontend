@@ -11,7 +11,6 @@
   onMount(() => {
     getEffectImage(entity);
   });
-
 </script>
 
 
