@@ -85,8 +85,6 @@
 
     selectedEffects = selectedEffects;
 
-    generateEffect(effect, `interactionEffectHolder${selectedEffects.length - 1}`);
-
     strength = null;
     duration = null;
   }
@@ -109,7 +107,7 @@
       <div class="row">
         {#each selectedEffects as effect, index}
           <div class="col">
-            <button class="btn btn-danger" on:click={() => handleRemoveEffect(index)}><div class="effect-holder" id="interactionEffectHolder{index}" /></button>
+            <button class="btn btn-danger" on:click={() => handleRemoveEffect(index)}><img class="effect-symbol" src="{effect.url}" alt="{effect.description}"/></button>
           </div>
         {/each}
         {#if selectedEffects.length < 5}
@@ -341,5 +339,11 @@
 
   h5 {
     color: white;
+  }
+
+  .effect-symbol {
+    width: 30px;
+    height: 30px;
+    filter: invert(1);
   }
 </style>
