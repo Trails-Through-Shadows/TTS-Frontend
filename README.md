@@ -1,7 +1,6 @@
 # TTS-Frontend
 
-This repository contains the code for the TTS Frontend. <br>
-??? TODO: @Myrče, @Barče
+This repository contains the code for the TTS Frontend. It allows players to interact with the game world, create characters, adventures and actually play the game.
 
 ## Setup
 - Clone the repository
@@ -26,3 +25,11 @@ This repository contains the code for the TTS Frontend. <br>
 
 ## Documentation
 - [Frontend Documentation](https://docs.tts-game.fun/frontend)
+
+## Showcase
+
+Here are some images of the frontend in action:
+
+![Characters](.readme_example/characters.png)
+![Encounter](.readme_example/encounter.png)
+![Map](.readme_example/map.png)
