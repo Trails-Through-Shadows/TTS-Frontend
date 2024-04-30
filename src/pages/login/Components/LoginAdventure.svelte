@@ -3,6 +3,7 @@
   import LoginAdventureCard from "./LoginAdventureCard.svelte";
   import LoginAdventureCreate from "./LoginAdventureCreate.svelte";
   import LoginAdventureEditModal from "./LoginAdventureEditModal.svelte";
+  import LoginAdventureCreateModal from "./LoginAdventureCreateModal.svelte";
 
   export let adventureList: Adventure[] = [];
   export let campaignList: Campaign[] = [];
@@ -14,7 +15,7 @@
       <LoginAdventureCard bind:adventureList={adventureList} index={index} />
     {/each}
     {#if adventureList.length < 8}
-      <LoginAdventureCreate bind:adventureList={adventureList} bind:campaignList={campaignList} />
+      <LoginAdventureCreate />
     {/if}
   </div>
 </div>
@@ -22,3 +23,5 @@
 {#each adventureList as adventure, index}
   <LoginAdventureEditModal bind:adventureList={adventureList} index={index} />
 {/each}
+
+<LoginAdventureCreateModal bind:adventureList={adventureList} bind:campaignList={campaignList} />
