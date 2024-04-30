@@ -39,6 +39,8 @@
   .card-text {
     color: #4fc780;
     font-size: 2rem;
+    text-align: center;
+    padding: 0 3vw;
   }
 
   @keyframes come-down {

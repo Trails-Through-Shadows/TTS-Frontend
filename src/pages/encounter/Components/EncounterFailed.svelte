@@ -33,9 +33,10 @@
 
   .card-title {
     color: #c23737;
-    font-size: 5rem;
+    font-size: 2rem;
+    text-align: center;
+    padding: 0 3vw;
   }
-
   .card-text {
     color: #c23737;
     font-size: 2rem;
