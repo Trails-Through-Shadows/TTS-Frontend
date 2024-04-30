@@ -8,7 +8,7 @@
   export let campaignList: Campaign[] = [];
 </script>
 
-<div class="container-fluid content">
+<div class="container-fluid content" data-simplebar>
   <div class="row w-100">
     {#each adventureList as adventure, index}
       <LoginAdventureCard bind:adventureList={adventureList} index={index} />
