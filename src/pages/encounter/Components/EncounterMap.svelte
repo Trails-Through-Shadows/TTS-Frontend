@@ -3,17 +3,8 @@
 
   export let isMapSliderVisible: boolean;
   export let hexGridList: HexGrid[] = [];
-  export let currentMap: number;
   export let canvasRoot: HTMLCanvasElement;
-
-  function display(id: number) {
-    hexGridList[currentMap].setDisplayed(false);
-
-    currentMap = id;
-
-    hexGridList[id].setDisplayed(true);
-    hexGridList[id].redraw();
-  }
+  export let display: Function;
 </script>
 
 

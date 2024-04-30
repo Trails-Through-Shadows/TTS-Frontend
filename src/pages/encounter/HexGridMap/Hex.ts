@@ -19,6 +19,7 @@ export class Hex {
     public vertices: Vertex[] = [];
     public isStart: boolean = false;
     public isDoor: boolean = false;
+    public isOpen?: boolean;
     public entityImage?: HTMLImageElement;
 
     constructor(

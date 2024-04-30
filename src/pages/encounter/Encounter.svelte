@@ -90,6 +90,7 @@
   type door = { key: { idPartFrom: number, idPartTo: number }, q: number, r: number, s: number };
 
   let openedDoor: door;
+  let openedDoors: door[] = [];
 
   let story: string = "";
 
@@ -201,8 +202,17 @@
 
             openedDoor = door;
             showConfirmModal = true;
+          },
+          (hex: Hex) => {
+            let hexGrid = hexGridList.find((hexGrid) => hexGrid.id === hex.id);
+
+            if (hexGrid) {
+              display(hexGridList.indexOf(hexGrid));
+            }
           });
         });
+
+        openDoors();
       },
       (data: any) => {
         Notify.failure(data.message);
@@ -221,6 +231,20 @@
         checkToken(data.message);
       }
     );
+  }
+
+  function openDoors() {
+    for (let door of openedDoors) {
+      let hexGrid = hexGridList.find((hexGrid) => hexGrid.id === door.key.idPartFrom);
+
+      if (hexGrid) {
+        let hex = hexGrid.getHexAt(new CubeCoordinate(door.q, door.r, door.s));
+
+        if (hex !== undefined) {
+          hexGrid.openDoor(hex);
+        }
+      }
+    }
   }
 
   function receiveInitiative(callback: Function = (data: any) => {}) {
@@ -293,6 +317,13 @@
             if (!added) {
               enemyGroupList.push({ id: enemy.idGroup, enemy: [enemy] });
             }
+          }
+        }
+
+        openedDoors = [];
+        for (let door of data.doors) {
+          if (door.opened) {
+            openedDoors.push(door);
           }
         }
 
@@ -438,6 +469,13 @@
       else if (data.state === "FAILED") {
         status = "FAILED";
       }
+
+      openedDoors = [];
+      for (let door of data.doors) {
+        if (door.opened) {
+          openedDoors.push(door);
+        }
+      }
       
       Loading.remove();
     },
@@ -456,6 +494,15 @@
     isMapSliderVisible = !isMapSliderVisible;
   }
 
+  function display(id: number) {
+    hexGridList[currentMap].setDisplayed(false);
+
+    currentMap = id;
+
+    hexGridList[id].setDisplayed(true);
+    hexGridList[id].redraw();
+  }
+
 </script>
 
 
@@ -467,7 +514,7 @@
 </Navbar>
 
 
-<EncounterMap bind:isMapSliderVisible={isMapSliderVisible} bind:hexGridList={hexGridList} bind:currentMap={currentMap} bind:canvasRoot={canvasRoot} />
+<EncounterMap bind:isMapSliderVisible={isMapSliderVisible} bind:hexGridList={hexGridList} bind:canvasRoot={canvasRoot} display={display} />
 
 
 <main>

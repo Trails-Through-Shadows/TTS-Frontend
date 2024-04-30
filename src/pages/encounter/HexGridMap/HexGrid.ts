@@ -20,7 +20,8 @@ type HexEntity = {
 export class HexGrid {
     public hoveredHex: Hex | null = null;
     public entities: HexEntity[] = [];
-    public doorImage: HTMLImageElement = new Image();
+    public doorImageClosed: HTMLImageElement = new Image();
+    public doorImageOpened: HTMLImageElement = new Image();
 
     public displayed: boolean = false;
 
@@ -32,7 +33,8 @@ export class HexGrid {
         private borderImage: any,
         private hexSize: number,
     ) {
-        this.doorImage.src = 'assets/door.png';
+        this.doorImageClosed.src = 'assets/door.png';
+        this.doorImageOpened.src = 'assets/door_open.png';
 
         this.canvas.addOnMouseHoverListener((x: number, y: number) => {
             if (this.canvas.isLoading() || !this.displayed) {
@@ -60,11 +62,21 @@ export class HexGrid {
                 if (entity) {
                     this.canvas.tooltip(entity.title, loc.x + offset.x, loc.y + offset.y);
                 }
+
+                const door = this.hexes.find(h => h.isDoor && h.coords.equals(hex.coords));
+                if (door) {
+                    if (!door.isOpen) {
+                        this.canvas.tooltip('Click to open', loc.x + offset.x, loc.y + offset.y);
+                    }
+                    else {
+                        this.canvas.tooltip('Click to enter', loc.x + offset.x, loc.y + offset.y);
+                    }
+                }
             }
         });
     }
 
-    onClick(x: number, y: number, successCallback: Function): void {
+    onClick(x: number, y: number, openCallback: Function, switchCallback: Function): void {
         if (this.canvas.isLoading() || !this.displayed) {
             return;
         }
@@ -75,7 +87,12 @@ export class HexGrid {
 
         if (hex) {
             if (hex.isDoor) {
-                successCallback(hex);
+                if (!hex.isOpen) {
+                    openCallback(hex);
+                }
+                else {
+                    switchCallback(hex);
+                }
             }
         }
     }
@@ -157,7 +174,16 @@ export class HexGrid {
 
     bindDoors(): void {
         const doorHexes = this.hexes.filter(hex => hex.isDoor);
-        doorHexes.forEach(hex => hex.setEntityImage(this.doorImage));
+
+        for (let i = 0; i < doorHexes.length; i++) {
+            doorHexes[i].setEntityImage(this.doorImageClosed);
+            doorHexes[i].isOpen = false;
+        }
+    }
+
+    openDoor(hex: Hex): void {
+        hex.setEntityImage(this.doorImageOpened);
+        hex.isOpen = true;
     }
 
     redraw(): void {
