@@ -264,7 +264,7 @@ export async function generateCard(actionId: number, parentId: string): Promise<
         currentWidthOffset += drawIcon(draw, "range", "Range", action.attack.range, currentWidthOffset, currentHeightOffset);
 
         let hasArea = action.attack.area != null && action.attack.area != "1" && action.attack.area != "0";
-        let hasNumber = action.attack.numberOfAttacks != null && action.attack.numberOfAttacks != "1";
+        let hasNumber = action.attack.numAttacks != null && action.attack.numAttacks != "1";
 
         if (hasArea || hasNumber) {
             currentHeightOffset += 80;
@@ -279,7 +279,7 @@ export async function generateCard(actionId: number, parentId: string): Promise<
                 currentWidthOffset += drawIcon(draw, "area", "Area", action.attack.area, currentWidthOffset, currentHeightOffset);
             }
             if (hasNumber) {
-                currentWidthOffset += drawIcon(draw, "attackCount", "Count", action.attack.numberOfAttacks, currentWidthOffset, currentHeightOffset);
+                currentWidthOffset += drawIcon(draw, "attackCount", "Count", action.attack.numAttacks, currentWidthOffset, currentHeightOffset);
             }
         }
 
