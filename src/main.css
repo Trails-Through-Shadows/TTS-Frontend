@@ -72,3 +72,19 @@ main {
 .big-card .effect-holder {
   scale: .75
 }
+
+@media (max-width: 1400px) {
+  .effect-holder {
+    scale: .35;
+  }
+
+  .big-card .effect-holder {
+    scale: .5;
+  }
+}
+
+@media (max-width: 576px) {
+  .big-card .effect-holder {
+    scale: .75;
+  }
+}

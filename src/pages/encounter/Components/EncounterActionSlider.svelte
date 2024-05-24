@@ -68,8 +68,7 @@
   }
 
   .action-slider {
-    left: 89%;
-    transform: translateX(-50%);
+    right: 5px;
     width: 394px;
     max-width: 100%;
   }
@@ -91,5 +90,12 @@
     transform-origin: 0;
     -webkit-transform-origin-y: top;
     -webkit-transform-origin-x: left;
+  }
+
+  @media (max-width: 659px)
+  {
+    .bottom-slider {
+      bottom: -588px;
+    }
   }
 </style>

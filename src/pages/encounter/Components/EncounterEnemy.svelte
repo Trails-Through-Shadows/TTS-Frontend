@@ -82,7 +82,7 @@
   }
 
   .big-card .stat-container h5 {
-    font-size: 2vw;
+    font-size: 2.4vw;
   }
 
   .stat-image {
@@ -157,6 +157,34 @@
     .col-2 {
       width: 29.4%;
     }
+
+    .stat-image {
+      width: 2.25vw;
+    }
+
+    .big-card .stat-image {
+      width: 3.5vw;
+    }
+
+    .stat-container h5 {
+      font-size: 1.8vw;
+    }
+
+    .big-card .stat-container h5 {
+      font-size: 2.8vw;
+    }
+
+    .card-footer {
+      min-height: 3vw;
+    }
+
+    .big-card .card-footer {
+      min-height: 4.5vw;
+    }
+
+    .stat-text {
+      font-size: 1.5vw;
+    }
   }
 
   @media (max-width: 992px) {
@@ -166,6 +194,34 @@
 
     .col-2 {
       width: 35.7%;
+    }
+
+    .stat-image {
+      width: 2.5vw;
+    }
+
+    .big-card .stat-image {
+      width: 4vw;
+    }
+
+    .stat-container h5 {
+      font-size: 2vw;
+    }
+
+    .big-card .stat-container h5 {
+      font-size: 3.2vw;
+    }
+
+    .card-footer {
+      min-height: 4vw;
+    }
+
+    .big-card .card-footer {
+      min-height: 5vw;
+    }
+
+    .stat-text {
+      font-size: 1.8vw;
     }
   }
 
@@ -177,6 +233,34 @@
     .col-2 {
       width: 45.45%;
     }
+
+    .stat-image {
+      width: 3vw;
+    }
+
+    .big-card .stat-image {
+      width: 5vw;
+    }
+
+    .stat-container h5 {
+      font-size: 2.4vw;
+    }
+
+    .big-card .stat-container h5 {
+      font-size: 4vw;
+    }
+
+    .card-footer {
+      min-height: 5vw;
+    }
+
+    .big-card .card-footer {
+      min-height: 6.5vw;
+    }
+
+    .stat-text {
+      font-size: 2vw;
+    }
   }
 
   @media (max-width: 576px) {
@@ -186,6 +270,34 @@
 
     .col-2 {
       width: 100%;
+    }
+
+    .stat-image {
+      width: 8vw;
+    }
+
+    .big-card .stat-image {
+      width: 12vw;
+    }
+
+    .stat-container h5 {
+      font-size: 5.33vw;
+    }
+
+    .big-card .stat-container h5 {
+      font-size: 9.6vw;
+    }
+
+    .card-footer {
+      min-height: 10vw;
+    }
+
+    .big-card .card-footer {
+      min-height: 14vw;
+    }
+
+    .stat-text {
+      font-size: 3.5vw;
     }
   }
 </style>

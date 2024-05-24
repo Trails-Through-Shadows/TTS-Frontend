@@ -4,8 +4,8 @@
 </script>
 
 
-<div class="container-fluid content come-down">
-  <div class="card">
+<div class="container-fluid content come-down" data-simplebar>
+  <div class="container-fluid card d-flex flex-column justify-content-center align-items-center">
     <div class="card-body d-flex flex-column justify-content-center align-items-center">
       <p class="card-text">{story}</p>
       <button class="btn btn-success" on:click={() => isStoryVisible = false}>Onward</button>
@@ -20,10 +20,10 @@
     justify-content: center;
     align-items: center;
     animation: come-down 1s ease-out;
+    padding-top: 10vh;
   }
 
   .card {
-    height: 75vh;
     width: calc(100vw - 20vh);
     background-color: rgba(0, 0, 0, 0.8);
     border-radius: 25px;

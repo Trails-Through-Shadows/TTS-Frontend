@@ -3,7 +3,6 @@
   import { getRequest } from "../../../lib/Functions";
   import { Notify } from "notiflix";
   import EncounterNumpad from "./EncounterNumpad.svelte";
-  import { generateEffect } from "../Cards/Card";
 
   export let selectedEffects: any;
   
@@ -212,8 +211,7 @@
   }
 
   .interaction-slider {
-    left: 71%;
-    transform: translateX(-50%);
+    right: 404px;
     width: 250px;
     max-width: 100%;
   }
@@ -345,5 +343,16 @@
     width: 30px;
     height: 30px;
     filter: invert(1);
+  }
+
+  @media (max-width: 659px)
+  {
+    .bottom-slider {
+      bottom: -377px;
+    }
+
+    .interaction-slider {
+      left: 5px;
+    }
   }
 </style>
